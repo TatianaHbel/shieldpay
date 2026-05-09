@@ -1,0 +1,131 @@
+:root {
+  /* ── Brand palette ───────────────────────────────────────── */
+  --color-ice-white: #F5F6FC;
+  --color-blue: #3748FF;
+  --color-midnight: #14141A;
+  --color-lime: #CEFF1C;
+
+  /* ── Surfaces ────────────────────────────────────────────── */
+  --color-surface: #F5F6FC;
+  --color-surface-raised: #FFFFFF;
+  --color-surface-subtle: #ECEDF5;
+  --color-border: #E2E3EE;
+
+  /* ── Text ────────────────────────────────────────────────── */
+  --color-text-primary: #14141A;
+  --color-text-secondary: #6B6C80;
+
+  /* ── Semantic brand ──────────────────────────────────────── */
+  --color-public: #3748FF;
+  --color-shielded: #6D28D9;
+  --color-accent: #CEFF1C;
+
+  /* ── Status ──────────────────────────────────────────────── */
+  --color-success: #5BB81E;
+  --color-warning: #F5CF00;
+  --color-error: #B91C1C;
+  --color-processing: #3748FF;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #fafafa;
+
+  /* ── Typography ──────────────────────────────────────────── */
+  --text-display: 32px;
+  --text-heading: 20px;
+  --text-body: 16px;
+  --text-small: 14px;
+  --text-mono: 13px;
+
+  /* V2 heading scale (Inter) */
+  --text-h1: 48px;
+  --text-h2: 36px;
+  --text-h3: 30px;
+  --text-h4: 24px;
+  --text-h5: 20px;
+  --text-h6: 16px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* ── Border radius ───────────────────────────────────────── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+  --radius: var(--radius-lg);
+
+  /* ── Elevation ───────────────────────────────────────────── */
+  --shadow-sm: 0 1px 3px rgba(20, 20, 26, 0.06), 0 1px 2px rgba(20, 20, 26, 0.04);
+  --shadow-md: 0 4px 8px rgba(20, 20, 26, 0.08), 0 2px 4px rgba(20, 20, 26, 0.04);
+  --shadow-lg: 0 8px 24px rgba(20, 20, 26, 0.10), 0 4px 8px rgba(20, 20, 26, 0.06);
+  --shadow-xl: 0 16px 48px rgba(20, 20, 26, 0.14), 0 8px 16px rgba(20, 20, 26, 0.08);
+
+  /* ── Motion — duration ───────────────────────────────────── */
+  --duration-instant: 0ms;
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+
+  /* ── Motion — easing ─────────────────────────────────────── */
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Layout ──────────────────────────────────────────────── */
+  --layout-nav-height: 61px;
+  --layout-sidebar-width: 220px;
+  --layout-right-panel-width: 380px;
+  --layout-ds-sidebar-width: 240px;
+
+  /* ── Gradients ───────────────────────────────────────────── */
+  --gradient-brand: linear-gradient(135deg, #3748FF, #6D28D9);
+  --gradient-accent: linear-gradient(135deg, #CEFF1C, #3748FF);
+  --gradient-surface: linear-gradient(180deg, #F5F6FC, #ECEDF5);
+
+  /* ── Spacing (4px base grid) ─────────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-9: 36px;
+  --space-10: 40px;
+  --space-11: 44px;
+  --space-12: 48px;
+}
+
+/* ── Dark mode overrides ─────────────────────────────────── */
+.dark {
+  --color-surface: #0F0F14;
+  --color-surface-raised: #1A1A22;
+  --color-surface-subtle: #22222E;
+  --color-border: #2E2E3E;
+  --color-text-primary: #F5F6FC;
+  --color-text-secondary: #9E9FB0;
+  --gradient-surface: linear-gradient(180deg, #0F0F14, #1A1A22);
+}
+
+
+@keyframes pulse-badge {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
