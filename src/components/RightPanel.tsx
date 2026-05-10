@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ExternalLink, Zap, CheckCircle, AlertCircle, AlertTriangle, X, QrCode, ArrowLeft, ChevronDown, Shield } from 'lucide-react'
+import { ExternalLink, Zap, CheckCircle, AlertCircle, AlertTriangle, X, QrCode, ArrowLeft, ArrowDown, ChevronDown } from 'lucide-react'
 import { PhaseIndicator } from './PhaseIndicator'
 import { Button } from './Button'
 import { TextField } from './TextField'
@@ -307,7 +307,7 @@ function ConverterDivider() {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         boxShadow: 'var(--shadow-sm)',
       }}>
-        <Shield size={15} color="var(--color-text-secondary)" />
+        <ArrowDown size={15} color="var(--color-text-secondary)" />
       </div>
     </div>
   )
@@ -429,16 +429,22 @@ function EtherscanLink({ txHash }: { txHash: string }) {
 
 // ── Tab bar ────────────────────────────────────────────────────────────────
 
-const TABS: { id: OperationType; label: string }[] = [
+type TabId = 'shield' | 'unshield' | 'send' | 'receive'
+
+const PRIVACY_TABS: { id: TabId; label: string }[] = [
   { id: 'shield', label: 'Shield' },
-  { id: 'send', label: 'Send' },
   { id: 'unshield', label: 'Unshield' },
 ]
 
-function TabBar({ active, onChange }: { active: OperationType; onChange: (id: OperationType) => void }) {
+const TRANSFER_TABS: { id: TabId; label: string }[] = [
+  { id: 'send', label: 'Send' },
+  { id: 'receive', label: 'Receive' },
+]
+
+function TabBar({ tabs, active, onChange }: { tabs: { id: TabId; label: string }[]; active: TabId; onChange: (id: TabId) => void }) {
   return (
     <div style={{ display: 'flex', borderBottom: '1px solid var(--color-border)', marginBottom: '24px' }}>
-      {TABS.map(t => {
+      {tabs.map(t => {
         const isActive = t.id === active
         return (
           <button
@@ -553,7 +559,7 @@ function SendForm({ preparing, onSubmit }: {
 }) {
   const [amount, setAmount] = useState('')
   const [recipient, setRecipient] = useState('')
-  const [selectedToken, setSelectedToken] = useState<TokenOption>(SHIELDED_TOKENS[0])
+  const [selectedToken, setSelectedToken] = useState<TokenOption>(PUBLIC_TOKENS[0])
   const [picking, setPicking] = useState(false)
 
   const a = parseFloat(amount) || 0
@@ -562,10 +568,17 @@ function SendForm({ preparing, onSubmit }: {
   const recErr = recipient && !recipient.startsWith('0x') ? 'Enter a valid Ethereum address.' : undefined
   const isReady = a > 0 && !amtErr && recipient.startsWith('0x')
 
+  const balanceLabel = selectedToken.isShielded ? 'Shielded balance' : 'Public balance'
+  const addressHint = selectedToken.isShielded
+    ? 'The recipient needs a ShieldPay-compatible app to access shielded funds.'
+    : `Any Ethereum address that can hold ${selectedToken.symbol}.`
+  const feeTime = selectedToken.isShielded ? '~2–3 min' : '~30 sec'
+  const sendLabel = selectedToken.isShielded ? 'Send shielded' : 'Send'
+
   if (picking) {
     return (
       <TokenPicker
-        tokens={SHIELDED_TOKENS}
+        tokens={ALL_TOKENS}
         title="Select token to send"
         onSelect={t => { setSelectedToken(t); setAmount(''); setPicking(false) }}
         onBack={() => setPicking(false)}
@@ -595,9 +608,14 @@ function SendForm({ preparing, onSubmit }: {
           <div style={{ flex: 1, textAlign: 'left' }}>
             <div style={{ fontSize: 'var(--text-small)', fontWeight: 600, color: 'var(--color-text-primary)' }}>
               {selectedToken.symbol}
+              {selectedToken.isShielded && (
+                <span style={{ marginLeft: '6px', fontSize: '11px', fontWeight: 500, color: 'var(--color-blue)', background: 'rgba(55,72,255,0.08)', padding: '1px 6px', borderRadius: '4px' }}>
+                  Shielded
+                </span>
+              )}
             </div>
             <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-              Balance: {selectedToken.balance} {selectedToken.symbol}
+              {balanceLabel}: {selectedToken.balance} {selectedToken.symbol}
             </div>
           </div>
           <ChevronDown size={16} color="var(--color-text-secondary)" />
@@ -606,30 +624,35 @@ function SendForm({ preparing, onSubmit }: {
       <div style={{ marginBottom: '12px' }}>
         <TextField label="To" placeholder="0x recipient address…" value={recipient}
           onChange={e => setRecipient(e.target.value)} error={recErr}
-          hint="The recipient must support shielded tokens."
+          hint={addressHint}
         />
       </div>
-      <SectionLabel>From · Shielded balance · {selectedToken.balance} {selectedToken.symbol}</SectionLabel>
+      {selectedToken.isShielded && recipient.startsWith('0x') && !recErr && (
+        <CautionNote>
+          Shielded funds are only visible in apps that support confidential tokens. The recipient won't see them in a standard wallet.
+        </CautionNote>
+      )}
+      <SectionLabel>From · {balanceLabel} · {selectedToken.balance} {selectedToken.symbol}</SectionLabel>
       <TextField label="Amount" placeholder="0.00" inputMode="decimal" value={amount}
         onChange={e => setAmount(e.target.value)} error={amtErr}
         rightIcon={<span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-secondary)' }}>{selectedToken.symbol}</span>}
       />
       {isReady && (
         <FeeTable rows={[
-          { label: 'Network fee', value: '~0.003 ETH' },
-          { label: 'Time', value: '~2–3 min' },
+          { label: 'Network fee', value: selectedToken.isShielded ? '~0.003 ETH' : '~0.001 ETH' },
+          { label: 'Time', value: feeTime },
           { label: 'Confirmations', value: '1' },
         ]} />
       )}
       {isReady && (
         <AfterPreview rows={[
-          { label: 'Shielded', value: Math.max(balance - a, 0).toFixed(2), delta: `−${a.toFixed(2)}`, unit: selectedToken.symbol },
+          { label: balanceLabel, value: Math.max(balance - a, 0).toFixed(2), delta: `−${a.toFixed(2)}`, unit: selectedToken.symbol },
         ]} />
       )}
       <Button variant="primary" style={{ width: '100%', marginTop: '20px' }} loading={preparing}
         disabled={!amount || a <= 0 || !!amtErr || !recipient.startsWith('0x')}
         onClick={() => onSubmit(amount, recipient, selectedToken.symbol)}>
-        Send shielded
+        {sendLabel}
       </Button>
     </div>
   )
@@ -713,7 +736,6 @@ function UnshieldForm({ preparing, onSubmit }: {
 // ── Receive view ───────────────────────────────────────────────────────────
 
 function ReceiveView() {
-  const [tab, setTab] = useState<'public' | 'private'>('public')
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
@@ -724,29 +746,6 @@ function ReceiveView() {
 
   return (
     <div>
-      <div style={{ display: 'flex', borderBottom: '1px solid var(--color-border)', marginBottom: '24px' }}>
-        {(['public', 'private'] as const).map(t => {
-          const isActive = tab === t
-          return (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              style={{
-                flex: 1, padding: '12px 8px',
-                background: 'none', border: 'none',
-                borderBottom: `2px solid ${isActive ? 'var(--color-blue)' : 'transparent'}`,
-                cursor: 'pointer', fontSize: 'var(--text-small)', fontWeight: isActive ? 700 : 400,
-                color: isActive ? 'var(--color-blue)' : 'var(--color-text-secondary)',
-                fontFamily: 'Manrope, sans-serif', marginBottom: '-1px',
-                transition: 'color var(--duration-fast), border-color var(--duration-fast)',
-              }}
-            >
-              {t === 'public' ? 'Public' : 'Private'}
-            </button>
-          )
-        })}
-      </div>
-
       <div style={{
         background: 'var(--color-surface-subtle)',
         borderRadius: 'var(--radius-lg)',
@@ -789,25 +788,12 @@ function ReceiveView() {
         </button>
       </div>
 
-      {tab === 'public' ? (
-        <>
-          <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: '0 0 8px' }}>
-            Share this address to receive ETH or ERC-20 tokens to your public balance.
-          </p>
-          <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: 0 }}>
-            Only send ETH or ERC-20 tokens to this address. Sending unsupported assets may result in permanent loss.
-          </p>
-        </>
-      ) : (
-        <>
-          <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: '0 0 8px' }}>
-            Share this address to receive a confidential transfer to your shielded balance.
-          </p>
-          <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: 0 }}>
-            The sender must use a ShieldPay-compatible app. Private transfers are encrypted — only you and the sender can see the amount.
-          </p>
-        </>
-      )}
+      <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: '0 0 8px' }}>
+        Share this address to receive funds. Public transfers (ETH, USDC, DAI) are visible on-chain. Shielded transfers are encrypted — only you and the sender can see the amount.
+      </p>
+      <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: 0 }}>
+        To receive shielded funds, the sender needs a ShieldPay-compatible app. For public funds, any standard Ethereum wallet works.
+      </p>
     </div>
   )
 }
@@ -1082,13 +1068,13 @@ function FailedOrCancelledView({ op, phase, onDone }: PhaseViewProps) {
 
 // ── Drawer header ──────────────────────────────────────────────────────────
 
-function drawerTitle(activeAction: DrawerAction, phase: OperationPhase, operationType: OperationType): string {
-  if (activeAction === 'receive') return 'Receive'
+function drawerTitle(activeTab: TabId, phase: OperationPhase, operationType: OperationType): string {
   const isIdle = phase === 'idle' || phase === 'preparing'
   if (isIdle) {
-    if (activeAction === 'shield') return 'Shield funds'
-    if (activeAction === 'send') return 'Send shielded'
-    if (activeAction === 'unshield') return 'Unshield funds'
+    if (activeTab === 'shield') return 'Shield funds'
+    if (activeTab === 'unshield') return 'Unshield funds'
+    if (activeTab === 'send') return 'Send'
+    if (activeTab === 'receive') return 'Receive'
   }
   const opLabel = { shield: 'Shield', send: 'Send', unshield: 'Unshield' }[operationType]
   if (phase === 'awaiting_wallet_step1' || phase === 'awaiting_wallet_step2') return `${opLabel} · Confirm in wallet`
@@ -1122,11 +1108,11 @@ export function RightPanel({
   onDone,
   onOverlayIntensity,
 }: RightPanelProps) {
-  const [activeTab, setActiveTab] = useState<OperationType>('shield')
+  const [activeTab, setActiveTab] = useState<TabId>('shield')
   const [activeToken, setActiveToken] = useState('ETH')
 
   useEffect(() => {
-    if (isOpen && (activeAction === 'shield' || activeAction === 'send' || activeAction === 'unshield')) {
+    if (isOpen && (activeAction === 'shield' || activeAction === 'unshield' || activeAction === 'send' || activeAction === 'receive')) {
       setActiveTab(activeAction)
     }
   }, [isOpen, activeAction])
@@ -1165,8 +1151,9 @@ export function RightPanel({
     token: activeToken,
   }
 
-  const showReceive = activeAction === 'receive' && (isIdle || isPreparing)
-  const showForms = !showReceive && (isIdle || isPreparing)
+  const showIdleForms = isIdle || isPreparing
+  const isPrivacyTab = activeTab === 'shield' || activeTab === 'unshield'
+  const isTransferTab = activeTab === 'send' || activeTab === 'receive'
 
   return (
     <>
@@ -1205,7 +1192,7 @@ export function RightPanel({
           padding: '16px 20px', borderBottom: '1px solid var(--color-border)', flexShrink: 0,
         }}>
           <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text-primary)', letterSpacing: '-0.01em' }}>
-            {drawerTitle(activeAction, phase, operationType)}
+            {drawerTitle(activeTab, phase, operationType)}
           </span>
           <button
             onClick={onClose}
@@ -1227,21 +1214,13 @@ export function RightPanel({
         {/* Scrollable content */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
 
-          {showReceive && <ReceiveView />}
-
-          {showForms && (
+          {showIdleForms && isPrivacyTab && (
             <>
-              <TabBar active={activeTab} onChange={setActiveTab} />
+              <TabBar tabs={PRIVACY_TABS} active={activeTab} onChange={setActiveTab} />
               {activeTab === 'shield' && (
                 <ShieldForm
                   preparing={isPreparing && operationType === 'shield'}
                   onSubmit={handleStartShield}
-                />
-              )}
-              {activeTab === 'send' && (
-                <SendForm
-                  preparing={isPreparing && operationType === 'send'}
-                  onSubmit={handleStartSend}
                 />
               )}
               {activeTab === 'unshield' && (
@@ -1250,6 +1229,19 @@ export function RightPanel({
                   onSubmit={handleStartUnshield}
                 />
               )}
+            </>
+          )}
+
+          {showIdleForms && isTransferTab && (
+            <>
+              <TabBar tabs={TRANSFER_TABS} active={activeTab} onChange={setActiveTab} />
+              {activeTab === 'send' && (
+                <SendForm
+                  preparing={isPreparing && operationType === 'send'}
+                  onSubmit={handleStartSend}
+                />
+              )}
+              {activeTab === 'receive' && <ReceiveView />}
             </>
           )}
 
