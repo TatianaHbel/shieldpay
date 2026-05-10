@@ -446,12 +446,7 @@ export function UseCase() {
 
           <Label>3-zone layout</Label>
           <div style={{ background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '24px', marginBottom: '28px', fontFamily: 'monospace', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.8, overflowX: 'auto' }}>
-            <pre style={{ margin: 0 }}>{`┌──────────────┬──────────────────────────────────┬─────────────────────┐
-│   Sidebar    │   Left column                    │   Right panel       │
-│   Navigation │   Balance cards                  │   Transaction       │
-│   Wallet     │   Activity feed                  │   widget            │
-│              │   ← StatusPersistenceBanner       │   All ops live here │
-└──────────────┴──────────────────────────────────┴─────────────────────┘`}</pre>
+            <pre style={{ margin: 0 }}>{'┌──────────────┬──────────────────────────────────┬─────────────────────┐\n│   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Sidebar</strong>{'    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Left column</strong>{'                    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Right panel</strong>{'       │\n│   Navigation │   Balance cards                  │   Transaction       │\n│              │   Wallet                         │   widget            │\n│              │   Activity feed                  │   All ops live here │\n│              │   ← StatusPersistenceBanner       │                     │\n└──────────────┴──────────────────────────────────┴─────────────────────┘'}</pre>
           </div>
 
           <Label>Left column overlay - communicates urgency</Label>
