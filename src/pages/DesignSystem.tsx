@@ -885,9 +885,9 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Map badge variants directly to operation phases: `processing` → processing/finalizing; `action-required` → proof_ready; `completed` → completed; `failed` → any failure type.',
+                'Map badge variants directly to operation phases: `processing` → processing/finalizing; `action-required` → proof_ready/interrupted; `completed` → completed; `failed` → any failure type.',
                 'Override the label with specific phase copy: "Encrypting…" not "Processing", "Waiting for proof…" not "Action required".',
-                'Use `action-required` (pulsing) only when the user must tap to continue - proof_ready unshield is the only such phase in the current flow.',
+                'Use `action-required` (pulsing) only when the user must tap to continue - proof_ready and interrupted unshield are the only such phases in the current flow.',
                 'Pair with PhaseIndicator inside the Drawer; use standalone in ActivityRow.',
               ]}
               donts={[
@@ -1308,11 +1308,10 @@ export function DesignSystem() {
                 { name: 'section-header', desc: 'Muted label dividing groups ("In-progress", "Completed"). bg: --color-surface-subtle, padding 12px 20px, weight 600.' },
                 { name: 'leading element', desc: '64×64px circle, no background. Spinner (in-progress), pulsing Zap (action-required), static operation icon (completed). Icon size 28px.' },
                 { name: 'primary text', desc: 'Operation label. --text-heading, weight 600, --color-text-primary. Always visible.' },
-                { name: 'phase label', desc: 'Inline next to primary text on in-progress rows only. --text-small, --color-processing. ("Encrypting…", "Waiting for proof…").' },
+                { name: 'phase label', desc: 'Inline next to primary text on in-progress and action-required rows. --color-processing for in-progress; #78350F (amber) for action-required. ("Encrypting…", "Action required").' },
                 { name: 'secondary text', desc: 'Relative timestamp on line 2. --color-text-secondary, 12px.' },
                 { name: 'trailing - amount', desc: 'Right-aligned, weight 600, tabular-nums. Hidden shielded amounts display as ● ● ●. #78350F for action-required.' },
-                { name: 'trailing - action', desc: '"Complete →" button. Only on proof_ready unshield. Bordered amber pill.' },
-                { name: 'trailing - tx-link', desc: 'ExternalLink 13px icon. Only on completed rows with txHash. aria-label required.' },
+                { name: 'trailing - action', desc: '"Complete →" button. Only on proof_ready and interrupted unshield rows. Bordered amber pill.' },
                 { name: 'row divider', desc: '1px --color-border bottom on each row.' },
                 { name: 'empty state', desc: '"No more transactions" centered at list bottom. Always present as list terminator.' },
               ]} />
@@ -1330,8 +1329,7 @@ export function DesignSystem() {
           <Subsection title="Trailing elements">
             <div style={{ borderTop: '1px solid var(--color-border)' }}>
               <TokenRow token="amount" value="Always visible" extra="Stacked above action/link. tabular-nums. Hidden shielded amounts display as ● ● ●." />
-              <TokenRow token="Complete →" value="action-required only" extra="Only on proof_ready + unshield. Triggers onComplete callback." />
-              <TokenRow token="Etherscan link" value="completed + txHash" extra="ExternalLink 13px icon. Opens tx in new tab. Never shown on in-progress rows." />
+              <TokenRow token="Complete →" value="action-required only" extra="proof_ready and interrupted unshield only. Triggers onComplete callback. Etherscan links live in the drawer details tab, not in the row." />
             </div>
           </Subsection>
 
@@ -1350,14 +1348,14 @@ export function DesignSystem() {
               dos={[
                 'Always render in-progress rows above completed rows - this ordering is non-negotiable regardless of timestamp.',
                 'Use section headers ("In progress", "Completed") to divide groups - group context is load-bearing information.',
-                'Show the "Complete →" CTA only on `proof_ready` unshield rows - this is the only user-required action in the entire operation lifecycle.',
+                'Show the "Complete →" CTA only on `proof_ready` and `interrupted` unshield rows - these are the only states where user action is required to release funds.',
                 'Use "Sent" / "Received" as the send row label - not "Sent shielded". The token symbol (cETH, cUSDC) already communicates shielded vs public.',
                 'Default `hidden=true` for shielded send amounts - privacy is the safe default.',
                 'Always include the list terminator ("No more transactions") so users know the list is complete, not truncated.',
               ]}
               donts={[
                 "Don't render completed rows before in-progress ones, even if more recently dated.",
-                "Don't show the Complete CTA on any status other than `proof_ready` unshield - no other phase requires user action.",
+                "Don't show the Complete CTA on any status other than `proof_ready` and `interrupted` unshield - no other phase requires user action to release funds.",
                 "Don't make rows tappable to expand - no token or transaction detail pages exist yet.",
                 "Don't add more than one trailing action per row.",
               ]}

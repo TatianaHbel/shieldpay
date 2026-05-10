@@ -49,7 +49,7 @@ const UNSHIELD_PHASES: PhaseEntry[] = [
   { phase: 'awaiting_wallet_step2', label: 'Wallet - Step 2/2', actor: 'user',            actorNote: 'Sign to release funds to public balance · costs gas' },
   { phase: 'finalizing',            label: 'Releasing',         actor: 'system',          actorNote: 'ERC-20 transfer to public balance (~30s)' },
   { phase: 'completed',             label: 'Complete',          actor: 'done',            actorNote: 'Both balances updated. Public balance increased.' },
-  { phase: 'interrupted',           label: 'Interrupted',       actor: 'error',           actorNote: 'User left during proof wait. On return: app checks proof status and restores correct phase.' },
+  { phase: 'interrupted',           label: 'Interrupted',       actor: 'action-required', actorNote: 'User left during proof wait. On return: app checks proof status — if proof ready, restores to proof_ready (action required). Recoverable, not terminal.' },
 ]
 
 const OP_PHASES: Record<OperationType, PhaseEntry[]> = {
@@ -320,7 +320,7 @@ function ScreenDemo({ op, phase, caption, annotation }: {
         publicBalance="1.24"
         shieldedBalance="0.50"
         startedAt={MOCK_START}
-        txHash="0xabc123def456abc123def456abc123def456abc123def456abc123def456abc1"
+        txHashStep2="0xabc123def456abc123def456abc123def456abc123def456abc123def456abc1"
         onStartShield={NOOP}
         onStartSend={NOOP}
         onStartUnshield={NOOP}
