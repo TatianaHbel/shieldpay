@@ -1264,16 +1264,36 @@ export function DesignSystem() {
                   <span style={{ fontSize: 'var(--text-small)', fontWeight: 600, color: 'var(--color-text-secondary)' }}>In-progress — always first</span>
                 </div>
                 <div style={{ padding: '0 20px' }}>
-                  <ActivityRow type="shield" amount="0.50" status="finalizing" date={NOW - 120000} hidden={false} />
-                  <ActivityRow type="unshield" amount="0.30" status="proof_ready" date={NOW - 300000} hidden={false} onComplete={() => alert('Complete unshield →')} />
+                  <ActivityRow
+                    type="shield" amount="500.00" status="finalizing" date={NOW - 120000} hidden={false}
+                    token={{ symbol: 'USDC', imageUrl: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color/usdc.png' }}
+                    pairedToken={{ symbol: 'cUSDC', imageUrl: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color/usdc.png' }}
+                  />
+                  <ActivityRow
+                    type="unshield" amount="200.00" status="proof_ready" date={NOW - 300000} hidden={false} onComplete={() => alert('Complete unshield →')}
+                    token={{ symbol: 'cUSDC', imageUrl: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color/usdc.png' }}
+                    pairedToken={{ symbol: 'USDC', imageUrl: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color/usdc.png' }}
+                  />
                 </div>
                 <div style={{ padding: '10px 20px', background: 'var(--color-surface-subtle)', borderTop: '1px solid var(--color-border)', borderBottom: '1px solid var(--color-border)' }}>
                   <span style={{ fontSize: 'var(--text-small)', fontWeight: 600, color: 'var(--color-text-secondary)' }}>Completed</span>
                 </div>
                 <div style={{ padding: '0 20px' }}>
-                  <ActivityRow type="shield" amount="0.30" status="completed" date={NOW - 7200000} txHash="0xabc123" hidden={false} />
-                  <ActivityRow type="send" amount="0.10" status="completed" date={NOW - 86400000} hidden={true} />
-                  <ActivityRow type="unshield" amount="0.20" status="completed" date={NOW - 172800000} txHash="0xdef456" hidden={false} />
+                  <ActivityRow
+                    type="shield" amount="500.00" status="completed" date={NOW - 7200000} txHash="0xabc123" hidden={false}
+                    token={{ symbol: 'USDC', imageUrl: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color/usdc.png' }}
+                    pairedToken={{ symbol: 'cUSDC', imageUrl: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color/usdc.png' }}
+                  />
+                  <ActivityRow
+                    type="send" amount="0.10" status="completed" date={NOW - 86400000} hidden={true}
+                    token={{ symbol: 'cETH', imageUrl: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color/eth.png' }}
+                    counterparty="0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b"
+                  />
+                  <ActivityRow
+                    type="unshield" amount="200.00" status="completed" date={NOW - 172800000} txHash="0xdef456" hidden={false}
+                    token={{ symbol: 'cUSDC', imageUrl: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color/usdc.png' }}
+                    pairedToken={{ symbol: 'USDC', imageUrl: 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color/usdc.png' }}
+                  />
                 </div>
                 <div style={{ padding: '20px', borderTop: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <span style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)' }}>No more transactions</span>
@@ -1331,6 +1351,7 @@ export function DesignSystem() {
                 'Always render in-progress rows above completed rows — this ordering is non-negotiable regardless of timestamp.',
                 'Use section headers ("In progress", "Completed") to divide groups — group context is load-bearing information.',
                 'Show the "Complete →" CTA only on `proof_ready` unshield rows — this is the only user-required action in the entire operation lifecycle.',
+                'Use "Sent" / "Received" as the send row label — not "Sent shielded". The token symbol (cETH, cUSDC) already communicates shielded vs public.',
                 'Default `hidden=true` for shielded send amounts — privacy is the safe default.',
                 'Always include the list terminator ("No more transactions") so users know the list is complete, not truncated.',
               ]}
@@ -1346,7 +1367,7 @@ export function DesignSystem() {
 
         {/* ── Planned components ── */}
 
-        <Section id="status-persistence-banner" title="StatusPersistenceBanner" description="Persistent strip at the top of the left column when an operation is active and the user navigated away. Never auto-dismisses while in progress. Completed state is dismissable and auto-dismisses after 10s.">
+        <Section id="status-persistence-banner" title="StatusPersistenceBanner" description="Persistent strip at the top of the left column for all non-idle operation states. Never auto-dismisses. Completed, failed, and cancelled states are manually dismissable — the user always sees the outcome when they return.">
           <Subsection title="Phase variants">
             <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
               {([
@@ -1368,7 +1389,7 @@ export function DesignSystem() {
               amount="0.50"
               startedAt={Date.now() - 240000}
               onView={() => {}}
-              onDismiss={bannerPhase === 'completed' ? () => setBannerPhase('idle' as OperationPhase) : undefined}
+              onDismiss={(['completed', 'failed_submission', 'cancelled'] as OperationPhase[]).includes(bannerPhase) ? () => setBannerPhase('idle' as OperationPhase) : undefined}
             />
           </Subsection>
           <Subsection title="Anatomy">
@@ -1377,22 +1398,24 @@ export function DesignSystem() {
               { name: 'title', desc: 'Operation + outcome. Copy follows fund-safety rules: "safe" before Step 1 confirms, "secured" in unshield intermediate state.' },
               { name: 'subtitle', desc: 'Relative timestamp ("Started 4 minutes ago"). Updates every 30s.' },
               { name: 'cta', desc: '"View →" for most states. "Complete →" for action-required. Both open the right panel at the active operation.' },
-              { name: 'dismiss', desc: 'X button only on completed state. Hidden for processing, action-required, failed.' },
+              { name: 'dismiss', desc: 'X button on completed, failed, and cancelled states. Hidden for processing and action-required (user must act, not dismiss).' },
             ]} />
           </Subsection>
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
                 'Mount in the AppShell layout — always rendered globally, never inside a page component.',
-                'Show when the user navigates away from an active operation — this is the primary cross-navigation state signal.',
-                'Auto-dismiss after 10s for `completed` state only — it is informational once the operation finishes.',
-                'Keep visible and non-dismissable for `failed` and `action-required` states — the user must act.',
+                'Show for all active phases including `completed` — the banner is the user\'s persistent view into operation state while they browse the app.',
+                'Treat the banner as the re-entry point to the Drawer: every variant shows a "View →" CTA that reopens the Drawer at the current phase. It is a shortcut, not a notification.',
+                'Show a green `completed` banner when the operation finishes — it persists until the user explicitly dismisses it so they see the result even after navigating away.',
+                'Make completed, failed, and cancelled states manually dismissable with the X button.',
+                'Keep visible and non-dismissable for processing and `action-required` states — the user must either wait or act.',
               ]}
               donts={[
-                "Don't show while the Drawer is visible and displaying the active operation — it duplicates state the user can already see.",
-                "Don't use for lightweight feedback — use Notification instead.",
                 "Don't use `role=\"alert\"` — the banner is a persistent status indicator, not an urgent interruption.",
                 "Don't use processing colors for `completed` — green only after the private balance has updated.",
+                "Don't use for lightweight feedback unrelated to an active operation — use Notification instead.",
+                "Don't auto-dismiss for `action-required` or `failed` — the user must acknowledge or act.",
               ]}
             />
           </Subsection>

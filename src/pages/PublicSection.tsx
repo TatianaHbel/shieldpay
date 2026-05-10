@@ -3,13 +3,23 @@ import { ActivityRow } from '../components/ActivityRow'
 import { Button } from '../components/Button'
 import { useDrawer } from '../context/DrawerContext'
 import { MOCK_ACTIVITY } from '../mocks/activityMocks'
+import type { MockActivityEntry } from '../mocks/activityMocks'
 
 interface PublicSectionProps {
   publicBalance: string
 }
 
+function useRowClick() {
+  const { openDrawerReplay } = useDrawer()
+  return (row: MockActivityEntry) => {
+    if (row.type === 'send' && row.direction === 'in') return undefined
+    return () => openDrawerReplay({ action: row.type, phase: row.status, amount: row.amount, txHash: row.txHash, recipient: row.counterparty })
+  }
+}
+
 export function PublicSection({ publicBalance }: PublicSectionProps) {
   const { openDrawer } = useDrawer()
+  const getRowClick = useRowClick()
   const isEmpty = parseFloat(publicBalance) === 0
   const usdValue = `$${(parseFloat(publicBalance) * 2351.12).toFixed(2)}`
 
@@ -55,11 +65,16 @@ export function PublicSection({ publicBalance }: PublicSectionProps) {
           <ActivityRow
             key={row.id}
             type={row.type}
+            token={row.token}
+            pairedToken={row.pairedToken}
+            direction={row.direction}
+            counterparty={row.counterparty}
             amount={row.amount}
             status={row.status}
             date={row.date}
             txHash={row.txHash}
             hidden={false}
+            onClick={getRowClick(row)}
           />
         ))}
       </div>

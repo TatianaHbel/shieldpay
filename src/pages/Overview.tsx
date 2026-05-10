@@ -30,7 +30,7 @@ interface OverviewProps {
 
 type BottomTab = 'tokens' | 'activity' | 'in-progress'
 
-function BottomTabBar({ active, onChange }: { active: BottomTab; onChange: (t: BottomTab) => void }) {
+function BottomTabBar({ active, onChange, inProgressCount }: { active: BottomTab; onChange: (t: BottomTab) => void; inProgressCount: number }) {
   const tabs: { id: BottomTab; label: string }[] = [
     { id: 'tokens',      label: 'Tokens' },
     { id: 'activity',    label: 'Recent activity' },
@@ -40,11 +40,15 @@ function BottomTabBar({ active, onChange }: { active: BottomTab; onChange: (t: B
     <div style={{ display: 'flex', borderBottom: '1px solid var(--color-border)', marginBottom: '16px' }}>
       {tabs.map(t => {
         const isActive = t.id === active
+        const showBadge = t.id === 'in-progress' && inProgressCount > 0
         return (
           <button
             key={t.id}
             onClick={() => onChange(t.id)}
             style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
               padding: '10px 0',
               marginRight: '24px',
               background: 'none',
@@ -61,6 +65,24 @@ function BottomTabBar({ active, onChange }: { active: BottomTab; onChange: (t: B
             }}
           >
             {t.label}
+            {showBadge && (
+              <span style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: '18px',
+                height: '18px',
+                padding: '0 5px',
+                borderRadius: '9px',
+                background: isActive ? 'var(--color-blue)' : 'var(--color-text-secondary)',
+                color: '#fff',
+                fontSize: '11px',
+                fontWeight: 700,
+                lineHeight: 1,
+              }}>
+                {inProgressCount}
+              </span>
+            )}
           </button>
         )
       })}
@@ -68,9 +90,25 @@ function BottomTabBar({ active, onChange }: { active: BottomTab; onChange: (t: B
   )
 }
 
+function useActivityRowClick() {
+  const { openDrawerReplay } = useDrawer()
+  return (row: typeof MOCK_ACTIVITY[number]) => {
+    if (row.type === 'send' && row.direction === 'in') return undefined
+    return () => openDrawerReplay({
+      action: row.type,
+      phase: row.status,
+      amount: row.amount,
+      txHash: row.txHash,
+      recipient: row.counterparty,
+    })
+  }
+}
+
 export function Overview({ shieldedHidden, onToggleShielded }: OverviewProps) {
   const { openDrawer } = useDrawer()
+  const getRowClick = useActivityRowClick()
   const [bottomTab, setBottomTab] = useState<BottomTab>('tokens')
+  const inProgressCount = MOCK_ACTIVITY.filter(r => IN_PROGRESS_STATUSES.has(r.status)).length
 
   return (
     <div style={{ padding: '32px', maxWidth: '1200px', margin: '64px auto 0' }}>
@@ -124,7 +162,7 @@ export function Overview({ shieldedHidden, onToggleShielded }: OverviewProps) {
       </div>
 
       {/* Tabbed bottom section */}
-      <BottomTabBar active={bottomTab} onChange={setBottomTab} />
+      <BottomTabBar active={bottomTab} onChange={setBottomTab} inProgressCount={inProgressCount} />
 
       {bottomTab === 'activity' && (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -133,11 +171,15 @@ export function Overview({ shieldedHidden, onToggleShielded }: OverviewProps) {
               key={row.id}
               type={row.type}
               token={row.token}
+              pairedToken={row.pairedToken}
+              direction={row.direction}
+              counterparty={row.counterparty}
               amount={row.amount}
               status={row.status}
               date={row.date}
               txHash={row.txHash}
               hidden={shieldedHidden}
+              onClick={getRowClick(row)}
             />
           ))}
         </div>
@@ -165,11 +207,15 @@ export function Overview({ shieldedHidden, onToggleShielded }: OverviewProps) {
                 key={row.id}
                 type={row.type}
                 token={row.token}
+                pairedToken={row.pairedToken}
+                direction={row.direction}
+                counterparty={row.counterparty}
                 amount={row.amount}
                 status={row.status}
                 date={row.date}
                 txHash={row.txHash}
                 hidden={shieldedHidden}
+                onClick={getRowClick(row)}
                 onComplete={row.status === 'proof_ready' ? () => {} : undefined}
               />
             ))}

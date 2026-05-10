@@ -2,9 +2,8 @@ import { BalanceCard } from '../components/BalanceCard'
 import { ActivityRow } from '../components/ActivityRow'
 import { Button } from '../components/Button'
 import { useDrawer } from '../context/DrawerContext'
-
-const ICON_BASE = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color'
-const ETH_TOKEN = { symbol: 'ETH', imageUrl: `${ICON_BASE}/eth.png` }
+import { MOCK_ACTIVITY } from '../mocks/activityMocks'
+import type { MockActivityEntry } from '../mocks/activityMocks'
 
 interface ShieldedSectionProps {
   shieldedBalance: string
@@ -12,14 +11,17 @@ interface ShieldedSectionProps {
   onToggleShielded: () => void
 }
 
-const now = Date.now()
-const MOCK_ACTIVITY = [
-  { id: '1', type: 'send' as const, token: ETH_TOKEN, amount: '0.10', status: 'completed' as const, date: now - 86400000, txHash: undefined },
-  { id: '2', type: 'shield' as const, token: ETH_TOKEN, amount: '0.50', status: 'completed' as const, date: now - 172800000, txHash: undefined },
-]
+function useRowClick() {
+  const { openDrawerReplay } = useDrawer()
+  return (row: MockActivityEntry) => {
+    if (row.type === 'send' && row.direction === 'in') return undefined
+    return () => openDrawerReplay({ action: row.type, phase: row.status, amount: row.amount, txHash: row.txHash, recipient: row.counterparty })
+  }
+}
 
 export function ShieldedSection({ shieldedBalance, shieldedHidden, onToggleShielded }: ShieldedSectionProps) {
   const { openDrawer } = useDrawer()
+  const getRowClick = useRowClick()
   const isEmpty = parseFloat(shieldedBalance) === 0
   const usdValue = `$${(parseFloat(shieldedBalance) * 2351.12).toFixed(2)}`
 
@@ -49,7 +51,7 @@ export function ShieldedSection({ shieldedBalance, shieldedHidden, onToggleShiel
           </div>
         ) : (
           <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-            <Button variant="primary" size="md" onClick={() => openDrawer('send')}>Send shielded →</Button>
+            <Button variant="primary" size="md" onClick={() => openDrawer('send')}>Send →</Button>
             <Button variant="secondary" size="md" onClick={() => openDrawer('unshield')}>Unshield →</Button>
           </div>
         )}
@@ -63,11 +65,17 @@ export function ShieldedSection({ shieldedBalance, shieldedHidden, onToggleShiel
           <ActivityRow
             key={row.id}
             type={row.type}
+            token={row.token}
+            pairedToken={row.pairedToken}
+            direction={row.direction}
+            counterparty={row.counterparty}
             amount={row.amount}
             status={row.status}
             date={row.date}
             txHash={row.txHash}
             hidden={shieldedHidden}
+            onClick={getRowClick(row)}
+            onComplete={row.status === 'proof_ready' ? () => {} : undefined}
           />
         ))}
       </div>

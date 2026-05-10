@@ -29,7 +29,7 @@ export function NavigationWarning({ urgency, onStay, onLeave }: NavigationWarnin
         {isUrgent && (
           <Zap
             size={16}
-            style={{ color: 'var(--color-warning)', flexShrink: 0 }}
+            style={{ color: '#78350F', flexShrink: 0 }}
             aria-hidden="true"
           />
         )}
@@ -39,7 +39,7 @@ export function NavigationWarning({ urgency, onStay, onLeave }: NavigationWarnin
             margin: 0,
             fontSize: 'var(--text-heading)',
             fontWeight: 700,
-            color: isUrgent ? 'var(--color-warning)' : 'var(--color-text-primary)',
+            color: isUrgent ? '#78350F' : 'var(--color-text-primary)',
             letterSpacing: '-0.01em',
             lineHeight: 1.25,
           }}

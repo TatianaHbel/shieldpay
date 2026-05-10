@@ -1,46 +1,32 @@
 import { ShieldCheck, Zap, ExternalLink } from 'lucide-react'
-import { Asterisk } from '@phosphor-icons/react'
 import type { OperationPhase, OperationType } from '../types/operation'
 
 const ICON_BASE = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color'
 const DEFAULT_TOKEN = { symbol: 'ETH', imageUrl: `${ICON_BASE}/eth.png` }
 
-interface ActivityRowProps {
+export interface ActivityRowProps {
   type: OperationType
   token?: { symbol: string; imageUrl: string }
+  pairedToken?: { symbol: string; imageUrl: string }
+  direction?: 'in' | 'out'
+  counterparty?: string
   amount: string
   status: OperationPhase
   date: number
   txHash?: string
   hidden: boolean
+  onClick?: () => void
   onComplete?: () => void
-}
-
-const TYPE_CONFIG: Record<OperationType, {
-  directionLabel: Record<'in' | 'out', string>
-  defaultDirection: '+' | '-'
-}> = {
-  shield: {
-    directionLabel: { in: 'Shielded in', out: 'Shielded' },
-    defaultDirection: '-',
-  },
-  send: {
-    directionLabel: { in: 'Received shielded', out: 'Sent shielded' },
-    defaultDirection: '-',
-  },
-  unshield: {
-    directionLabel: { in: 'Unshielded', out: 'Unshielded' },
-    defaultDirection: '+',
-  },
 }
 
 function formatRelativeTime(timestamp: number): string {
   const diff = Date.now() - timestamp
+  const seconds = Math.floor(diff / 1000)
   const minutes = Math.floor(diff / 60000)
   const hours = Math.floor(diff / 3600000)
   const days = Math.floor(diff / 86400000)
 
-  if (minutes < 1) return 'Just now'
+  if (seconds < 60) return '< 1 min ago'
   if (minutes < 60) return `${minutes} min ago`
   if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`
   if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`
@@ -73,26 +59,127 @@ function getPhaseLabel(status: OperationPhase, type: OperationType): string {
   return labels[status] ?? ''
 }
 
-function ActivityAvatar({
+function getRowLabel(type: OperationType, direction: 'in' | 'out', isInProgress: boolean): string {
+  if (type === 'shield') return isInProgress ? 'Shielding' : 'Shielded'
+  if (type === 'unshield') return isInProgress ? 'Unshielding' : 'Unshielded'
+  if (type === 'send') return direction === 'in' ? 'Received' : isInProgress ? 'Sending' : 'Sent'
+  return ''
+}
+
+function getSubtitle(
+  type: OperationType,
+  token: { symbol: string },
+  pairedToken: { symbol: string } | undefined,
+  direction: 'in' | 'out',
+  counterparty: string | undefined,
+): string | null {
+  if ((type === 'shield' || type === 'unshield') && pairedToken) {
+    return `${token.symbol} → ${pairedToken.symbol}`
+  }
+  if (type === 'send' && counterparty) {
+    const short = `${counterparty.slice(0, 6)}…${counterparty.slice(-4)}`
+    return direction === 'out' ? `To ${short}` : `From ${short}`
+  }
+  return null
+}
+
+// ── Avatars ───────────────────────────────────────────────────────────────
+
+function SingleAvatar({
   imageUrl,
   symbol,
-  rowState,
-  type,
+  size = 48,
+  border,
+  opacity = 1,
 }: {
   imageUrl: string
   symbol: string
+  size?: number
+  border?: string
+  opacity?: number
+}) {
+  return (
+    <img
+      src={imageUrl}
+      alt={symbol}
+      width={size}
+      height={size}
+      style={{
+        borderRadius: '50%',
+        objectFit: 'cover',
+        border: border ?? 'none',
+        opacity,
+        display: 'block',
+      }}
+    />
+  )
+}
+
+function ActivityAvatar({
+  token,
+  pairedToken,
+  rowState,
+  type,
+}: {
+  token: { symbol: string; imageUrl: string }
+  pairedToken?: { symbol: string; imageUrl: string }
   rowState: 'complete' | 'in-progress' | 'action-required'
   type: OperationType
 }) {
-  const showShieldBadge = rowState === 'complete' && (type === 'shield' || type === 'send')
-  const showZapBadge = rowState === 'action-required'
-  const isSpinning = rowState === 'in-progress'
+  const isSwap = (type === 'shield' || type === 'unshield') && !!pairedToken
+  const isComplete = rowState === 'complete'
+  const isInProgress = rowState === 'in-progress'
+  const isActionRequired = rowState === 'action-required'
+
+  if (isSwap && isComplete) {
+    // Two-token pair: from (left/back) + to (right/front)
+    return (
+      <div style={{ position: 'relative', width: '56px', height: '48px', flexShrink: 0 }}>
+        {/* From token */}
+        <div style={{ position: 'absolute', top: '6px', left: 0 }}>
+          <SingleAvatar imageUrl={token.imageUrl} symbol={token.symbol} size={34} />
+        </div>
+        {/* To token — overlaps, has shield badge */}
+        <div style={{ position: 'absolute', bottom: 0, right: 0 }}>
+          <div style={{ position: 'relative' }}>
+            <SingleAvatar
+              imageUrl={pairedToken.imageUrl}
+              symbol={pairedToken.symbol}
+              size={30}
+              border="2px solid var(--color-surface-raised)"
+            />
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '-3px',
+                right: '-3px',
+                width: '16px',
+                height: '16px',
+                borderRadius: '5px',
+                background: 'var(--color-shielded)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1.5px solid var(--color-surface-raised)',
+              }}
+            >
+              <ShieldCheck size={9} color="#fff" strokeWidth={2.5} aria-hidden />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Single-token avatar (send, in-progress shield/unshield)
+  const showShieldBadge = isComplete && type === 'send'
+  const showZapBadge = isActionRequired
 
   return (
     <div style={{ position: 'relative', width: '48px', height: '48px', flexShrink: 0 }}>
       <img
-        src={imageUrl}
-        alt={symbol}
+        src={token.imageUrl}
+        alt={token.symbol}
         width={48}
         height={48}
         style={{
@@ -105,7 +192,7 @@ function ActivityAvatar({
         }}
       />
 
-      {isSpinning && (
+      {isInProgress && (
         <div
           style={{
             position: 'absolute',
@@ -174,87 +261,123 @@ function ActivityAvatar({
   )
 }
 
+// ── Main component ────────────────────────────────────────────────────────
+
 export function ActivityRow({
   type,
   token = DEFAULT_TOKEN,
+  pairedToken,
+  direction = 'out',
+  counterparty,
   amount,
   status,
   date,
   txHash,
   hidden,
+  onClick,
   onComplete,
 }: ActivityRowProps) {
-  const config = TYPE_CONFIG[type]
   const rowState = getRowState(status)
   const isComplete = rowState === 'complete'
   const isInProgress = rowState === 'in-progress'
   const isActionRequired = rowState === 'action-required'
 
-  const rowLabel = isInProgress && type === 'unshield'
-    ? 'Unshielding'
-    : config.directionLabel['out']
+  const rowLabel = getRowLabel(type, direction, isInProgress || isActionRequired)
+  const subtitle = getSubtitle(type, token, pairedToken, direction, counterparty)
 
-  const dirSign = config.defaultDirection === '-' ? '−' : '+'
-  const amountDisplay = `${dirSign}${amount} ${token.symbol}`
+  // Primary: always outgoing (what left the user's balance)
+  const primarySign = direction === 'in' ? '+' : '−'
+  const primaryAmount = `${primarySign}${amount} ${token.symbol}`
+
+  // Paired: shown only on completed swaps (what arrived)
+  const showPaired = isComplete && !!pairedToken
+  const pairedAmount = showPaired ? `+${amount} ${pairedToken!.symbol}` : null
 
   return (
     <div
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onClick={onClick}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick() } : undefined}
+      onMouseEnter={onClick ? (e) => { (e.currentTarget as HTMLElement).style.background = 'var(--color-surface-subtle)' } : undefined}
+      onMouseLeave={onClick ? (e) => { (e.currentTarget as HTMLElement).style.background = '' } : undefined}
       style={{
         display: 'flex',
         alignItems: 'center',
         gap: '12px',
         padding: '14px 16px',
         borderBottom: '1px solid var(--color-border)',
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'background var(--duration-fast)',
       }}
     >
       <ActivityAvatar
-        imageUrl={token.imageUrl}
-        symbol={token.symbol}
+        token={token}
+        pairedToken={pairedToken}
         rowState={rowState}
         type={type}
       />
 
+      {/* Info column */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' }}>
-          <span
-            style={{
-              fontSize: 'var(--text-small)',
-              fontWeight: 500,
-              color: 'var(--color-text-primary)',
-              lineHeight: 1.2,
-            }}
-          >
+        {/* Row 1: label + phase label */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: subtitle ? '2px' : '3px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 'var(--text-small)', fontWeight: 500, color: 'var(--color-text-primary)', lineHeight: 1.2 }}>
             {rowLabel}
           </span>
-          {isInProgress && (
+          {(isInProgress || isActionRequired) && (
             <span style={{ fontSize: '12px', color: 'var(--color-processing)', fontWeight: 500 }}>
               {getPhaseLabel(status, type)}
             </span>
           )}
         </div>
+
+        {/* Row 2: subtitle (token pair or counterparty) */}
+        {subtitle && (
+          <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '2px', fontVariantNumeric: 'tabular-nums' }}>
+            {subtitle}
+          </div>
+        )}
+
+        {/* Row 3: time */}
         <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
           {formatRelativeTime(date)}
         </span>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
+      {/* Amount column */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', flexShrink: 0 }}>
         {hidden ? (
-          <span style={{ display: 'flex', alignItems: 'center', gap: '1px', color: 'var(--color-text-secondary)' }}>
-            <Asterisk weight="bold" size={13} />
-            <Asterisk weight="bold" size={13} />
-            <Asterisk weight="bold" size={13} />
+          <span style={{ color: 'var(--color-text-secondary)', fontSize: '11px', letterSpacing: '3px', fontWeight: 700 }}>
+            ••••
           </span>
         ) : (
-          <span
-            style={{
-              fontSize: 'var(--text-small)',
-              fontWeight: 600,
-              color: isActionRequired ? '#78350F' : 'var(--color-text-primary)',
-              fontVariantNumeric: 'tabular-nums',
-            }}
-          >
-            {amountDisplay}
-          </span>
+          <>
+            <span
+              style={{
+                fontSize: 'var(--text-small)',
+                fontWeight: 600,
+                color: isActionRequired ? '#78350F' : 'var(--color-text-primary)',
+                fontVariantNumeric: 'tabular-nums',
+                lineHeight: 1.2,
+              }}
+            >
+              {primaryAmount}
+            </span>
+            {pairedAmount && (
+              <span
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 500,
+                  color: 'var(--color-success)',
+                  fontVariantNumeric: 'tabular-nums',
+                  lineHeight: 1.2,
+                }}
+              >
+                {pairedAmount}
+              </span>
+            )}
+          </>
         )}
 
         {isActionRequired && onComplete && (
@@ -284,10 +407,18 @@ export function ActivityRow({
             href={`https://etherscan.io/tx/${txHash}`}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: 'var(--color-text-secondary)', display: 'flex' }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '3px',
+              color: 'var(--color-text-secondary)',
+              fontSize: '11px',
+              textDecoration: 'none',
+            }}
             aria-label="View on Etherscan"
           >
-            <ExternalLink size={13} />
+            <ExternalLink size={11} />
+            Etherscan
           </a>
         )}
       </div>

@@ -67,9 +67,7 @@ function needsNavigationWarning(phase: OperationPhase): 'soft' | 'urgent' | null
 }
 
 function isBannerPhase(phase: OperationPhase): boolean {
-  if (phase === 'idle' || phase === 'completed' || phase === 'cancelled' || phase === 'timed_out') return false
-  if (phase.startsWith('failed_')) return false
-  return true
+  return phase !== 'idle' && phase !== 'preparing'
 }
 
 interface AppShellProps {
@@ -90,7 +88,7 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
   const warningLevel = needsNavigationWarning(op.phase)
   const showBanner = isBannerPhase(op.phase)
 
-  const { drawerOpen, drawerAction, openDrawer, closeDrawer } = useDrawerState()
+  const { drawerOpen, drawerAction, drawerReplay, openDrawer, openDrawerReplay, closeDrawer } = useDrawerState()
 
   const handleNavClick = useCallback((e: React.MouseEvent, destination: string) => {
     if (!warningLevel) return
@@ -107,7 +105,7 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
   const sidebarWidth = collapsed ? '60px' : 'var(--layout-sidebar-width)'
 
   return (
-    <DrawerContext.Provider value={{ openDrawer }}>
+    <DrawerContext.Provider value={{ openDrawer, openDrawerReplay }}>
       <div style={{ display: 'flex', height: '100dvh', background: 'var(--color-surface)' }}>
 
         {/* ── Sidebar ─────────────────────────────────────────────── */}
@@ -342,12 +340,13 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
               amount={op.amount}
               startedAt={op.startedAt}
               onView={() => openDrawer('status')}
+              onDismiss={op.reset}
             />
           )}
 
           <div style={{ flex: 1, position: 'relative', overflowY: 'auto' }}>
             {children}
-            <LeftColumnOverlay intensity={overlayIntensity} />
+            <LeftColumnOverlay intensity={drawerOpen ? overlayIntensity : 0} />
           </div>
         </div>
 
@@ -357,20 +356,21 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
             isOpen={drawerOpen}
             onClose={closeDrawer}
             activeAction={drawerAction}
-            phase={op.phase}
-            operationType={op.operationType}
-            amount={op.amount}
-            recipient={op.recipient}
+            phase={drawerReplay?.phase ?? op.phase}
+            operationType={drawerReplay?.action ?? op.operationType}
+            amount={drawerReplay?.amount ?? op.amount}
+            recipient={drawerReplay?.recipient ?? op.recipient}
             publicBalance={publicBalance}
             shieldedBalance={shieldedBalance}
             startedAt={op.startedAt}
-            txHash={op.txHash}
+            txHash={drawerReplay?.txHash ?? op.txHash}
             onStartShield={op.startShield}
             onStartSend={op.startSend}
             onStartUnshield={op.startUnshield}
-            onCancel={op.cancel}
-            onComplete={op.completeUnshield}
-            onDone={op.reset}
+            onConfirmWalletStep={op.confirmWalletStep}
+            onCancel={drawerReplay ? closeDrawer : op.cancel}
+            onComplete={drawerReplay ? closeDrawer : op.completeUnshield}
+            onDone={drawerReplay ? closeDrawer : op.reset}
             onOverlayIntensity={setOverlayIntensity}
           />
         )}

@@ -56,8 +56,9 @@ export interface RightPanelProps {
   startedAt?: number
   txHash?: string
   onStartShield: (amount: string) => void
-  onStartSend: (amount: string, recipient: string) => void
+  onStartSend: (amount: string, recipient: string, isShielded: boolean) => void
   onStartUnshield: (amount: string) => void
+  onConfirmWalletStep?: () => void
   onCancel: () => void
   onComplete: () => void
   onDone: () => void
@@ -188,7 +189,7 @@ function CautionNote({ children }: { children: React.ReactNode }) {
       borderRadius: 'var(--radius-md)',
       marginBottom: '12px',
     }}>
-      <AlertTriangle size={13} style={{ color: 'var(--color-warning)', flexShrink: 0, marginTop: '1px' }} aria-hidden="true" />
+      <AlertTriangle size={13} style={{ color: '#78350F', flexShrink: 0, marginTop: '1px' }} aria-hidden="true" />
       <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.55 }}>
         {children}
       </span>
@@ -393,7 +394,7 @@ function TokenPicker({
 // ── Phase header ───────────────────────────────────────────────────────────
 
 function PhaseHeader({ op, amount, phase, token = 'ETH' }: { op: OperationType; amount: string; phase: OperationPhase; token?: string }) {
-  const opLabel = { shield: 'Shielding', send: 'Sending shielded', unshield: 'Unshielding' }[op]
+  const opLabel = { shield: 'Shielding', send: 'Sending', unshield: 'Unshielding' }[op]
   return (
     <div style={{ marginBottom: '20px' }}>
       <div style={{ fontSize: 'var(--text-small)', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: '14px', letterSpacing: '-0.01em' }}>
@@ -574,7 +575,6 @@ function SendForm({ preparing, onSubmit }: {
     ? 'The recipient needs a ShieldPay-compatible app to access shielded funds.'
     : `Any Ethereum address that can hold ${selectedToken.symbol}.`
   const feeTime = selectedToken.isShielded ? '~2–3 min' : '~30 sec'
-  const sendLabel = selectedToken.isShielded ? 'Send shielded' : 'Send'
 
   if (picking) {
     return (
@@ -653,7 +653,7 @@ function SendForm({ preparing, onSubmit }: {
       <Button variant="primary" style={{ width: '100%', marginTop: '20px' }} loading={preparing}
         disabled={!amount || a <= 0 || !!amtErr || !recipient.startsWith('0x')}
         onClick={() => onSubmit(amount, recipient, selectedToken.symbol)}>
-        {sendLabel}
+        Send
       </Button>
     </div>
   )
@@ -804,12 +804,13 @@ function ReceiveView() {
 interface PhaseViewProps {
   op: OperationType; amount: string; phase: OperationPhase
   recipient?: string; startedAt?: number; txHash?: string
+  onConfirmWalletStep?: () => void
   onCancel: () => void; onComplete: () => void; onDone: () => void
   publicBalance: string; shieldedBalance: string
   token?: string
 }
 
-function WalletConfirmView({ op, amount, phase, recipient, onCancel, token = 'ETH' }: PhaseViewProps) {
+function WalletConfirmView({ op, amount, phase, recipient, onConfirmWalletStep, onCancel, token = 'ETH' }: PhaseViewProps) {
   const isStep2 = phase === 'awaiting_wallet_step2'
 
   const getSubtitle = () => {
@@ -860,10 +861,14 @@ function WalletConfirmView({ op, amount, phase, recipient, onCancel, token = 'ET
           {note}
         </p>
       )}
-      <ManualOpenLink />
-      <Button variant="ghost" style={{ width: '100%' }} onClick={onCancel}>
-        Cancel operation
-      </Button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        <Button variant="primary" style={{ width: '100%' }} onClick={onConfirmWalletStep}>
+          Approve →
+        </Button>
+        <Button variant="ghost" style={{ width: '100%' }} onClick={onCancel}>
+          Cancel operation
+        </Button>
+      </div>
     </div>
   )
 }
@@ -924,8 +929,8 @@ function ProofReadyView({ amount, onComplete, token = 'ETH' }: PhaseViewProps) {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-        <Zap size={18} style={{ color: 'var(--color-warning)', animation: 'pulse-badge 1.5s ease-in-out infinite' }} aria-hidden="true" />
-        <h3 style={{ margin: 0, fontSize: 'var(--text-heading)', fontWeight: 700, color: 'var(--color-warning)', letterSpacing: '-0.01em' }}>
+        <Zap size={18} style={{ color: '#78350F', animation: 'pulse-badge 1.5s ease-in-out infinite' }} aria-hidden="true" />
+        <h3 style={{ margin: 0, fontSize: 'var(--text-heading)', fontWeight: 700, color: '#78350F', letterSpacing: '-0.01em' }}>
           Action required
         </h3>
       </div>
@@ -1087,7 +1092,7 @@ function drawerTitle(activeTab: TabId, phase: OperationPhase, operationType: Ope
     if (activeTab === 'receive') return 'Receive'
   }
   const opLabel = { shield: 'Shield', send: 'Send', unshield: 'Unshield' }[operationType]
-  if (phase === 'awaiting_wallet_step1' || phase === 'awaiting_wallet_step2') return `${opLabel} · Confirm in wallet`
+  if (phase === 'awaiting_wallet_step1' || phase === 'awaiting_wallet_step2') return `${opLabel} · Approve in wallet`
   if (phase === 'submitted' || phase === 'processing' || phase === 'finalizing') return `${opLabel} · In progress`
   if (phase === 'proof_ready') return 'Action required'
   if (phase === 'completed') return `${opLabel} complete`
@@ -1113,6 +1118,7 @@ export function RightPanel({
   onStartShield,
   onStartSend,
   onStartUnshield,
+  onConfirmWalletStep,
   onCancel,
   onComplete,
   onDone,
@@ -1144,7 +1150,8 @@ export function RightPanel({
 
   const handleStartSend = (amt: string, rec: string, token: string) => {
     setActiveToken(token)
-    onStartSend(amt, rec)
+    const isShielded = SHIELDED_TOKENS.some(t => t.symbol === token)
+    onStartSend(amt, rec, isShielded)
   }
 
   const isIdle = phase === 'idle'
@@ -1158,7 +1165,7 @@ export function RightPanel({
 
   const phaseViewProps: PhaseViewProps = {
     op: operationType, amount, phase, recipient, startedAt, txHash,
-    onCancel, onComplete, onDone, publicBalance, shieldedBalance,
+    onConfirmWalletStep, onCancel, onComplete, onDone, publicBalance, shieldedBalance,
     token: activeToken,
   }
 

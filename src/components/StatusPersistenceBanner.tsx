@@ -40,7 +40,7 @@ function formatElapsed(ms: number): string {
 
 const OPERATION_LABEL: Record<OperationType, string> = {
   shield: 'Shielding',
-  send: 'Sending shielded',
+  send: 'Sending',
   unshield: 'Unshielding',
 }
 
@@ -57,7 +57,7 @@ const VARIANT_CONFIG = {
     bg: 'rgba(180,83,9,0.06)',
     border: 'rgba(180,83,9,0.25)',
     Icon: Zap,
-    iconColor: 'var(--color-warning)',
+    iconColor: '#78350F',
     dismissable: false,
     pulse: true,
   },
@@ -74,7 +74,7 @@ const VARIANT_CONFIG = {
     border: 'rgba(185,28,28,0.2)',
     Icon: AlertCircle,
     iconColor: 'var(--color-error)',
-    dismissable: false,
+    dismissable: true,
     pulse: false,
   },
 }
@@ -94,12 +94,6 @@ export function StatusPersistenceBanner({
     const t = setInterval(() => setElapsed(Date.now() - startedAt), 30_000)
     return () => clearInterval(t)
   }, [startedAt])
-
-  useEffect(() => {
-    if (variant !== 'completed' || !onDismiss) return
-    const t = setTimeout(onDismiss, 10_000)
-    return () => clearTimeout(t)
-  }, [variant, onDismiss])
 
   if (!variant) return null
 
