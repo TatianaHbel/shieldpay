@@ -5,6 +5,7 @@ import { ActivityRow } from '../components/ActivityRow'
 import { TokenTable } from '../components/TokenTable'
 import { ActionButtonRow } from '../components/ActionButtonRow'
 import { useDrawer } from '../context/DrawerContext'
+import { MOCK_ACTIVITY, IN_PROGRESS_STATUSES } from '../mocks/activityMocks'
 
 const ICON_BASE = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color'
 
@@ -20,25 +21,12 @@ const SHIELDED_AVATARS = [
   { symbol: 'DAI',  imageUrl: `${ICON_BASE}/dai.png`  },
 ]
 
-const ETH_TOKEN = { symbol: 'ETH', imageUrl: `${ICON_BASE}/eth.png` }
-
 interface OverviewProps {
   publicBalance: string
   shieldedBalance: string
   shieldedHidden: boolean
   onToggleShielded: () => void
 }
-
-const now = Date.now()
-const MOCK_ACTIVITY = [
-  { id: 'ip-1', type: 'shield'   as const, token: ETH_TOKEN, amount: '0.50', status: 'finalizing'   as const, date: now - 120000,    txHash: '0xabc123' },
-  { id: 'ip-2', type: 'unshield' as const, token: ETH_TOKEN, amount: '0.30', status: 'proof_ready'  as const, date: now - 300000,    txHash: undefined  },
-  { id: '1',    type: 'shield'   as const, token: ETH_TOKEN, amount: '0.50', status: 'completed'    as const, date: now - 86400000,  txHash: '0xabc123' },
-  { id: '2',    type: 'unshield' as const, token: ETH_TOKEN, amount: '0.20', status: 'completed'    as const, date: now - 172800000, txHash: '0xdef456' },
-  { id: '3',    type: 'send'     as const, token: ETH_TOKEN, amount: '0.10', status: 'completed'    as const, date: now - 259200000, txHash: undefined  },
-]
-
-const IN_PROGRESS_STATUSES = new Set(['preparing', 'awaiting_wallet_step1', 'awaiting_wallet_step2', 'submitted', 'processing', 'finalizing', 'proof_ready'])
 
 type BottomTab = 'tokens' | 'activity' | 'in-progress'
 

@@ -2,19 +2,11 @@ import { BalanceCard } from '../components/BalanceCard'
 import { ActivityRow } from '../components/ActivityRow'
 import { Button } from '../components/Button'
 import { useDrawer } from '../context/DrawerContext'
-
-const ICON_BASE = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color'
-const ETH_TOKEN = { symbol: 'ETH', imageUrl: `${ICON_BASE}/eth.png` }
+import { MOCK_ACTIVITY } from '../mocks/activityMocks'
 
 interface PublicSectionProps {
   publicBalance: string
 }
-
-const now = Date.now()
-const MOCK_ACTIVITY = [
-  { id: '1', type: 'shield' as const, token: ETH_TOKEN, amount: '0.50', status: 'completed' as const, date: now - 86400000, txHash: '0xabc123' },
-  { id: '2', type: 'unshield' as const, token: ETH_TOKEN, amount: '0.20', status: 'completed' as const, date: now - 432000000, txHash: '0xdef456' },
-]
 
 export function PublicSection({ publicBalance }: PublicSectionProps) {
   const { openDrawer } = useDrawer()

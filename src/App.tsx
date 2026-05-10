@@ -10,8 +10,8 @@ import { UseCase } from './pages/UseCase'
 const MOCK_PUBLIC_BALANCE = '1.24'
 const MOCK_SHIELDED_BALANCE = '0.50'
 
-function AppWithShell({ publicBalance, shieldedBalance }: { publicBalance: string; shieldedBalance: string }) {
-  const [shieldedHidden, setShieldedHidden] = useState(true)
+function AppWithShell({ publicBalance, shieldedBalance, onDisconnect }: { publicBalance: string; shieldedBalance: string; onDisconnect: () => void }) {
+  const [shieldedHidden, setShieldedHidden] = useState(false)
   const toggleShielded = () => setShieldedHidden(h => !h)
 
   return (
@@ -19,7 +19,7 @@ function AppWithShell({ publicBalance, shieldedBalance }: { publicBalance: strin
       <Route
         path="/"
         element={
-          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance}>
+          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} onDisconnect={onDisconnect}>
             <Overview
               publicBalance={publicBalance}
               shieldedBalance={shieldedBalance}
@@ -32,7 +32,7 @@ function AppWithShell({ publicBalance, shieldedBalance }: { publicBalance: strin
       <Route
         path="/design-system"
         element={
-          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} hideRightPanel>
+          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} hideRightPanel onDisconnect={onDisconnect}>
             <DesignSystem />
           </AppShell>
         }
@@ -41,7 +41,7 @@ function AppWithShell({ publicBalance, shieldedBalance }: { publicBalance: strin
       <Route
         path="/use-case"
         element={
-          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} hideRightPanel>
+          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} hideRightPanel onDisconnect={onDisconnect}>
             <UseCase />
           </AppShell>
         }
@@ -56,6 +56,11 @@ export default function App() {
   const handleConnected = () => {
     localStorage.setItem('shieldpay_connected', 'true')
     setConnected(true)
+  }
+
+  const handleDisconnect = () => {
+    localStorage.removeItem('shieldpay_connected')
+    setConnected(false)
   }
 
   return (
@@ -73,7 +78,7 @@ export default function App() {
           path="/*"
           element={
             connected
-              ? <AppWithShell publicBalance={MOCK_PUBLIC_BALANCE} shieldedBalance={MOCK_SHIELDED_BALANCE} />
+              ? <AppWithShell publicBalance={MOCK_PUBLIC_BALANCE} shieldedBalance={MOCK_SHIELDED_BALANCE} onDisconnect={handleDisconnect} />
               : <Navigate to="/connect" replace />
           }
         />

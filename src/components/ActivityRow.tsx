@@ -29,7 +29,7 @@ const TYPE_CONFIG: Record<OperationType, {
     defaultDirection: '-',
   },
   unshield: {
-    directionLabel: { in: 'Unshielded', out: 'Unshielding' },
+    directionLabel: { in: 'Unshielded', out: 'Unshielded' },
     defaultDirection: '+',
   },
 }
@@ -63,11 +63,11 @@ function getRowState(status: OperationPhase): 'complete' | 'in-progress' | 'acti
 function getPhaseLabel(status: OperationPhase, type: OperationType): string {
   const labels: Partial<Record<OperationPhase, string>> = {
     preparing: 'Preparing…',
-    awaiting_wallet_step1: 'Awaiting wallet…',
-    awaiting_wallet_step2: 'Awaiting wallet…',
-    submitted: 'Submitted…',
-    processing: type === 'unshield' ? 'Waiting for proof…' : 'Confirming…',
-    finalizing: 'Encrypting…',
+    awaiting_wallet_step1: 'Waiting for wallet…',
+    awaiting_wallet_step2: 'Waiting for wallet…',
+    submitted: 'Confirming on-chain…',
+    processing: type === 'unshield' ? 'Preparing release…' : 'Confirming on-chain…',
+    finalizing: type === 'unshield' ? 'Releasing to public balance…' : 'Encrypting balance…',
     proof_ready: 'Action required',
   }
   return labels[status] ?? ''

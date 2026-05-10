@@ -77,9 +77,10 @@ interface AppShellProps {
   publicBalance: string
   shieldedBalance: string
   hideRightPanel?: boolean
+  onDisconnect?: () => void
 }
 
-export function AppShell({ children, publicBalance, shieldedBalance, hideRightPanel }: AppShellProps) {
+export function AppShell({ children, publicBalance, shieldedBalance, hideRightPanel, onDisconnect }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(false)
   const [overlayIntensity, setOverlayIntensity] = useState<0 | 30 | 50>(0)
   const [navWarning, setNavWarning] = useState<{ urgency: 'soft' | 'urgent'; destination: string } | null>(null)
@@ -323,10 +324,13 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
             <span style={{ fontFamily: 'monospace', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
               {MOCK_WALLET.slice(0, 6)}…{MOCK_WALLET.slice(-4)}
             </span>
-            <button style={{
-              background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-              fontSize: '12px', color: 'var(--color-blue)',
-            }}>
+            <button
+              onClick={onDisconnect}
+              style={{
+                background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                fontSize: '12px', color: 'var(--color-blue)',
+              }}
+            >
               Disconnect
             </button>
           </div>

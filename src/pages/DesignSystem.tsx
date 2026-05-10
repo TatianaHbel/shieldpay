@@ -50,7 +50,7 @@ const COMPONENT_ITEMS = [
   { id: 'status-persistence-banner', label: 'StatusPersistenceBanner', done: true },
   { id: 'navigation-warning', label: 'NavigationWarning', done: true },
   { id: 'connect-wallet-card', label: 'ConnectWalletCard', done: true },
-  { id: 'right-panel', label: 'RightPanel', done: true },
+  { id: 'right-panel', label: 'Right Panel (Drawer)', done: true },
   { id: 'left-column-overlay', label: 'LeftColumnOverlay', done: true },
   { id: 'table', label: 'Table', done: true },
   { id: 'token-table', label: 'TokenTable', done: true },
@@ -312,7 +312,7 @@ export function DesignSystem() {
   // TokenTable demo
   const [tokenTableHidden, setTokenTableHidden] = useState(false)
 
-  // RightPanel demo
+  // Drawer (Right Panel) demo
   const [panelPhase, setPanelPhase] = useState<OperationPhase>('idle')
   const [panelOp, setPanelOp] = useState<OperationType>('shield')
   const [panelOpen, setPanelOpen] = useState(false)
@@ -419,7 +419,7 @@ export function DesignSystem() {
         </Section>
 
         {/* Elevation */}
-        <Section id="elevation" title="Elevation" description="Four-level shadow scale using Midnight at low opacity. Higher layers carry more visual weight. RightPanel always sits at the top of the elevation hierarchy.">
+        <Section id="elevation" title="Elevation" description="Four-level shadow scale using Midnight at low opacity. Higher layers carry more visual weight. Drawer always sits at the top of the elevation hierarchy.">
           <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '40px' }}>
             {SHADOW_SCALE.map(s => (
               <div key={s.token} style={{ flex: 1, minWidth: '160px', background: 'var(--color-surface-raised)', borderRadius: 'var(--radius-lg)', padding: '24px 20px', boxShadow: s.value, display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -435,7 +435,7 @@ export function DesignSystem() {
                 { layer: 'Page surface', token: 'none', desc: 'Background, page fills' },
                 { layer: 'Cards', token: '--shadow-md', desc: 'BalanceCard, ActivityRow container' },
                 { layer: 'Floating panels', token: '--shadow-lg', desc: 'Dropdowns, StatusPersistenceBanner' },
-                { layer: 'Right panel', token: '--shadow-xl', desc: 'RightPanel — always top of hierarchy' },
+                { layer: 'Right panel', token: '--shadow-xl', desc: 'Drawer — always top of hierarchy' },
               ].map(row => (
                 <div key={row.layer} style={{ display: 'grid', gridTemplateColumns: '160px 200px 1fr', gap: '24px', padding: '13px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'center' }}>
                   <span style={{ fontSize: 'var(--text-small)', fontWeight: 600, color: 'var(--color-text-primary)' }}>{row.layer}</span>
@@ -468,7 +468,7 @@ export function DesignSystem() {
             <div style={{ borderTop: '1px solid var(--color-border)' }}>
               {[
                 { tier: 'A — Primitive CSS', desc: 'Hover transitions, pulse indicators, spin. No external libraries.', examples: 'StatusBadge pulse, ActivityRow spinner, Button hover' },
-                { tier: 'B — Entrance / Exit', desc: 'Entrance and exit animations for elements appearing or disappearing. Prevents jarring visual jumps.', examples: 'LeftColumnOverlay fade, Notification entrance, RightPanel slide' },
+                { tier: 'B — Entrance / Exit', desc: 'Entrance and exit animations for elements appearing or disappearing. Prevents jarring visual jumps.', examples: 'LeftColumnOverlay fade, Notification entrance, Drawer slide' },
                 { tier: 'C — Advanced', desc: 'SVG animations, animated logos, skeleton loaders. Brand character.', examples: 'Reserved — future loading states' },
               ].map(row => (
                 <div key={row.tier} style={{ display: 'grid', gridTemplateColumns: '180px 1fr 1fr', gap: '24px', padding: '14px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'baseline' }}>
@@ -699,18 +699,17 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Use native <button> for all clickable actions.',
-                'Add aria-label for icon-only buttons.',
-                'Establish hierarchy — one primary CTA per view section.',
-                'Keep loading state dimensions fixed to prevent layout shift.',
-                'Meet 44px minimum touch target on all sizes.',
+                'Use `primary` for the single forward action per view: "Shield funds →", "Confirm", "Connect wallet".',
+                'Use `secondary` alongside a primary for reversible alternatives: "Cancel", "Go back".',
+                'Use `destructive` only for irreversible fund-affecting actions, always with a confirmation step.',
+                'Switch to `loading` state immediately on submission — before the wallet popup opens.',
+                'Add `aria-label` on icon-only buttons (eye toggle, close, external link).',
               ]}
               donts={[
-                "Don't use <div> or <span> as buttons.",
-                "Don't remove focus ring without a custom outline alternative.",
-                "Don't use more than one primary button in the same section.",
-                "Don't truncate button labels — use shorter copy instead.",
-                "Don't trigger two actions on the same button simultaneously.",
+                "Don't use more than one `primary` button in the same view section.",
+                "Don't disable while async work is pending — show `loading` instead; disabling traps users.",
+                "Don't keep `loading` state after the operation moves to `awaiting_wallet_confirmation` — WalletConfirmationPrompt takes over focus.",
+                "Don't use a button for state toggles (use Switch) or navigation labels (use links).",
               ]}
             />
           </Subsection>
@@ -773,18 +772,17 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Use inputmode="decimal" or inputmode="numeric" for amount inputs — not type="number".',
-                'Validate on blur for simple fields (email, amounts). Instant validation only for complex fields (password strength).',
-                'Set font-size ≥ 16px on inputs to prevent iOS auto-zoom.',
-                'Associate label via for/id. Link hint and error via aria-describedby.',
-                'Show errors only after the user has interacted with the field.',
+                'Use `inputmode="decimal"` for all crypto amount fields — never `type="number"`.',
+                'Use the `hint` prop to show available balance beneath the amount input: "Available: 4.28 ETH".',
+                'Validate on blur only — not on keystroke; premature errors interrupt typing.',
+                'Label amount inputs "Amount" — never "ETH amount"; currency denomination is shown separately.',
+                'Set font-size ≥ 16px to prevent iOS auto-zoom on focus.',
               ]}
               donts={[
-                "Don't use type=\"number\" — it has scroll-wheel and accessibility issues.",
-                "Don't use placeholder as the only label — it disappears and is inaccessible.",
-                "Don't wrap <input> inside <label> — causes unexpected activation behavior.",
-                "Don't show validation errors before the user has touched the field.",
-                "Don't omit aria-invalid and aria-describedby on error states.",
+                "Don't use `type=\"number\"` — scroll-wheel changes silently corrupt crypto amounts.",
+                "Don't use placeholder as the only label — it disappears when the user types.",
+                "Don't show validation errors before the user has blurred the field.",
+                "Don't use TextField for wallet address display — use the mono type token instead.",
               ]}
             />
           </Subsection>
@@ -841,18 +839,16 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Use noun + verb message pattern: "Transfer sent", not "The transfer has been sent".',
-                'Use role="alert" for errors, role="status" for everything else.',
-                'Pause the auto-dismiss timer on hover — give users time to read.',
-                'Limit the stack to 3 notifications. Dismiss oldest silently when exceeded.',
-                'Position bottom-left — least disruptive quadrant of the screen.',
+                'Use for lightweight transient feedback: "Copied to clipboard", "Transaction submitted".',
+                'Position bottom-left — Drawer owns the right side during active operations.',
+                'Use `role="alert"` only for unexpected errors; `role="status"` for operation progress events.',
+                'Auto-dismiss informational and success notifications after 5s; never auto-dismiss actionable ones.',
               ]}
               donts={[
-                "Don't block the UI or require dismissal for non-critical notifications.",
-                "Don't use role=\"alert\" for informational messages — it interrupts screen reader focus.",
-                "Don't show more than 3 notifications simultaneously.",
-                "Don't auto-dismiss actionable notifications in under 10s.",
-                "Don't use notifications for errors that belong inline in a form.",
+                "Don't use Notification for operation phase changes — use StatusPersistenceBanner (persists across navigation) or the Drawer state (in-flow).",
+                "Don't use for inline form errors — those belong in the TextField `error` prop.",
+                "Don't show while WalletConfirmationPrompt is active — competing messages break focus.",
+                "Don't stack more than 3 — dismiss the oldest silently when exceeded.",
               ]}
             />
           </Subsection>
@@ -889,14 +885,15 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Use action-required only when the user must act to continue.',
-                'Override the label to provide specific phase context ("Encrypting…", "Waiting for proof…").',
-                'Pair with PhaseIndicator in operation flows for full state context.',
+                'Map badge variants directly to operation phases: `processing` → processing/finalizing; `action-required` → proof_ready; `completed` → completed; `failed` → any failure type.',
+                'Override the label with specific phase copy: "Encrypting…" not "Processing", "Waiting for proof…" not "Action required".',
+                'Use `action-required` (pulsing) only when the user must tap to continue — proof_ready unshield is the only such phase in the current flow.',
+                'Pair with PhaseIndicator inside the Drawer; use standalone in ActivityRow.',
               ]}
               donts={[
-                "Don't use action-required for non-urgent states — the pulse creates unnecessary anxiety.",
-                "Don't truncate labels — use shorter copy or a wider container.",
-                "Don't use more than one badge per row in ActivityRow.",
+                "Don't use `action-required` during `processing` or `finalizing` — the user has nothing to do and the pulse creates false urgency.",
+                "Don't use `completed` during the `finalizing` phase — Etherscan shows 'Success' but the private balance is still computing.",
+                "Don't show more than one badge per ActivityRow.",
               ]}
             />
           </Subsection>
@@ -951,15 +948,16 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Always show labels inline — users must understand which phase they are in at a glance.',
-                'Use named phase labels, not numbers (Auth, Encrypt, Done — not 1, 2, 3).',
-                'Keep phase count to 4 — the spec-defined maximum for all operation types.',
-                'Use the vertical variant in narrow contexts (right panel, mobile) where horizontal runs out of space.',
+                'Use inside the Drawer during active shield/unshield operations — this is its only placement in the app.',
+                'Show all 4 phases even when one is near-instant — skipping phases makes users doubt whether the system is progressing.',
+                'Treat `processing` and `finalizing` as separate phases — the on-chain confirmation and FHE computation are distinct steps that must not be merged.',
+                'Use the vertical variant inside the Drawer; horizontal only in wider standalone contexts.',
               ]}
               donts={[
-                "Don't use this as a numbered stepper for user-driven flows.",
-                "Don't hide labels behind hover or tooltips.",
-                "Don't skip phases in the visual sequence — even if a phase is instant, render it.",
+                "Don't use as a multi-step form wizard — it shows what the system is doing, not what the user must do.",
+                "Don't mark `finalizing` complete until the private balance has updated — the transaction confirming on-chain is not the end of the operation.",
+                "Don't hide or abbreviate phase labels — they are the primary communication mechanism during a wait.",
+                "Don't render outside the Drawer — it belongs to the in-flight operation context only.",
               ]}
             />
           </Subsection>
@@ -1128,18 +1126,16 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Group related content and a single primary action into one card.',
-                'Use CardDescription to explain what will happen — not what the user needs to do.',
-                'Limit CardFooter to 2 actions maximum.',
-                'Use Summary type for single-metric displays — omit CardHeader when the title adds no value.',
-                'Let content determine card height — never set a fixed height.',
+                'Use Card for self-contained content units with a single action: a fee summary, a confirmation step, a token detail.',
+                'Use Card for the ConnectWallet flow — it lives on the full `/connect` page and expands inline; never in a drawer or modal.',
+                'Use `CardDescription` to say what will happen next, not instructions for what the user must do.',
+                'Limit `CardFooter` to one primary and one secondary action at most.',
               ]}
               donts={[
-                "Don't make the card root tappable — actions must be explicit buttons.",
-                "Don't put more than one primary action in a single card.",
-                "Don't use CardDescription for instructions — use helper text in CardContent instead.",
-                "Don't nest cards — use sections or panels for hierarchical layouts.",
-                "Don't mix destructive and non-destructive actions in the same CardFooter without a visible separator.",
+                "Don't use Card for multi-phase operation UI — that belongs in the Drawer.",
+                "Don't use Card as a drawer or modal substitute — it is always in the document flow.",
+                "Don't nest Card inside Card — use sections or layout primitives for hierarchy.",
+                "Don't put an amount input and a CTA in the same Card — the shield form is its own full view, not a card.",
               ]}
             />
           </Subsection>
@@ -1164,14 +1160,14 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Use for persistent binary settings (notifications on/off, visibility toggle).',
-                'Always label the switch — standalone tracks are ambiguous.',
-                'Change the label text to reflect the current state ("Shielded mode on/off").',
+                'Use for persistent binary settings that apply immediately: balance visibility, notification preferences.',
+                'Always pair with a visible label — the track alone is ambiguous without context.',
+                'Apply the change on toggle — no Save step.',
               ]}
               donts={[
-                "Don't use for actions — use a Button instead.",
-                "Don't rely on color alone — the thumb position is the primary state indicator.",
-                "Don't use in forms that require explicit Save — switches apply immediately.",
+                "Don't use for initiating operations — use Button for shield, unshield, send actions.",
+                "Don't place inside forms that require explicit submission — Switch state is live, not staged.",
+                "Don't rely on color alone to convey state — thumb position is the primary indicator.",
               ]}
             />
           </Subsection>
@@ -1332,20 +1328,17 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Always render in-progress rows above completed rows — ordering is defined by spec, not by date.',
-                'Use section headers to divide groups — never interleave in-progress and completed rows.',
-                'Default hidden=true for shielded send amounts — privacy is the safe default.',
-                'Show "Complete →" CTA only on proof_ready unshield rows.',
-                'Always include the empty state terminator so users know the list is complete.',
-                'Use tabular-nums for all amounts to prevent layout shift across rows.',
+                'Always render in-progress rows above completed rows — this ordering is non-negotiable regardless of timestamp.',
+                'Use section headers ("In progress", "Completed") to divide groups — group context is load-bearing information.',
+                'Show the "Complete →" CTA only on `proof_ready` unshield rows — this is the only user-required action in the entire operation lifecycle.',
+                'Default `hidden=true` for shielded send amounts — privacy is the safe default.',
+                'Always include the list terminator ("No more transactions") so users know the list is complete, not truncated.',
               ]}
               donts={[
-                "Don't render completed rows before in-progress ones, even if they have a more recent date.",
-                "Don't reveal shielded transfer amounts by default.",
-                "Don't show the Complete CTA on any row other than proof_ready unshield.",
-                "Don't use a flat list without section headers — group context is part of the information architecture.",
-                "Don't add more than one trailing action per row — amount + one action/link is the maximum.",
-                "Don't truncate the operation label — use shorter copy rather than ellipsis.",
+                "Don't render completed rows before in-progress ones, even if more recently dated.",
+                "Don't show the Complete CTA on any status other than `proof_ready` unshield — no other phase requires user action.",
+                "Don't make rows tappable to expand — no token or transaction detail pages exist yet.",
+                "Don't add more than one trailing action per row.",
               ]}
             />
           </Subsection>
@@ -1390,16 +1383,16 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Show the banner when the user navigates away from an active operation.',
-                'Use "secured" not "safe" copy for unshield intermediate states (after Step 1 confirms).',
-                'Auto-dismiss completed banners after 10s — they are informational, not actionable.',
-                'Never auto-dismiss action-required banners — they require user action.',
+                'Mount in the AppShell layout — always rendered globally, never inside a page component.',
+                'Show when the user navigates away from an active operation — this is the primary cross-navigation state signal.',
+                'Auto-dismiss after 10s for `completed` state only — it is informational once the operation finishes.',
+                'Keep visible and non-dismissable for `failed` and `action-required` states — the user must act.',
               ]}
               donts={[
-                "Don't show the banner when the user is viewing the active operation in the right panel.",
-                "Don't use role=\"alert\" for the banner — it's informational, not urgent.",
-                "Don't allow dismissal of failed banners — user must acknowledge via the View panel.",
-                "Don't use processing colors for completed states — green only when done.",
+                "Don't show while the Drawer is visible and displaying the active operation — it duplicates state the user can already see.",
+                "Don't use for lightweight feedback — use Notification instead.",
+                "Don't use `role=\"alert\"` — the banner is a persistent status indicator, not an urgent interruption.",
+                "Don't use processing colors for `completed` — green only after the private balance has updated.",
               ]}
             />
           </Subsection>
@@ -1430,16 +1423,16 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Intercept navigation events and show this dialog — never use browser confirm().',
-                'Use "secured" copy for proof_ready state — funds are in an intermediate state.',
-                'Make "Leave anyway" always available — do not trap users.',
-                'Auto-focus the primary CTA when the dialog appears.',
+                'Show only during `proof_ready` unshield — this is the only phase where funds are in an intermediate contract and leaving has a meaningful consequence.',
+                'Intercept navigation with this dialog instead of browser `confirm()` — it allows custom copy and accessible focus management.',
+                'Always make "Leave anyway" available — never trap the user; inform, do not block.',
+                'Auto-focus the "Stay" CTA on open so keyboard users land on the safer default.',
               ]}
               donts={[
-                "Don't show NavigationWarning for Shield or Send operations — users can freely leave.",
-                "Don't block navigation for more than 2 seconds — show the dialog immediately.",
-                "Don't use role=\"alertdialog\" with aria-required — users must be able to leave.",
-                "Don't show urgency variant when operation is only in processing phase.",
+                "Don't show during `processing` or `finalizing` shield phases — users can safely navigate away; the operation continues server-side.",
+                "Don't show for Send operations.",
+                "Don't delay rendering — show the dialog immediately on navigation intercept, not after a timeout.",
+                "Don't use `role=\"alertdialog\"` with `aria-required` — users have the right to leave.",
               ]}
             />
           </Subsection>
@@ -1488,58 +1481,100 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Show EIP-712 setup inline — never as a surprise second popup after connection.',
-                'Confirm wallet connection visually (✓) before presenting the signature ask.',
-                'Always provide a cancel / back path from every state.',
-                'Explain that EIP-712 is free and one-time before the wallet popup opens.',
+                'Render as the entire `/connect` page — full screen, no AppShell, no Drawer. This is the only full-page takeover in the app.',
+                'Show EIP-712 setup as a subsequent state within the card after wallet connects — never as a surprise second popup.',
+                'Confirm the wallet connection visually before asking for the EIP-712 signature.',
+                'Explain that EIP-712 is one-time and free before the wallet popup opens.',
               ]}
               donts={[
-                "Don't auto-trigger the EIP-712 popup — show the setup card first.",
-                "Don't open a modal for wallet selection — expand inline within the card.",
-                "Don't use generic error copy — every error type has specific recovery instructions.",
-                "Don't remove 'Skip for now' — forcing EIP-712 on first connect breaks the flow.",
+                "Don't open wallet selection in a modal — expand inline within the card.",
+                "Don't auto-trigger the EIP-712 popup — show the setup state inside the card first.",
+                "Don't remove 'Skip for now' — forcing EIP-712 on first connect creates friction that breaks the onboarding funnel.",
+                "Don't use generic error copy — each error type (rejected, timeout, already-connected) needs its own recovery instruction.",
               ]}
             />
           </Subsection>
         </Section>
 
-        <Section id="right-panel" title="RightPanel" description="Persistent transaction widget — 380px fixed, always mounted. Tab bar hidden during any active operation phase. Emits overlayIntensity to parent to drive LeftColumnOverlay. Every phase state answers: what is happening, what should I do, and what happens if I leave.">
+        <Section id="right-panel" title="Right Panel (Drawer)" description="Persistent 380px transaction drawer, always mounted. Never unmounts on route change. Tab bar hidden during any active operation phase. Every phase answers three questions: what is happening, what the user should do, and what happens if they leave.">
           <Subsection title="State machine — live demo">
-            <div style={{ marginBottom: '12px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>Operation</div>
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-                {(['shield', 'send', 'unshield'] as const).map(op => (
-                  <Button key={op} size="sm" variant={panelOp === op ? 'primary' : 'secondary'}
-                    onClick={() => { setPanelOp(op); setPanelPhase('idle') }}>
-                    {op.charAt(0).toUpperCase() + op.slice(1)}
-                  </Button>
-                ))}
+            {/* Controls: Operation (parent) → Phase (child), aligned labels, no extra toggle button */}
+            <div style={{ marginBottom: '16px', padding: '16px 20px', background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+              {/* Operation row */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.07em', minWidth: '76px' }}>Operation</span>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {(['shield', 'send', 'unshield'] as const).map(op => (
+                    <Button key={op} size="sm" variant={panelOp === op ? 'primary' : 'secondary'}
+                      onClick={() => { setPanelOp(op); setPanelPhase('idle') }}>
+                      {op.charAt(0).toUpperCase() + op.slice(1)}
+                    </Button>
+                  ))}
+                </div>
               </div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '8px' }}>Phase</div>
-              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                {([
-                  { phase: 'idle', label: 'Idle' },
-                  { phase: 'awaiting_wallet_step1', label: 'Step 1' },
-                  { phase: 'awaiting_wallet_step2', label: 'Step 2' },
-                  { phase: 'processing', label: 'Processing' },
-                  { phase: 'finalizing', label: 'Finalizing' },
-                  ...(panelOp === 'unshield' ? [{ phase: 'proof_ready', label: 'Proof ready' }] : []),
-                  { phase: 'completed', label: 'Completed' },
-                  { phase: 'failed_submission', label: 'Failed' },
-                  { phase: 'cancelled', label: 'Cancelled' },
-                ] as { phase: OperationPhase; label: string }[]).map(({ phase, label }) => (
-                  <Button key={phase} size="sm" variant={panelPhase === phase ? 'primary' : 'ghost'}
-                    onClick={() => setPanelPhase(phase)}>
-                    {label}
-                  </Button>
-                ))}
+
+              <div style={{ height: '1px', background: 'var(--color-border)' }} />
+
+              {/* Phase row: happy path with arrows + exit states branching below */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.07em', minWidth: '76px', paddingTop: '5px' }}>Phase</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
+                  {/* Happy path flow */}
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '3px' }}>
+                    {([
+                      { phase: 'idle', label: 'Idle' },
+                      { phase: 'awaiting_wallet_step1', label: 'Sign · 1' },
+                      { phase: 'awaiting_wallet_step2', label: 'Sign · 2' },
+                      { phase: 'processing', label: 'Processing' },
+                      { phase: 'finalizing', label: 'Finalizing' },
+                      ...(panelOp === 'unshield' ? [{ phase: 'proof_ready', label: 'Proof ready' }] : []),
+                      { phase: 'completed', label: 'Completed' },
+                    ] as { phase: OperationPhase; label: string }[]).map(({ phase, label }, i, arr) => (
+                      <span key={phase} style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                        <button
+                          onClick={() => { setPanelPhase(phase); setPanelOpen(true) }}
+                          style={{
+                            padding: '4px 10px', borderRadius: 'var(--radius-full)', cursor: 'pointer',
+                            border: panelOpen && panelPhase === phase ? '1.5px solid var(--color-blue)' : '1px solid var(--color-border)',
+                            background: panelOpen && panelPhase === phase ? 'rgba(55,72,255,0.08)' : 'transparent',
+                            color: panelOpen && panelPhase === phase ? 'var(--color-blue)' : 'var(--color-text-secondary)',
+                            fontSize: '12px', fontWeight: panelOpen && panelPhase === phase ? 600 : 400, whiteSpace: 'nowrap',
+                            fontFamily: 'inherit',
+                          }}
+                        >{label}</button>
+                        {i < arr.length - 1 && <ArrowRight size={10} color="var(--color-border)" aria-hidden />}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Exit states */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--color-border)', userSelect: 'none', paddingLeft: '2px' }}>↳ exit</span>
+                    {([
+                      { phase: 'failed_submission', label: 'Failed' },
+                      { phase: 'cancelled', label: 'Cancelled' },
+                    ] as { phase: OperationPhase; label: string }[]).map(({ phase, label }) => (
+                      <button key={phase}
+                        onClick={() => { setPanelPhase(phase); setPanelOpen(true) }}
+                        style={{
+                          padding: '4px 10px', borderRadius: 'var(--radius-full)', cursor: 'pointer',
+                          border: panelOpen && panelPhase === phase ? '1.5px solid var(--color-error)' : '1px solid var(--color-border)',
+                          background: panelOpen && panelPhase === phase ? 'rgba(185,28,28,0.06)' : 'transparent',
+                          color: panelOpen && panelPhase === phase ? 'var(--color-error)' : 'var(--color-text-secondary)',
+                          fontSize: '12px', fontWeight: panelOpen && panelPhase === phase ? 600 : 400, whiteSpace: 'nowrap',
+                          fontFamily: 'inherit',
+                        }}
+                      >{label}</button>
+                    ))}
+                  </div>
+
+                </div>
               </div>
             </div>
-            <div style={{ marginBottom: '12px' }}>
-              <Button size="sm" variant="secondary" onClick={() => setPanelOpen(o => !o)}>
-                {panelOpen ? 'Close drawer' : 'Open drawer demo'}
-              </Button>
-            </div>
+
+            {/* Demo frame — drawer always open; phase selection reflects immediately */}
             <div style={{ display: 'flex', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', height: '520px' }}>
               <div style={{ flex: 1, background: 'var(--color-surface-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Left column</span>
@@ -1562,7 +1597,7 @@ export function DesignSystem() {
                   onStartUnshield={() => setPanelPhase('awaiting_wallet_step1')}
                   onCancel={() => setPanelPhase('cancelled')}
                   onComplete={() => setPanelPhase('awaiting_wallet_step2')}
-                  onDone={() => { setPanelPhase('idle') }}
+                  onDone={() => setPanelPhase('idle')}
                   onOverlayIntensity={() => {}}
                 />
               </div>
@@ -1581,16 +1616,20 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Always mount the panel — never unmount on route change. State persists across navigation.',
-                'Answer all three questions in every phase: what is happening, what to do, what if I leave.',
-                'Use "secured" not "safe" in all unshield states after Step 1 confirms.',
-                'Hide tabs during active operations — user cannot start a new operation mid-flow.',
+                'Use the Drawer when the user needs to focus on an operation but should still be able to see the app underneath — the semi-transparent LeftColumnOverlay dims the left column enough to signal focus without hiding it.',
+                'Always keep mounted — never unmount on route change. The Drawer is the persistent operation surface, not a page-level component.',
+                'Replace the form with phase content during an active operation — the two states are mutually exclusive.',
+                'Answer all three questions in every phase copy: what is happening, what the user should do (or "nothing — you can leave"), and what happens if they leave.',
+                'Hide the tab bar during active operations — prevent starting a second operation mid-flow.',
+                'Treat the StatusPersistenceBanner as the re-entry point: it reminds the user an operation is active or needs attention, and tapping it reopens the Drawer at the current phase. It is not a notification — it is a persistent shortcut back to the operation.',
+                'Clicking an in-progress or completed ActivityRow entry for shield, unshield, or send should reopen the Drawer showing the final state of that operation (the last phase screen reached).',
+                'Pair with LeftColumnOverlay: intensity 50 for `awaiting_wallet_confirmation`, intensity 30 for `processing` and `finalizing`.',
               ]}
               donts={[
-                "Don't unmount the panel when the user changes sidebar sections.",
-                "Don't show a form during an active operation — phase content replaces it.",
-                "Don't use the same copy for all failures — each failure type has specific recovery instructions.",
-                "Don't skip the 'preparing' state — even if 1–2s, show the loading indicator.",
+                "Don't use the Drawer for content that doesn't require the user's attention on an active operation — use full pages or cards instead.",
+                "Don't use the same copy across failure types — `failed_submission`, `failed_dropped`, and `failed_finalization` each have distinct causes and recovery paths.",
+                "Don't skip the `preparing` state — even at 1–2s, the indicator confirms the system received the action.",
+                "Don't show the shield/send form while a phase is active — the operation owns the Drawer.",
               ]}
             />
           </Subsection>
@@ -1636,16 +1675,15 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Use intensity 50% for wallet-confirmation states — user must focus on the right panel.',
-                'Use intensity 30% for processing/finalizing — content is visible but de-emphasized.',
-                'Transition smoothly using --duration-slower — snapping breaks the visual focus.',
-                'Block pointer-events at all non-zero intensities — prevent left-column interaction mid-operation.',
+                'Set intensity 50 for `awaiting_wallet_confirmation` — the user must focus entirely on the wallet popup and Drawer.',
+                'Set intensity 30 for `processing` and `finalizing` — the left column stays visible but de-emphasized; the user can see it but not interact.',
+                'Set intensity 0 at idle — fully transparent and click-through.',
+                'Transition using `--duration-slower` (500ms) — the overlay communicates a deliberate mode shift, not an instant state change.',
               ]}
               donts={[
-                "Don't use opacity: 0 — content should remain dimly visible, not hidden.",
-                "Don't set pointer-events: none at 0% — the left column must be fully interactive at idle.",
-                "Don't hardcode rgba values — derive from --color-midnight token.",
-                "Don't use this for non-operation UI states like loading or empty states.",
+                "Don't use for non-operation states (page loading, empty states, errors) — it signals an active operation is blocking interaction.",
+                "Don't set opacity: 0 — dimmed content remaining visible is intentional; the user should see the left column is there but locked.",
+                "Don't hardcode rgba values — derive intensity from `--color-midnight` to stay consistent with the token system.",
               ]}
             />
           </Subsection>
@@ -1699,16 +1737,16 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Use asHeader on header cells — it sets uppercase, weight, and background automatically.',
-                'Use title + subtitle + start shorthand for standard asset/label rows.',
-                'Use direction="row" + justifyContent="flex-end" for right-aligned trailing cells.',
-                'Set accessibilityLabel on Table for screen reader region labelling.',
+                'Use as the primitive for any structured data list — TokenTable is built on top of it.',
+                'Use `title + subtitle + start` shorthand for asset rows (symbol + name + icon) — it handles layout automatically.',
+                'Use `direction="row" justifyContent="flex-end"` for right-aligned balance or value cells.',
+                'Always set `accessibilityLabel` on the Table root for screen reader region labelling.',
               ]}
               donts={[
-                "Don't mix asHeader cells into TableBody rows — header styling belongs only in TableHeader.",
-                "Don't hardcode padding or border-bottom inside TableCell children — the cell already provides them.",
-                "Don't skip TableHeader — always provide column labels for accessibility.",
-                "Don't nest Table inside Table.",
+                "Don't mix `asHeader` cells into TableBody rows — header styling belongs only inside TableHeader.",
+                "Don't hardcode padding or border-bottom inside TableCell children — the cell provides them.",
+                "Don't skip TableHeader — always include column labels even when they seem obvious.",
+                "Don't use Table for single-item displays — use Card or a plain layout instead.",
               ]}
             />
           </Subsection>
@@ -1746,16 +1784,15 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Control the hidden prop from outside the table — place the toggle above the component.',
-                'Keep shielded tokens named with the c-prefix (cETH, cUSDC) — they are distinct entries from their unshielded counterparts.',
-                'Use --color-shielded (#6D28D9) for all shielded treatments: border ring, badge background, PrivacyBadge tint.',
-                'Mask both token amount and USD value when hidden — never reveal partial balance information.',
+                'Drive `hidden` from the same page-level toggle that controls BalanceCard — the visibility state is shared across the entire Overview.',
+                'Treat cETH, cUSDC, cDAI as separate token entries from their unshielded counterparts — they have distinct balances and identities.',
+                'Use `--color-shielded` for all shielded treatments: avatar ring, badge background, PrivacyBadge tint — never substitute another color.',
+                'Mask both token amount and USD value when hidden — revealing either one exposes balance information.',
               ]}
               donts={[
-                "Don't add per-row privacy toggles — the table is masked or revealed as a whole.",
-                "Don't treat cETH as a visual variant of ETH — it is a separate token with its own balance.",
-                "Don't use gold or any color other than --color-shielded for the shielded avatar treatment.",
-                "Don't make rows clickable until navigation targets for individual token pages are defined.",
+                "Don't add per-row privacy toggles — the table masks and reveals as a whole.",
+                "Don't make rows tappable — no token detail pages are defined; clickable rows with no destination break user trust.",
+                "Don't use any color other than `--color-shielded` for the shielded avatar ring.",
               ]}
             />
           </Subsection>
