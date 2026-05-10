@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ShieldCheck, ArrowRight, Search, Wallet, Eye } from 'lucide-react'
+import { ShieldCheck, ArrowRight, Search, Wallet, Eye, EyeOff } from 'lucide-react'
 import { Button } from '../components/Button'
 import { TextField } from '../components/TextField'
 import { NotificationContainer, useNotifications } from '../components/Notification'
@@ -157,6 +157,18 @@ const SPACING_SCALE = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
 const NOW = Date.now()
 
+const ICON_BASE = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color'
+const OVERVIEW_PUBLIC_AVATARS = [
+  { symbol: 'ETH',  imageUrl: `${ICON_BASE}/eth.png`  },
+  { symbol: 'USDC', imageUrl: `${ICON_BASE}/usdc.png` },
+  { symbol: 'DAI',  imageUrl: `${ICON_BASE}/dai.png`  },
+]
+const OVERVIEW_SHIELDED_AVATARS = [
+  { symbol: 'ETH',  imageUrl: `${ICON_BASE}/eth.png`  },
+  { symbol: 'USDC', imageUrl: `${ICON_BASE}/usdc.png` },
+  { symbol: 'DAI',  imageUrl: `${ICON_BASE}/dai.png`  },
+]
+
 // ────────────────────────────────────────────────────────
 // Sidebar
 // ────────────────────────────────────────────────────────
@@ -275,7 +287,7 @@ function DoAndDont({ dos, donts }: { dos: string[]; donts: string[] }) {
 // ────────────────────────────────────────────────────────
 
 export function DesignSystem() {
-  const [shieldedHidden, setShieldedHidden] = useState(true)
+  const [shieldedHidden, setShieldedHidden] = useState(false)
   const [tfValue, setTfValue] = useState('')
   const { items: notifications, dismiss: dismissNotification } = useNotifications()
 
@@ -1198,46 +1210,45 @@ export function DesignSystem() {
         </Section>
 
         {/* BalanceCard */}
-        <Section id="balance-card" title="BalanceCard" description="Single balance display. Overview renders both side by side; section pages render only their type. Shielded amounts are hidden by default — toggled by an eye icon.">
-          <Subsection title="Public balance — variants">
-            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-              <BalanceCard type="public" amount="1.24" currency="ETH" hidden={false} usdValue="~$2,913.40" />
-              <BalanceCard type="public" amount="1.54" currency="ETH" hidden={false} usdValue="~$3,619.40" delta="+0.30 ETH" />
-              <BalanceCard type="public" amount="0.74" currency="ETH" hidden={false} usdValue="~$1,739.40" delta="−0.50 ETH" />
-            </div>
-          </Subsection>
-          <Subsection title="Shielded balance — hidden + revealed">
-            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-              <BalanceCard type="shielded" amount="0.50" currency="ETH" hidden={shieldedHidden} onToggleHidden={() => setShieldedHidden(h => !h)} usdValue="~$1,175.00" />
-              <BalanceCard type="shielded" amount="0.50" currency="ETH" hidden={false} usdValue="~$1,175.00" delta="+0.50 ETH" />
-            </div>
-          </Subsection>
+        <Section id="balance-card" title="BalanceCard" description="Paired balance display used in the Overview. Both cards render side by side with dollar totals and stacked token avatars. A single page-level eye toggle controls the hidden state on both simultaneously.">
           <Subsection title="Overview layout — side by side">
+            {/* Demo toggle — mirrors the page-level eye button in Overview, not part of BalanceCard itself */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <button
+                onClick={() => setShieldedHidden(h => !h)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)', padding: '4px', display: 'flex', alignItems: 'center' }}
+                aria-label={shieldedHidden ? 'Show all balances' : 'Hide all balances'}
+              >
+                {shieldedHidden ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
+              <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+                Page-level toggle (lives outside BalanceCard in Overview)
+              </span>
+            </div>
             <div style={{ display: 'flex', gap: '16px' }}>
-              <BalanceCard type="public" amount="1.24" currency="ETH" hidden={false} usdValue="~$2,913.40" />
-              <BalanceCard type="shielded" amount="0.50" currency="ETH" hidden={true} onToggleHidden={() => {}} usdValue="~$1,175.00" />
+              <BalanceCard type="public" amount="$17,203" currency="" hidden={shieldedHidden} usdValue="5.19 ETH" tokenAvatars={OVERVIEW_PUBLIC_AVATARS} />
+              <BalanceCard type="shielded" amount="$6,225" currency="" hidden={shieldedHidden} usdValue="1.88 ETH" tokenAvatars={OVERVIEW_SHIELDED_AVATARS} />
             </div>
           </Subsection>
           <Subsection title="Anatomy">
             <Anatomy parts={[
-              { name: 'header', desc: 'Icon + "Public / Shielded balance" label. Eye toggle appears on shielded variant only.' },
-              { name: 'amount', desc: 'display size, weight 700, tabular-nums. Replaced with "● ● ●" when hidden=true.' },
-              { name: 'usd-value', desc: 'Approximate fiat conversion. Hidden when amount is hidden.' },
-              { name: 'delta', desc: 'Optional. Signed change string. Green for positive, red for negative.' },
-              { name: 'token-badge', desc: 'Bottom-right. 3-letter token symbol (ETH). Background is 12% opacity of accent color.' },
+              { name: 'header', desc: 'Icon + "Public / Shielded balance" label. The eye toggle is a page-level button that lives outside both cards — not part of the card itself.' },
+              { name: 'amount', desc: 'display size, weight 700, tabular-nums. Replaced with "● ● ●" when hidden=true. Format depends on context: raw token amount on section pages (e.g. "4.28 ETH"), dollar total on Overview (e.g. "$17,203").' },
+              { name: 'usd-value', desc: 'Secondary denomination. Hidden when amount is hidden.' },
+              { name: 'bottom-right slot', desc: 'Stacked token avatars when tokenAvatars is provided (Overview). Falls back to a 3-letter symbol badge at 12% accent opacity when omitted (section pages).' },
             ]} />
           </Subsection>
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Render both cards side by side on Overview only.',
-                'Use the eye toggle exclusively on the shielded variant.',
-                'Show delta after an operation completes — it provides immediate feedback on the balance change.',
+                'Always render both cards together — public and shielded are meaningless without each other.',
+                'Pass tokenAvatars — stacked coin icons communicate that the balance spans multiple assets.',
+                'Control hidden from a single page-level toggle that affects both cards simultaneously.',
               ]}
               donts={[
-                "Don't show both BalanceCards on section pages — only show the relevant type.",
-                "Don't reveal the shielded amount by default — hidden=true is the safe default.",
-                "Don't hardcode the accent color — always derive from the type prop via the semantic tokens.",
+                "Don't add a per-card onToggleHidden — one toggle controls both cards, not each independently.",
+                "Don't reveal balances by default — hidden=true is the safe starting state.",
+                "Don't hardcode the accent color — always derive it from the type prop via semantic tokens.",
               ]}
             />
           </Subsection>
@@ -1718,6 +1729,9 @@ export function DesignSystem() {
                 onChange={setTokenTableHidden}
                 id="token-table-hidden"
               />
+              <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
+                (demo only — in the app, hidden is driven by the page-level eye toggle)
+              </span>
             </div>
             <TokenTable hidden={tokenTableHidden} />
           </Subsection>
