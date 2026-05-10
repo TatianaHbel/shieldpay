@@ -32,10 +32,10 @@ const SHIELD_PHASES: PhaseEntry[] = [
 
 const SEND_PHASES: PhaseEntry[] = [
   { phase: 'idle',                  label: 'Idle — form',       actor: 'user',            actorNote: 'User enters amount and recipient address' },
-  { phase: 'awaiting_wallet_step1', label: 'Wallet confirm',    actor: 'user',            actorNote: 'Single confirmation to send shielded transfer · costs gas' },
+  { phase: 'awaiting_wallet_step1', label: 'Wallet confirm',    actor: 'user',            actorNote: 'User approves transfer in wallet · costs gas. One step for both public and shielded sends.' },
   { phase: 'submitted',             label: 'Submitted',         actor: 'system',          actorNote: 'Tx broadcast — user can leave' },
   { phase: 'processing',            label: 'Confirming',        actor: 'system',          actorNote: 'On-chain confirmation in progress' },
-  { phase: 'finalizing',            label: 'Encrypting',        actor: 'system',          actorNote: 'Transfer encrypted for sender and recipient only (~1 min). No Etherscan amount visible.' },
+  { phase: 'finalizing',            label: 'Encrypting',        actor: 'system',          actorNote: 'Shielded sends only: transfer encrypted for sender and recipient (~1 min). Public sends (ETH, USDC, DAI) skip this step and go straight to completed.' },
   { phase: 'completed',             label: 'Complete',          actor: 'done',            actorNote: 'Transfer sent. Only sender and recipient can see the amount.' },
   { phase: 'cancelled',             label: 'Cancelled',         actor: 'error',           actorNote: 'User dismissed wallet — no funds moved' },
 ]
@@ -181,7 +181,7 @@ function PhaseVisualizer() {
 
   const opTabs: { id: OperationType; label: string }[] = [
     { id: 'shield',   label: 'Shield' },
-    { id: 'send',     label: 'Send shielded' },
+    { id: 'send',     label: 'Send' },
     { id: 'unshield', label: 'Unshield' },
   ]
 
@@ -466,7 +466,7 @@ export function UseCase() {
 
           <Label>StatusPersistenceBanner — cross-page operation visibility</Label>
           <ProseBlock>
-            When the user navigates away during an active operation, the banner persists in the left column on every route. It is the only way the user knows an operation is still running when they are not looking at the right panel.
+            The banner persists in the layout on every route for all non-idle operation states — including in-progress, completed, failed, and cancelled. A newer operation always overrides the previous one. This means the user can initiate a transaction and walk away: when they return, the banner shows exactly what happened. Completed, failed, and cancelled states stay visible until the user explicitly dismisses them.
           </ProseBlock>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '600px' }}>
@@ -625,7 +625,7 @@ export function UseCase() {
               { risk: 'User closed the tab — did the operation go through?', mitigation: 'StatusPersistenceBanner on every route. Right panel restores from localStorage on next load.' },
               { risk: 'Shielded balance decreased but public balance unchanged (Unshield)', mitigation: '"Funds not released yet" note inline. "Your funds are secured" — never "safe" in this state.' },
               { risk: 'User abandons Unshield at proof_ready — funds stay locked', mitigation: 'Urgent NavigationWarning + amber banner on all routes + ActivityRow CTA. Three entry points.' },
-              { risk: 'Second wallet popup appears with no context', mitigation: 'Step counter declared before Step 1. Auto-chains to Step 2 after Step 1 confirms.' },
+              { risk: 'Second wallet popup appears with no context', mitigation: 'Step counter declared before Step 1. After Step 1 is approved, the Step 2 confirm screen appears immediately — user approves again.' },
             ].map(({ risk, mitigation }, i) => (
               <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
                 <div style={{ padding: '14px 16px', background: 'rgba(185,28,28,0.03)', borderRight: '1px solid var(--color-border)' }}>
