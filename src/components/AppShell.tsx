@@ -5,12 +5,10 @@ import { RightPanel } from './RightPanel'
 import { StatusPersistenceBanner } from './StatusPersistenceBanner'
 import { NavigationWarning } from './NavigationWarning'
 import { LeftColumnOverlay } from './LeftColumnOverlay'
-import { Blockie } from './Blockie'
 import { useOperation } from '../hooks/useOperation'
 import { DrawerContext, useDrawerState } from '../context/DrawerContext'
 import type { OperationPhase } from '../types/operation'
 
-const MOCK_WALLET = '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b'
 
 const UC_SECTIONS = [
   { id: 'user-goal',         num: '01', label: 'User Goal & Assumptions' },
@@ -75,10 +73,9 @@ interface AppShellProps {
   publicBalance: string
   shieldedBalance: string
   hideRightPanel?: boolean
-  onDisconnect?: () => void
 }
 
-export function AppShell({ children, publicBalance, shieldedBalance, hideRightPanel, onDisconnect }: AppShellProps) {
+export function AppShell({ children, publicBalance, shieldedBalance, hideRightPanel }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(false)
   const [overlayIntensity, setOverlayIntensity] = useState<0 | 30 | 50>(0)
   const [navWarning, setNavWarning] = useState<{ urgency: 'soft' | 'urgent'; destination: string } | null>(null)
@@ -320,32 +317,7 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
         {/* ── Main content ─────────────────────────────────────────── */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, position: 'relative' }}>
 
-          {/* Top nav: wallet pinned right */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            padding: '10px 24px',
-            borderBottom: '1px solid var(--color-border)',
-            gap: '10px',
-            flexShrink: 0,
-          }}>
-            <Blockie address={MOCK_WALLET} size={7} scale={4} style={{ borderRadius: '50%' }} />
-            <span style={{ fontFamily: 'monospace', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-              {MOCK_WALLET.slice(0, 6)}…{MOCK_WALLET.slice(-4)}
-            </span>
-            <button
-              onClick={onDisconnect}
-              style={{
-                background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-                fontSize: '12px', color: 'var(--color-blue)',
-              }}
-            >
-              Disconnect
-            </button>
-          </div>
-
-          {showBanner && (
+{showBanner && (
             <StatusPersistenceBanner
               phase={op.phase}
               operation={op.operationType}

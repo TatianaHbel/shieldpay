@@ -65,10 +65,11 @@ function getPhaseLabel(status: OperationPhase, type: OperationType): string {
   return labels[status] ?? ''
 }
 
-function getRowLabel(type: OperationType, direction: 'in' | 'out', isInProgress: boolean, tokenSymbol: string): string {
-  if (type === 'shield') return isInProgress ? `Shielding ${tokenSymbol}` : `Shielded ${tokenSymbol}`
-  if (type === 'unshield') return isInProgress ? `Unshielding ${tokenSymbol}` : `Unshielded ${tokenSymbol}`
-  if (type === 'send') return direction === 'in' ? `Received ${tokenSymbol}` : isInProgress ? `Sending ${tokenSymbol}` : `Sent ${tokenSymbol}`
+function getRowLabel(type: OperationType, direction: 'in' | 'out', isInProgress: boolean, tokenSymbol: string, amount: string): string {
+  const a = `${amount} ${tokenSymbol}`
+  if (type === 'shield') return isInProgress ? `Shielding ${a}` : `Shielded ${a}`
+  if (type === 'unshield') return isInProgress ? `Unshielding ${a}` : `Unshielded ${a}`
+  if (type === 'send') return direction === 'in' ? `Received ${a}` : isInProgress ? `Sending ${a}` : `Sent ${a}`
   return ''
 }
 
@@ -289,7 +290,7 @@ export function ActivityRow({
   const isActionRequired = rowState === 'action-required'
   const isFailed = rowState === 'failed'
 
-  const rowLabel = getRowLabel(type, direction, isInProgress || isActionRequired, token.symbol)
+  const rowLabel = getRowLabel(type, direction, isInProgress || isActionRequired, token.symbol, amount)
   const subtitle = getSubtitle(type, token, pairedToken, direction, counterparty)
 
   // Primary: always outgoing (what left the user's balance)

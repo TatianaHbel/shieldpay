@@ -141,7 +141,6 @@ export function StatusPersistenceBanner({
         padding: '12px 16px',
         background: cfg.bg,
         border: `1px solid ${cfg.border}`,
-        borderRadius: 'var(--radius-md)',
         animation: 'fade-in var(--duration-normal) var(--ease-out)',
       }}
     >

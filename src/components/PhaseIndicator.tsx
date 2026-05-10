@@ -9,7 +9,7 @@ interface PhaseIndicatorProps {
 const OPERATION_PHASES: Record<OperationType, string[]> = {
   shield: ['Auth', 'Confirm', 'Encrypt', 'Done'],
   send: ['Confirm', 'Submitted', 'Confirming', 'Done'],
-  unshield: ['Step 1', 'Wait', 'Step 2', 'Done'],
+  unshield: ['Approve', 'Submit', 'Proof', 'Release'],
 }
 
 export function PhaseIndicator({ phases, currentPhase, operation }: PhaseIndicatorProps) {

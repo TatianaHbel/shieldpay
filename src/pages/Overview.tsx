@@ -4,6 +4,7 @@ import { BalanceCard } from '../components/BalanceCard'
 import { ActivityRow } from '../components/ActivityRow'
 import { TokenTable } from '../components/TokenTable'
 import { ActionButtonRow } from '../components/ActionButtonRow'
+import { Blockie } from '../components/Blockie'
 import { useDrawer } from '../context/DrawerContext'
 import { MOCK_ACTIVITY, IN_PROGRESS_STATUSES } from '../mocks/activityMocks'
 
@@ -26,6 +27,8 @@ interface OverviewProps {
   shieldedBalance: string
   shieldedHidden: boolean
   onToggleShielded: () => void
+  walletAddress: string
+  onDisconnect: () => void
 }
 
 type BottomTab = 'tokens' | 'activity' | 'in-progress'
@@ -104,7 +107,7 @@ function useActivityRowClick() {
   }
 }
 
-export function Overview({ shieldedHidden, onToggleShielded }: OverviewProps) {
+export function Overview({ shieldedHidden, onToggleShielded, walletAddress, onDisconnect }: OverviewProps) {
   const { openDrawer } = useDrawer()
   const getRowClick = useActivityRowClick()
   const [bottomTab, setBottomTab] = useState<BottomTab>('tokens')
@@ -112,26 +115,32 @@ export function Overview({ shieldedHidden, onToggleShielded }: OverviewProps) {
 
   return (
     <div style={{ padding: '32px', maxWidth: '1200px', margin: '64px auto 0' }}>
-      {/* Page header: title + eye left, action buttons right */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <h1 style={{ fontSize: '34px', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>
-            Portfolio
-          </h1>
+      {/* Row 1: title + eye */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+        <h1 style={{ fontSize: '34px', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>
+          Portfolio
+        </h1>
+        <button
+          onClick={onToggleShielded}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-secondary)', padding: '4px', display: 'flex', alignItems: 'center' }}
+          aria-label={shieldedHidden ? 'Show all balances' : 'Hide all balances'}
+        >
+          {shieldedHidden ? <Eye size={18} /> : <EyeOff size={18} />}
+        </button>
+      </div>
+
+      {/* Row 2: wallet left, action buttons right */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Blockie address={walletAddress} size={7} scale={4} style={{ borderRadius: '50%' }} />
+          <span style={{ fontFamily: 'monospace', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
+            {walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}
+          </span>
           <button
-            onClick={onToggleShielded}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              color: 'var(--color-text-secondary)',
-              padding: '4px',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-            aria-label={shieldedHidden ? 'Show all balances' : 'Hide all balances'}
+            onClick={onDisconnect}
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '12px', color: 'var(--color-blue)', fontFamily: 'Manrope, sans-serif' }}
           >
-            {shieldedHidden ? <Eye size={18} /> : <EyeOff size={18} />}
+            Disconnect
           </button>
         </div>
         <ActionButtonRow onAction={openDrawer} />

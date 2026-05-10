@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ExternalLink, Zap, CheckCircle, AlertCircle, AlertTriangle, X, QrCode, ArrowLeft, ArrowDown, ChevronDown } from 'lucide-react'
+import { ExternalLink, Zap, CheckCircle, AlertCircle, AlertTriangle, X, QrCode, ArrowLeft, ArrowDown, ChevronDown, Check, ShieldCheck } from 'lucide-react'
 import { PhaseIndicator } from './PhaseIndicator'
 import { Button } from './Button'
 import { TextField } from './TextField'
@@ -952,82 +952,165 @@ function ProofReadyView({ amount, onComplete, token = 'ETH' }: PhaseViewProps) {
   )
 }
 
-function SuccessView({ op, amount, recipient, txHash, startedAt, onDone, token = 'ETH' }: PhaseViewProps) {
-  const pairedSymbol = getToken(token).pairedSymbol
-  const isShieldedSend = op === 'send' && SHIELDED_TOKENS.some(t => t.symbol === token)
+const STATUS_PHASES: Record<OperationType, string[]> = {
+  shield:   ['Wallet approved', 'Submitted to network', 'Confirmed on-chain', 'Balance encrypted'],
+  unshield: ['Wallet approved', 'Submitted to network', 'Proof generated', 'Funds released'],
+  send:     ['Wallet approved', 'Submitted to network', 'Confirmed on-chain', 'Sent'],
+}
 
-  const heading = { shield: 'Funds shielded', send: 'Transfer sent', unshield: 'Funds unshielded' }[op]
+function SuccessView({ op, amount, recipient, txHash, startedAt, onDone, token = 'ETH' }: PhaseViewProps) {
+  const [activeTab, setActiveTab] = useState<'status' | 'details'>('status')
+  const tokenData = getToken(token)
+  const pairedSymbol = tokenData.pairedSymbol
+  const pairedTokenData = pairedSymbol ? getToken(pairedSymbol) : null
+  const isShieldedSend = op === 'send' && tokenData.isShielded
 
   const completedAt = startedAt
     ? new Date(startedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
     : 'just now'
-
   const feeAmount = op === 'unshield' ? '~0.005 ETH' : isShieldedSend ? '~0.003 ETH' : op === 'send' ? '~0.001 ETH' : '~0.002 ETH'
   const showEtherscan = txHash && (op !== 'send' || !isShieldedSend)
+
+  // Simulated per-phase timestamps spaced chronologically from startedAt
+  const t = startedAt ?? (Date.now() - 14_000)
+  const phaseTimestamps = [t + 2_000, t + 5_000, t + 10_000, t + 14_000]
+  const fmtTime = (ms: number) =>
+    new Date(ms).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+
+  const verb = op === 'shield' ? 'Shielded' : op === 'unshield' ? 'Unshielded' : 'Sent'
 
   const cellStyle = { display: 'flex', justifyContent: 'space-between', padding: '11px 16px', borderBottom: '1px solid var(--color-border)', fontSize: '13px' } as const
   const lastCellStyle = { ...cellStyle, borderBottom: 'none' }
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-        <CheckCircle size={20} style={{ color: 'var(--color-success)', flexShrink: 0 }} aria-hidden="true" />
-        <h3 style={{ margin: 0, fontSize: 'var(--text-heading)', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.01em' }}>
-          {heading}
-        </h3>
+      {/* Avatar */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+        {op !== 'send' && pairedTokenData ? (
+          <div style={{ position: 'relative', width: '72px', height: '60px' }}>
+            <div style={{ position: 'absolute', top: '8px', left: 0 }}>
+              <img src={tokenData.imageUrl} alt={token} width={44} height={44} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+            </div>
+            <div style={{ position: 'absolute', bottom: 0, right: 0 }}>
+              <div style={{ position: 'relative' }}>
+                <img src={pairedTokenData.imageUrl} alt={pairedSymbol ?? ''} width={38} height={38} style={{ borderRadius: '50%', objectFit: 'cover', border: '2.5px solid var(--color-surface-raised)', display: 'block' }} />
+                <div style={{ position: 'absolute', bottom: '-3px', right: '-3px', width: '16px', height: '16px', borderRadius: '5px', background: 'var(--color-shielded)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid var(--color-surface-raised)' }}>
+                  <ShieldCheck size={9} color="#fff" strokeWidth={2.5} aria-hidden />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <img src={tokenData.imageUrl} alt={token} width={56} height={56} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+        )}
       </div>
-      <PhaseIndicator phases={[]} currentPhase={3} operation={op} />
-      <div style={{ height: '20px' }} />
 
-      <div style={{
-        background: 'var(--color-surface-subtle)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-md)',
-        marginBottom: '20px',
-        overflow: 'hidden',
-      }}>
-        <div style={cellStyle}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Sent</span>
-          <span style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-primary)' }}>
-            {amount} {token}
-          </span>
+      {/* Hero text */}
+      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+        <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>{verb}</div>
+        <div style={{ fontSize: '30px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: '6px' }}>
+          {amount} {token}
         </div>
-        {op !== 'send' && (
-          <div style={cellStyle}>
-            <span style={{ color: 'var(--color-text-secondary)' }}>Received</span>
-            <span style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums', color: 'var(--color-success)' }}>
-              +{amount} {pairedSymbol}
-            </span>
+        {op !== 'send' && pairedSymbol && (
+          <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
+            {amount} {token} → {amount} {pairedSymbol}
           </div>
         )}
         {op === 'send' && recipient && (
-          <div style={cellStyle}>
-            <span style={{ color: 'var(--color-text-secondary)' }}>To</span>
-            <span style={{ fontFamily: 'monospace', color: 'var(--color-text-primary)', fontSize: '12px' }}>
-              {truncateAddress(recipient)}
-            </span>
+          <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+            To {truncateAddress(recipient)}
           </div>
         )}
-        <div style={cellStyle}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Network fee</span>
-          <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-secondary)' }}>{feeAmount}</span>
-        </div>
-        <div style={lastCellStyle}>
-          <span style={{ color: 'var(--color-text-secondary)' }}>Completed</span>
-          <span style={{ color: 'var(--color-text-secondary)' }}>{completedAt}</span>
-        </div>
       </div>
+
+      {/* Pill tab switcher */}
+      <div style={{ display: 'flex', background: 'var(--color-surface-subtle)', borderRadius: '100px', padding: '3px', marginBottom: '20px', border: '1px solid var(--color-border)' }}>
+        {(['status', 'details'] as const).map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{
+              flex: 1, padding: '7px 12px', borderRadius: '100px',
+              border: 'none', cursor: 'pointer', fontSize: '13px',
+              fontWeight: activeTab === tab ? 600 : 400,
+              background: activeTab === tab ? 'var(--color-surface-raised)' : 'transparent',
+              color: activeTab === tab ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+              boxShadow: activeTab === tab ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+              transition: 'all 0.15s ease', fontFamily: 'Manrope, sans-serif',
+            }}
+          >
+            {tab === 'status' ? 'Status' : 'Details'}
+          </button>
+        ))}
+      </div>
+
+      {/* Status tab: vertical timeline */}
+      {activeTab === 'status' && (
+        <div style={{ marginBottom: '24px' }}>
+          {STATUS_PHASES[op].map((label, i) => {
+            const isLast = i === STATUS_PHASES[op].length - 1
+            return (
+              <div key={label} style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '20px', flexShrink: 0 }}>
+                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--color-success)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Check size={11} color="#fff" strokeWidth={2.5} aria-hidden />
+                  </div>
+                  {!isLast && (
+                    <div style={{ width: '2px', flex: 1, minHeight: '20px', background: 'rgba(21,128,61,0.25)', marginTop: '2px' }} />
+                  )}
+                </div>
+                <div style={{ paddingBottom: isLast ? 0 : '16px', flex: 1 }}>
+                  <div style={{ fontSize: '13px', fontWeight: 500, color: 'var(--color-text-primary)', lineHeight: 1.3 }}>{label}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>{fmtTime(phaseTimestamps[i])}</div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Details tab: key-value table */}
+      {activeTab === 'details' && (
+        <div style={{ background: 'var(--color-surface-subtle)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', marginBottom: '20px', overflow: 'hidden' }}>
+          <div style={cellStyle}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Sent</span>
+            <span style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-primary)' }}>{amount} {token}</span>
+          </div>
+          {op !== 'send' && pairedSymbol && (
+            <div style={cellStyle}>
+              <span style={{ color: 'var(--color-text-secondary)' }}>Received</span>
+              <span style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums', color: 'var(--color-success)' }}>+{amount} {pairedSymbol}</span>
+            </div>
+          )}
+          {op === 'send' && recipient && (
+            <div style={cellStyle}>
+              <span style={{ color: 'var(--color-text-secondary)' }}>To</span>
+              <span style={{ fontFamily: 'monospace', color: 'var(--color-text-primary)', fontSize: '12px' }}>{truncateAddress(recipient)}</span>
+            </div>
+          )}
+          <div style={cellStyle}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Network fee</span>
+            <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-secondary)' }}>{feeAmount}</span>
+          </div>
+          {showEtherscan && txHash && (
+            <div style={cellStyle}>
+              <span style={{ color: 'var(--color-text-secondary)' }}>Transaction</span>
+              <a href={`https://etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: 'var(--color-blue)', fontSize: '12px', textDecoration: 'none' }}>
+                <ExternalLink size={11} /> Etherscan
+              </a>
+            </div>
+          )}
+          <div style={lastCellStyle}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Completed</span>
+            <span style={{ color: 'var(--color-text-secondary)' }}>{completedAt}</span>
+          </div>
+        </div>
+      )}
 
       {isShieldedSend && (
         <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '0 0 16px', lineHeight: 1.55 }}>
           Only you and the recipient can see this transaction.
         </p>
-      )}
-
-      {showEtherscan && (
-        <div style={{ marginBottom: '20px' }}>
-          <EtherscanLink txHash={txHash!} />
-        </div>
       )}
 
       <div style={{ display: 'flex', gap: '8px' }}>
@@ -1040,7 +1123,8 @@ function SuccessView({ op, amount, recipient, txHash, startedAt, onDone, token =
   )
 }
 
-function FailedOrCancelledView({ op, phase, onDone }: PhaseViewProps) {
+function FailedOrCancelledView({ op, phase, onDone, amount = '0', token = 'ETH' }: PhaseViewProps) {
+  const tokenData = getToken(token)
   const isCancelled = phase === 'cancelled' || phase === 'timed_out'
   const isInterrupted = phase === 'interrupted'
   const opLabel = { shield: 'Shielding', send: 'Sending', unshield: 'Unshielding' }[op]
@@ -1060,7 +1144,7 @@ function FailedOrCancelledView({ op, phase, onDone }: PhaseViewProps) {
   })()
 
   const failureCopy = (() => {
-    if (isInterrupted) return 'You have an unfinished unshield from your last session. Return to complete Step 2 and release your funds to your public balance.'
+    if (isInterrupted) return 'You have an unfinished unshield from your last session. Return to complete the proof step and release your funds to your public balance.'
     if (phase === 'failed_dropped') return 'The transaction didn\'t go through — the network was congested. Retry with the same amount.'
     if (phase === 'failed_submission') return 'The network rejected this transaction. This is usually temporary. Please try again.'
     if (phase === 'failed_finalization') return 'An error occurred while encrypting your balance.'
@@ -1069,12 +1153,26 @@ function FailedOrCancelledView({ op, phase, onDone }: PhaseViewProps) {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-        {!isCancelled && <AlertCircle size={18} style={{ color: 'var(--color-error)', flexShrink: 0 }} aria-hidden="true" />}
-        <h3 style={{ margin: 0, fontSize: 'var(--text-heading)', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.01em' }}>
-          {heading}
-        </h3>
+      {/* Hero block */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+        <img
+          src={tokenData.imageUrl}
+          alt={token}
+          width={52}
+          height={52}
+          style={{ borderRadius: '50%', objectFit: 'cover', display: 'block', opacity: 0.55 }}
+        />
       </div>
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>{opLabel}</div>
+        <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: '6px' }}>
+          {amount} {token}
+        </div>
+        <div style={{ fontSize: '13px', fontWeight: 500, color: isCancelled || isInterrupted ? 'var(--color-text-secondary)' : 'var(--color-error)' }}>
+          {heading}
+        </div>
+      </div>
+
       <p style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: '0 0 8px' }}>
         <strong style={{ color: 'var(--color-text-primary)' }}>{fundSafetyCopy}</strong>
       </p>
@@ -1298,7 +1396,8 @@ export function RightPanel({
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '16px 20px', borderBottom: '1px solid var(--color-border)', flexShrink: 0,
         }}>
-          <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text-primary)', letterSpacing: '-0.01em' }}>
+          <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text-primary)', letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', gap: '7px' }}>
+            {phase === 'completed' && <CheckCircle size={16} style={{ color: 'var(--color-success)', flexShrink: 0 }} aria-hidden="true" />}
             {drawerTitle(activeTab, phase, operationType)}
           </span>
           <button

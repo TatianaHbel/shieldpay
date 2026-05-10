@@ -9,6 +9,7 @@ import { UseCase } from './pages/UseCase'
 
 const MOCK_PUBLIC_BALANCE = '1.24'
 const MOCK_SHIELDED_BALANCE = '0.50'
+const MOCK_WALLET = '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b'
 
 function AppWithShell({ publicBalance, shieldedBalance, onDisconnect }: { publicBalance: string; shieldedBalance: string; onDisconnect: () => void }) {
   const [shieldedHidden, setShieldedHidden] = useState(false)
@@ -19,12 +20,14 @@ function AppWithShell({ publicBalance, shieldedBalance, onDisconnect }: { public
       <Route
         path="/"
         element={
-          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} onDisconnect={onDisconnect}>
+          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance}>
             <Overview
               publicBalance={publicBalance}
               shieldedBalance={shieldedBalance}
               shieldedHidden={shieldedHidden}
               onToggleShielded={toggleShielded}
+              walletAddress={MOCK_WALLET}
+              onDisconnect={onDisconnect}
             />
           </AppShell>
         }
@@ -32,7 +35,7 @@ function AppWithShell({ publicBalance, shieldedBalance, onDisconnect }: { public
       <Route
         path="/design-system"
         element={
-          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} hideRightPanel onDisconnect={onDisconnect}>
+          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} hideRightPanel>
             <DesignSystem />
           </AppShell>
         }
@@ -41,7 +44,7 @@ function AppWithShell({ publicBalance, shieldedBalance, onDisconnect }: { public
       <Route
         path="/use-case"
         element={
-          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} hideRightPanel onDisconnect={onDisconnect}>
+          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} hideRightPanel>
             <UseCase />
           </AppShell>
         }
