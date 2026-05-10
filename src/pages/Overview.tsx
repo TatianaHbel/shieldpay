@@ -101,8 +101,11 @@ function useActivityRowClick() {
       action: row.type,
       phase: row.status,
       amount: row.amount,
-      txHash: row.txHash,
+      txHashStep1: row.txHashStep1,
+      txHashStep2: row.txHash,
       recipient: row.counterparty,
+      token: row.token.symbol,
+      startedAt: row.date,
     })
   }
 }
@@ -189,6 +192,7 @@ export function Overview({ shieldedHidden, onToggleShielded, walletAddress, onDi
               txHash={row.txHash}
               hidden={shieldedHidden}
               onClick={getRowClick(row)}
+              onComplete={row.status === 'proof_ready' ? () => {} : undefined}
             />
           ))}
         </div>

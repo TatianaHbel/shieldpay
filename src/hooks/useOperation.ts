@@ -10,7 +10,8 @@ interface OperationState {
   token: string
   recipient?: string
   startedAt: number
-  txHash?: string
+  txHashStep1?: string
+  txHashStep2?: string
 }
 
 const IDLE: OperationState = {
@@ -35,7 +36,8 @@ function persist(op: OperationState) {
       amount: op.amount,
       startedAt: op.startedAt,
       token: op.token,
-      ...(op.txHash ? { unwrapTxHash: op.txHash } : {}),
+      ...(op.txHashStep1 ? { txHashStep1: op.txHashStep1 } : {}),
+      ...(op.txHashStep2 ? { txHashStep2: op.txHashStep2 } : {}),
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(saved))
   }
@@ -61,7 +63,8 @@ function restore(): OperationState | null {
       amount: saved.amount,
       token: saved.token ?? 'ETH',
       startedAt: saved.startedAt,
-      txHash: saved.unwrapTxHash,
+      txHashStep1: saved.txHashStep1,
+      txHashStep2: saved.txHashStep2,
     }
   } catch {
     return null
@@ -114,7 +117,7 @@ export function useOperation() {
 
     await waitForWalletConfirm()
     if (abortRef.current) return
-    update({ phase: 'submitted', txHash: '0xmock_shield_tx' })
+    update({ phase: 'submitted', txHashStep1: '0xmock_approve_tx', txHashStep2: '0xmock_shield_tx' })
 
     await delay(3000)
     if (abortRef.current) return
@@ -148,7 +151,7 @@ export function useOperation() {
 
     await waitForWalletConfirm()
     if (abortRef.current) return
-    update({ phase: 'submitted', txHash: '0xmock_send_tx' })
+    update({ phase: 'submitted', txHashStep2: '0xmock_send_tx' })
 
     await delay(3000)
     if (abortRef.current) return
@@ -184,7 +187,7 @@ export function useOperation() {
 
     await waitForWalletConfirm()
     if (abortRef.current) return
-    update({ phase: 'submitted', txHash: '0xmock_unshield_tx' })
+    update({ phase: 'submitted', txHashStep1: '0xmock_unwrap_tx' })
 
     await delay(2000)
     if (abortRef.current) return
@@ -201,7 +204,7 @@ export function useOperation() {
 
     await waitForWalletConfirm()
     if (abortRef.current) return
-    update({ phase: 'finalizing' })
+    update({ phase: 'finalizing', txHashStep2: '0xmock_finalize_tx' })
 
     await delay(3000)
     if (abortRef.current) return
@@ -226,7 +229,8 @@ export function useOperation() {
     token: op.token,
     recipient: op.recipient,
     startedAt: op.startedAt,
-    txHash: op.txHash,
+    txHashStep1: op.txHashStep1,
+    txHashStep2: op.txHashStep2,
     isActive: op.phase !== 'idle',
     startShield,
     startSend,

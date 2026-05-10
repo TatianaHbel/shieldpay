@@ -22,5 +22,6 @@ export interface ActiveOperation {
   phase: OperationPhase
   amount: string
   startedAt: number
-  unwrapTxHash?: string
+  txHashStep1?: string
+  txHashStep2?: string
 }

@@ -6,7 +6,7 @@ export const ETH_TOKEN   = { symbol: 'ETH',   imageUrl: `${ICON_BASE}/eth.png`  
 export const USDC_TOKEN  = { symbol: 'USDC',  imageUrl: `${ICON_BASE}/usdc.png` }
 export const DAI_TOKEN   = { symbol: 'DAI',   imageUrl: `${ICON_BASE}/dai.png`  }
 
-// Shielded counterparts — same icon, prefixed symbol
+// Shielded counterparts - same icon, prefixed symbol
 export const cETH_TOKEN  = { symbol: 'cETH',  imageUrl: `${ICON_BASE}/eth.png`  }
 export const cUSDC_TOKEN = { symbol: 'cUSDC', imageUrl: `${ICON_BASE}/usdc.png` }
 export const cDAI_TOKEN  = { symbol: 'cDAI',  imageUrl: `${ICON_BASE}/dai.png`  }
@@ -19,6 +19,7 @@ export interface MockActivityEntry {
   amount: string
   status: OperationPhase
   date: number
+  txHashStep1?: string
   txHash?: string
   direction?: 'in' | 'out'
   counterparty?: string
@@ -36,6 +37,7 @@ export const MOCK_ACTIVITY: MockActivityEntry[] = [
     amount: '500.00',
     status: 'finalizing',
     date: now - 120000,
+    txHashStep1: '0x111aaa222bbb333ccc444ddd555eee666fff777aaa888bbb999ccc000ddd111a',
     txHash: '0xabc123def456abc123def456abc123def456abc123def456abc123def456abc1',
   },
   {
@@ -56,6 +58,7 @@ export const MOCK_ACTIVITY: MockActivityEntry[] = [
     amount: '500.00',
     status: 'completed',
     date: now - 86400000,
+    txHashStep1: '0x222bbb333ccc444ddd555eee666fff777aaa888bbb999ccc000ddd111aaa222b',
     txHash: '0xabc123def456abc123def456abc123def456abc123def456abc123def456abc1',
   },
   {
@@ -66,6 +69,7 @@ export const MOCK_ACTIVITY: MockActivityEntry[] = [
     amount: '200.00',
     status: 'completed',
     date: now - 172800000,
+    txHashStep1: '0x333ccc444ddd555eee666fff777aaa888bbb999ccc000ddd111aaa222bbb333c',
     txHash: '0xdef456abc123def456abc123def456abc123def456abc123def456abc123def4',
   },
   {
@@ -75,6 +79,7 @@ export const MOCK_ACTIVITY: MockActivityEntry[] = [
     amount: '0.10',
     status: 'completed',
     date: now - 259200000,
+    txHash: '0x444ddd555eee666fff777aaa888bbb999ccc000ddd111aaa222bbb333ccc444d',
     counterparty: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
   },
   // Failed
@@ -89,11 +94,11 @@ export const MOCK_ACTIVITY: MockActivityEntry[] = [
   },
   {
     id: 'fail-2',
-    type: 'shield',
-    token: DAI_TOKEN,
-    pairedToken: cDAI_TOKEN,
+    type: 'unshield',
+    token: cDAI_TOKEN,
+    pairedToken: DAI_TOKEN,
     amount: '100.00',
-    status: 'failed_finalization',
+    status: 'cancelled',
     date: now - 604800000,
   },
 ]

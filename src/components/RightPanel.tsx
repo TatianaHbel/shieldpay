@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ExternalLink, Zap, CheckCircle, AlertCircle, AlertTriangle, X, QrCode, ArrowLeft, ArrowDown, ChevronDown, Check, ShieldCheck } from 'lucide-react'
+import { ExternalLink, Zap, CheckCircle, AlertCircle, AlertTriangle, X, QrCode, ArrowLeft, ArrowDown, ChevronDown, Check, ShieldCheck, Copy } from 'lucide-react'
 import { PhaseIndicator } from './PhaseIndicator'
 import { Button } from './Button'
 import { TextField } from './TextField'
@@ -54,7 +54,8 @@ export interface RightPanelProps {
   publicBalance: string
   shieldedBalance: string
   startedAt?: number
-  txHash?: string
+  txHashStep1?: string
+  txHashStep2?: string
   replayToken?: string
   onStartShield: (amount: string, token: string) => void
   onStartSend: (amount: string, recipient: string, isShielded: boolean, token: string) => void
@@ -395,11 +396,59 @@ function TokenPicker({
 // ── Phase header ───────────────────────────────────────────────────────────
 
 function PhaseHeader({ op, amount, phase, token = 'ETH' }: { op: OperationType; amount: string; phase: OperationPhase; token?: string }) {
-  const opLabel = { shield: 'Shielding', send: 'Sending', unshield: 'Unshielding' }[op]
+  const tokenData = getToken(token)
+  const pairedSymbol = tokenData.pairedSymbol
+  const pairedTokenData = pairedSymbol ? getToken(pairedSymbol) : null
+  const verb = { shield: 'Shielding', send: 'Sending', unshield: 'Unshielding' }[op]
+
+  // Source (token) always behind, destination (paired) always in front.
+  // Shield: badge on front token. Unshield: badge on back token at its corner -
+  // front token paints over it (rendered later), creating the sandwiched look.
+  const isUnshield = op === 'unshield'
+  const panelBadge = (
+    <div style={{ position: 'absolute', bottom: '-3px', right: '-3px', width: '16px', height: '16px', borderRadius: '5px', background: 'var(--color-shielded)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid var(--color-surface-raised)' }}>
+      <ShieldCheck size={9} color="#fff" strokeWidth={2.5} aria-hidden />
+    </div>
+  )
+
   return (
     <div style={{ marginBottom: '20px' }}>
-      <div style={{ fontSize: 'var(--text-small)', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: '14px', letterSpacing: '-0.01em' }}>
-        {opLabel} {amount} {token}
+      {/* Avatar */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+        {op !== 'send' && pairedTokenData ? (
+          <div style={{ position: 'relative', width: '72px', height: '60px' }}>
+            <div style={{ position: 'absolute', top: '8px', left: 0 }}>
+              {isUnshield ? (
+                <div style={{ position: 'relative' }}>
+                  <img src={tokenData.imageUrl} alt={token} width={44} height={44} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+                  {panelBadge}
+                </div>
+              ) : (
+                <img src={tokenData.imageUrl} alt={token} width={44} height={44} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+              )}
+            </div>
+            <div style={{ position: 'absolute', bottom: 0, right: 0 }}>
+              <div style={{ position: 'relative' }}>
+                <img src={pairedTokenData.imageUrl} alt={pairedTokenData.symbol} width={38} height={38} style={{ borderRadius: '50%', objectFit: 'cover', border: '2.5px solid var(--color-surface-raised)', display: 'block' }} />
+                {!isUnshield && panelBadge}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <img src={tokenData.imageUrl} alt={token} width={48} height={48} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+        )}
+      </div>
+      {/* Hero text */}
+      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+        <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>{verb}</div>
+        <div style={{ fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.1, marginBottom: '6px' }}>
+          {amount} {token}
+        </div>
+        {op !== 'send' && pairedSymbol && (
+          <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
+            {amount} {token} → {amount} {pairedSymbol}
+          </div>
+        )}
       </div>
       <PhaseIndicator phases={[]} currentPhase={getPhaseIndex(phase, op)} operation={op} />
     </div>
@@ -525,7 +574,7 @@ function ShieldForm({ preparing, onSubmit }: {
       )}
       {showMinWarning && (
         <CautionNote>
-          This amount may be rounded to zero by the protocol — you'd pay a network fee but receive nothing. Shield at least {minAmount} {selectedToken.symbol}.
+          This amount may be rounded to zero by the protocol - you'd pay a network fee but receive nothing. Shield at least {minAmount} {selectedToken.symbol}.
         </CautionNote>
       )}
       <ConverterDivider />
@@ -704,7 +753,7 @@ function UnshieldForm({ preparing, onSubmit }: {
       </div>
       {showMinWarning && (
         <CautionNote>
-          This amount may be rounded to zero by the protocol — you'd pay a network fee but receive nothing. Unshield at least {minAmount} {selectedToken.symbol}.
+          This amount may be rounded to zero by the protocol - you'd pay a network fee but receive nothing. Unshield at least {minAmount} {selectedToken.symbol}.
         </CautionNote>
       )}
       <ConverterDivider />
@@ -717,7 +766,7 @@ function UnshieldForm({ preparing, onSubmit }: {
         <FeeTable rows={[
           { label: 'Network fee', value: '~0.005 ETH' },
           { label: 'Time', value: '~3–5 min' },
-          { label: 'Confirmations', value: '2 — with a wait' },
+          { label: 'Confirmations', value: '2 - with a wait' },
         ]} />
       )}
       {isReady && (
@@ -791,7 +840,7 @@ function ReceiveView() {
       </div>
 
       <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: '0 0 8px' }}>
-        Share this address to receive funds. Public transfers (ETH, USDC, DAI) are visible on-chain. Shielded transfers are encrypted — only you and the sender can see the amount.
+        Share this address to receive funds. Public transfers (ETH, USDC, DAI) are visible on-chain. Shielded transfers are encrypted - only you and the sender can see the amount.
       </p>
       <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: 0 }}>
         To receive shielded funds, the sender needs a ShieldPay-compatible app. For public funds, any standard Ethereum wallet works.
@@ -804,7 +853,7 @@ function ReceiveView() {
 
 interface PhaseViewProps {
   op: OperationType; amount: string; phase: OperationPhase
-  recipient?: string; startedAt?: number; txHash?: string
+  recipient?: string; startedAt?: number; txHashStep1?: string; txHashStep2?: string
   onConfirmWalletStep?: () => void
   onCancel: () => void; onComplete: () => void; onDone: () => void
   publicBalance: string; shieldedBalance: string
@@ -816,8 +865,8 @@ function WalletConfirmView({ op, amount, phase, recipient, onConfirmWalletStep, 
 
   const getSubtitle = () => {
     if (op === 'send') return null
-    if (op === 'shield') return isStep2 ? 'Step 2 of 2 — Move funds' : 'Step 1 of 2 — Authorization'
-    return isStep2 ? 'Step 2 of 2 — Release funds' : 'Step 1 of 2 — Remove from shielded balance'
+    if (op === 'shield') return isStep2 ? 'Step 2 of 2 - Move funds' : 'Step 1 of 2 - Authorization'
+    return isStep2 ? 'Step 2 of 2 - Release funds' : 'Step 1 of 2 - Remove from shielded balance'
   }
 
   const getSummary = () => {
@@ -828,13 +877,13 @@ function WalletConfirmView({ op, amount, phase, recipient, onConfirmWalletStep, 
     if (op === 'send')
       return `Sending ${amount} ${token} shielded to ${recipient ? truncateAddress(recipient) : '…'}\nNetwork fee: ~0.003 ETH (~$7.05)`
     if (op === 'unshield' && !isStep2)
-      return `Removing ${amount} ${token} from your shielded balance.\nNetwork fee: ~0.002 ETH (~$4.70)`
+      return `You'll receive ${amount} ${getToken(token).pairedSymbol} in your public balance. This step removes ${amount} ${token} from your shielded balance.\nNetwork fee: ~0.002 ETH (~$4.70)`
     return `Releasing ${amount} ${getToken(token).pairedSymbol} to your public balance.\nNetwork fee: ~0.003 ETH (~$7.05)`
   }
 
   const getNote = () => {
     if (op === 'shield' && !isStep2)
-      return 'Your wallet will show a balance decrease — this is correct. Shielded balance updates after the operation completes.'
+      return 'Your wallet will show a balance decrease - this is correct. Shielded balance updates after the operation completes.'
     if (op === 'send')
       return 'The transaction amount is private. Only you and the recipient can see it.'
     if (op === 'unshield' && !isStep2)
@@ -874,7 +923,7 @@ function WalletConfirmView({ op, amount, phase, recipient, onConfirmWalletStep, 
   )
 }
 
-function ProcessingView({ op, amount, phase, startedAt, txHash, token = 'ETH' }: PhaseViewProps) {
+function ProcessingView({ op, amount, phase, startedAt, txHashStep1, txHashStep2, token = 'ETH' }: PhaseViewProps) {
   const isFinalizing = phase === 'finalizing'
   const isUnshield = op === 'unshield'
   const isSend = op === 'send'
@@ -887,21 +936,21 @@ function ProcessingView({ op, amount, phase, startedAt, txHash, token = 'ETH' }:
 
   const body = (() => {
     if (isFinalizing && !isUnshield && !isSend)
-      return 'Your transaction is confirmed. We\'re now encrypting your shielded balance — ~1 min. Your funds are safe. They will appear in your shielded balance once encryption completes.'
+      return 'Your transaction is confirmed. We\'re now encrypting your shielded balance - ~1 min. Your funds are safe. They will appear in your shielded balance once encryption completes.'
     if (isFinalizing && isSend)
-      return 'Your transaction is confirmed. The transfer is being encrypted for sender and recipient — ~1 min. Your funds are safe.'
+      return 'Your transaction is confirmed. The transfer is being encrypted for sender and recipient - ~1 min. Your funds are safe.'
     if (isFinalizing && isUnshield)
-      return 'Almost done. Your funds are being transferred to your public balance — ~30 seconds.'
+      return 'Almost done. Your funds are being transferred to your public balance - ~30 seconds.'
     if (isUnshield)
       return 'Step 1 is complete. We\'re now preparing your funds for release to your public balance. This takes about 1–2 minutes. Your funds are secured.'
     return 'Your transaction is being confirmed on the network. Usually takes 1–2 minutes.'
   })()
 
   const note = !isUnshield && isFinalizing && !isSend
-    ? "You may see this as 'Confirmed' on Etherscan before your balance updates — that's expected."
+    ? "You may see this as 'Confirmed' on Etherscan before your balance updates - that's expected."
     : isUnshield && !isFinalizing
-    ? "You can close this panel — we'll notify you when Step 2 is ready."
-    : 'You can close this panel — your balance updates automatically.'
+    ? "You can close this panel - we'll notify you when Step 2 is ready."
+    : 'You can close this panel - your balance updates automatically.'
 
   return (
     <div>
@@ -920,8 +969,8 @@ function ProcessingView({ op, amount, phase, startedAt, txHash, token = 'ETH' }:
           Started {elapsed(startedAt)}
         </p>
       )}
-      {txHash && (op !== 'send' || !SHIELDED_TOKENS.some(t => t.symbol === token)) && (
-        <EtherscanLink txHash={txHash} />
+      {(txHashStep2 ?? txHashStep1) && (op !== 'send' || !SHIELDED_TOKENS.some(t => t.symbol === token)) && (
+        <EtherscanLink txHash={(txHashStep2 ?? txHashStep1)!} />
       )}
     </div>
   )
@@ -953,23 +1002,43 @@ function ProofReadyView({ amount, onComplete, token = 'ETH' }: PhaseViewProps) {
 }
 
 const STATUS_PHASES: Record<OperationType, string[]> = {
-  shield:   ['Wallet approved', 'Submitted to network', 'Confirmed on-chain', 'Balance encrypted'],
-  unshield: ['Wallet approved', 'Submitted to network', 'Proof generated', 'Funds released'],
-  send:     ['Wallet approved', 'Submitted to network', 'Confirmed on-chain', 'Sent'],
+  shield:   ['Authorized', 'Submitted & confirmed', 'Balance encrypted', 'Complete'],
+  unshield: ['Unshield initiated', 'Confirmed on-chain', 'Released to public balance', 'Complete'],
+  send:     ['Confirmed', 'Submitted to network', 'Confirmed on-chain', 'Sent'],
 }
 
-function SuccessView({ op, amount, recipient, txHash, startedAt, onDone, token = 'ETH' }: PhaseViewProps) {
+function SuccessView({ op, amount, recipient, txHashStep1, txHashStep2, startedAt, onDone, token = 'ETH' }: PhaseViewProps) {
   const [activeTab, setActiveTab] = useState<'status' | 'details'>('status')
+  const [copied, setCopied] = useState(false)
+
+  function copyRecipient() {
+    if (!recipient) return
+    navigator.clipboard.writeText(recipient).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
   const tokenData = getToken(token)
   const pairedSymbol = tokenData.pairedSymbol
   const pairedTokenData = pairedSymbol ? getToken(pairedSymbol) : null
   const isShieldedSend = op === 'send' && tokenData.isShielded
 
+  // Shield: badge on front token. Unshield: badge on back token - front paints over it.
+  const isUnshieldOp = op === 'unshield'
+  const successBadge = (
+    <div style={{ position: 'absolute', bottom: '-3px', right: '-3px', width: '16px', height: '16px', borderRadius: '5px', background: 'var(--color-shielded)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid var(--color-surface-raised)' }}>
+      <ShieldCheck size={9} color="#fff" strokeWidth={2.5} aria-hidden />
+    </div>
+  )
+
   const completedAt = startedAt
     ? new Date(startedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
     : 'just now'
   const feeAmount = op === 'unshield' ? '~0.005 ETH' : isShieldedSend ? '~0.003 ETH' : op === 'send' ? '~0.001 ETH' : '~0.002 ETH'
-  const showEtherscan = txHash && (op !== 'send' || !isShieldedSend)
+  const showEtherscan = !!(txHashStep1 || txHashStep2)
+  const step1Label = op === 'shield' ? 'Authorization' : op === 'unshield' ? 'Unshield' : 'Transaction'
+  const step2Label = op === 'shield' ? 'Shield' : op === 'unshield' ? 'Release' : 'Transaction'
+  const hasBoth = !!txHashStep1 && !!txHashStep2
 
   // Simulated per-phase timestamps spaced chronologically from startedAt
   const t = startedAt ?? (Date.now() - 14_000)
@@ -989,14 +1058,19 @@ function SuccessView({ op, amount, recipient, txHash, startedAt, onDone, token =
         {op !== 'send' && pairedTokenData ? (
           <div style={{ position: 'relative', width: '72px', height: '60px' }}>
             <div style={{ position: 'absolute', top: '8px', left: 0 }}>
-              <img src={tokenData.imageUrl} alt={token} width={44} height={44} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+              {isUnshieldOp ? (
+                <div style={{ position: 'relative' }}>
+                  <img src={tokenData.imageUrl} alt={token} width={44} height={44} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+                  {successBadge}
+                </div>
+              ) : (
+                <img src={tokenData.imageUrl} alt={token} width={44} height={44} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
+              )}
             </div>
             <div style={{ position: 'absolute', bottom: 0, right: 0 }}>
               <div style={{ position: 'relative' }}>
-                <img src={pairedTokenData.imageUrl} alt={pairedSymbol ?? ''} width={38} height={38} style={{ borderRadius: '50%', objectFit: 'cover', border: '2.5px solid var(--color-surface-raised)', display: 'block' }} />
-                <div style={{ position: 'absolute', bottom: '-3px', right: '-3px', width: '16px', height: '16px', borderRadius: '5px', background: 'var(--color-shielded)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid var(--color-surface-raised)' }}>
-                  <ShieldCheck size={9} color="#fff" strokeWidth={2.5} aria-hidden />
-                </div>
+                <img src={pairedTokenData.imageUrl} alt={pairedTokenData.symbol} width={38} height={38} style={{ borderRadius: '50%', objectFit: 'cover', border: '2.5px solid var(--color-surface-raised)', display: 'block' }} />
+                {!isUnshieldOp && successBadge}
               </div>
             </div>
           </div>
@@ -1017,8 +1091,15 @@ function SuccessView({ op, amount, recipient, txHash, startedAt, onDone, token =
           </div>
         )}
         {op === 'send' && recipient && (
-          <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--color-text-secondary)' }}>
             To {truncateAddress(recipient)}
+            <button
+              onClick={copyRecipient}
+              title="Copy address"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', color: copied ? 'var(--color-success)' : 'var(--color-text-secondary)', transition: 'color 0.15s' }}
+            >
+              {copied ? <Check size={13} strokeWidth={2.5} /> : <Copy size={13} />}
+            </button>
           </div>
         )}
       </div>
@@ -1066,6 +1147,11 @@ function SuccessView({ op, amount, recipient, txHash, startedAt, onDone, token =
               </div>
             )
           })}
+          {op === 'send' && (txHashStep2 ?? txHashStep1) && (
+            <div style={{ marginTop: '16px' }}>
+              <EtherscanLink txHash={(txHashStep2 ?? txHashStep1)!} />
+            </div>
+          )}
         </div>
       )}
 
@@ -1085,17 +1171,34 @@ function SuccessView({ op, amount, recipient, txHash, startedAt, onDone, token =
           {op === 'send' && recipient && (
             <div style={cellStyle}>
               <span style={{ color: 'var(--color-text-secondary)' }}>To</span>
-              <span style={{ fontFamily: 'monospace', color: 'var(--color-text-primary)', fontSize: '12px' }}>{truncateAddress(recipient)}</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontFamily: 'monospace', color: 'var(--color-text-primary)', fontSize: '12px' }}>{truncateAddress(recipient)}</span>
+                <button
+                  onClick={copyRecipient}
+                  title="Copy address"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center', color: copied ? 'var(--color-success)' : 'var(--color-text-secondary)', transition: 'color 0.15s' }}
+                >
+                  {copied ? <Check size={12} strokeWidth={2.5} /> : <Copy size={12} />}
+                </button>
+              </span>
             </div>
           )}
           <div style={cellStyle}>
             <span style={{ color: 'var(--color-text-secondary)' }}>Network fee</span>
             <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-secondary)' }}>{feeAmount}</span>
           </div>
-          {showEtherscan && txHash && (
+          {showEtherscan && txHashStep1 && hasBoth && (
             <div style={cellStyle}>
-              <span style={{ color: 'var(--color-text-secondary)' }}>Transaction</span>
-              <a href={`https://etherscan.io/tx/${txHash}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: 'var(--color-blue)', fontSize: '12px', textDecoration: 'none' }}>
+              <span style={{ color: 'var(--color-text-secondary)' }}>{step1Label}</span>
+              <a href={`https://etherscan.io/tx/${txHashStep1}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: 'var(--color-blue)', fontSize: '12px', textDecoration: 'none' }}>
+                <ExternalLink size={11} /> Etherscan
+              </a>
+            </div>
+          )}
+          {showEtherscan && txHashStep2 && (
+            <div style={cellStyle}>
+              <span style={{ color: 'var(--color-text-secondary)' }}>{hasBoth ? step2Label : 'Transaction'}</span>
+              <a href={`https://etherscan.io/tx/${txHashStep2}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', color: 'var(--color-blue)', fontSize: '12px', textDecoration: 'none' }}>
                 <ExternalLink size={11} /> Etherscan
               </a>
             </div>
@@ -1140,12 +1243,12 @@ function FailedOrCancelledView({ op, phase, onDone, amount = '0', token = 'ETH' 
     if (isCancelled) return 'No funds were moved. Your balances are unchanged.'
     if (phase === 'failed_finalization' && op === 'shield')
       return 'Your public balance has been refunded.'
-    return 'Your funds are safe — nothing was deducted from your balance.'
+    return 'Your funds are safe - nothing was deducted from your balance.'
   })()
 
   const failureCopy = (() => {
     if (isInterrupted) return 'You have an unfinished unshield from your last session. Return to complete the proof step and release your funds to your public balance.'
-    if (phase === 'failed_dropped') return 'The transaction didn\'t go through — the network was congested. Retry with the same amount.'
+    if (phase === 'failed_dropped') return 'The transaction didn\'t go through - the network was congested. Retry with the same amount.'
     if (phase === 'failed_submission') return 'The network rejected this transaction. This is usually temporary. Please try again.'
     if (phase === 'failed_finalization') return 'An error occurred while encrypting your balance.'
     return null
@@ -1228,7 +1331,8 @@ export function RightPanel({
   publicBalance,
   shieldedBalance,
   startedAt,
-  txHash,
+  txHashStep1,
+  txHashStep2,
   replayToken,
   onStartShield,
   onStartSend,
@@ -1283,7 +1387,7 @@ export function RightPanel({
   const isCancelled = phase === 'cancelled' || phase === 'timed_out' || phase === 'interrupted'
 
   const phaseViewProps: PhaseViewProps = {
-    op: operationType, amount, phase, recipient, startedAt, txHash,
+    op: operationType, amount, phase, recipient, startedAt, txHashStep1, txHashStep2,
     onConfirmWalletStep, onCancel, onComplete, onDone, publicBalance, shieldedBalance,
     token: activeToken,
   }

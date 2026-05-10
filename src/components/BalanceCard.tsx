@@ -120,7 +120,7 @@ export function BalanceCard({
         )}
       </div>
 
-      {/* Amount row — fixed height so toggling never shifts layout */}
+      {/* Amount row - fixed height so toggling never shifts layout */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-1)', height: '40px', overflow: 'hidden' }}>
         {hidden ? (
           <span style={{ display: 'flex', alignItems: 'center', gap: '2px', color: 'var(--color-text-secondary)' }}>
@@ -151,7 +151,7 @@ export function BalanceCard({
         )}
       </div>
 
-      {/* Secondary line — always in DOM at fixed height; invisible when hidden */}
+      {/* Secondary line - always in DOM at fixed height; invisible when hidden */}
       <div
         style={{
           height: '18px',

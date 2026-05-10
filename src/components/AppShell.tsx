@@ -348,7 +348,8 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
             publicBalance={publicBalance}
             shieldedBalance={shieldedBalance}
             startedAt={drawerReplay?.startedAt ?? op.startedAt}
-            txHash={drawerReplay?.txHash ?? op.txHash}
+            txHashStep1={drawerReplay?.txHashStep1 ?? op.txHashStep1}
+            txHashStep2={drawerReplay?.txHashStep2 ?? op.txHashStep2}
             replayToken={drawerReplay?.token}
             onStartShield={op.startShield}
             onStartSend={op.startSend}

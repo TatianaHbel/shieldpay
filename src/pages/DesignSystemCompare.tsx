@@ -98,7 +98,7 @@ function GapPlaceholder({ note }: { note?: string }) {
       border: '2px dashed var(--color-border)', borderRadius: 'var(--radius-lg)',
       padding: '24px', background: 'transparent',
     }}>
-      <span style={{ fontSize: '28px', opacity: 0.2, lineHeight: 1 }}>—</span>
+      <span style={{ fontSize: '28px', opacity: 0.2, lineHeight: 1 }}>-</span>
       <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)', textAlign: 'center', lineHeight: 1.5 }}>
         {note ?? 'Not defined in this version'}
       </span>
@@ -338,7 +338,7 @@ function V1TypographyContent() {
             <span style={{ fontSize: t.size, fontWeight: t.weight, color: 'var(--color-text-primary)', fontFamily: t.mono ? 'monospace' : 'Manrope, sans-serif', lineHeight: 1.2, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{t.label}</span>
             <div>
               <div style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--color-public)' }}>{t.token}</div>
-              <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '1px' }}>{t.size} · wt {t.weight} — {t.usage}</div>
+              <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '1px' }}>{t.size} · wt {t.weight} - {t.usage}</div>
             </div>
           </div>
         ))}
@@ -368,7 +368,7 @@ function V2TypographyContent() {
     { level: 'h6', size: '1.125rem',weight: 500, classes: 'text-lg font-medium', sample: 'Shield your balance' },
     { level: 'body', size: '1rem',  weight: 400, classes: 'text-base font-normal leading-relaxed', sample: 'Transaction confirmed on network' },
     { level: 'bodySmall', size: '0.875rem', weight: 400, classes: 'text-sm font-normal', sample: 'Transaction confirmed on network' },
-    { level: 'caption', size: '0.75rem', weight: 400, classes: 'text-xs font-normal', sample: 'Processing — about 1 minute' },
+    { level: 'caption', size: '0.75rem', weight: 400, classes: 'text-xs font-normal', sample: 'Processing - about 1 minute' },
     { level: 'label', size: '0.875rem', weight: 500, classes: 'text-sm font-medium', sample: 'Private Balance' },
     { level: 'button', size: '0.875rem', weight: 500, classes: 'text-sm font-medium', sample: 'Shield Now' },
   ]
@@ -426,7 +426,7 @@ function V1RadiusContent() {
   ]
   return (
     <div>
-      <ColLabel v="V1" sub="6-step scale — sm through full" />
+      <ColLabel v="V1" sub="6-step scale - sm through full" />
       <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
         {scale.map(r => (
           <div key={r.token} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', minWidth: '72px' }}>
@@ -660,7 +660,7 @@ function V1IconsContent() {
       <ColLabel v="V1" sub="Lucide React · used in practice" />
       <div style={{ padding: '16px', background: 'var(--color-surface-subtle)', borderRadius: 'var(--radius-md)', marginBottom: '16px' }}>
         <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '4px' }}>Library: lucide-react</div>
-        <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>No explicit spec in DS — Lucide icons used ad-hoc in components</div>
+        <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '8px' }}>No explicit spec in DS - Lucide icons used ad-hoc in components</div>
         <code style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--color-public)' }}>import {'{ ShieldCheck, ArrowRight, Wallet }'} from "lucide-react"</code>
       </div>
       <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
@@ -750,7 +750,7 @@ function V2ButtonContent() {
         </div>
       </div>
       <div style={{ marginTop: '16px', padding: '12px', background: V2T.secondary, borderRadius: '0.5rem', fontSize: '12px', color: V2T.mutedFg, lineHeight: 1.6 }}>
-        <strong style={{ color: V2T.fg }}>Note:</strong> Buttons use <code style={{ fontFamily: 'monospace', color: V2T.primary, fontSize: '11px' }}>bg-primary/90</code> on hover, <code style={{ fontFamily: 'monospace', color: V2T.primary, fontSize: '11px' }}>scale-[0.97]</code> on active. No separate size system — use padding variants.
+        <strong style={{ color: V2T.fg }}>Note:</strong> Buttons use <code style={{ fontFamily: 'monospace', color: V2T.primary, fontSize: '11px' }}>bg-primary/90</code> on hover, <code style={{ fontFamily: 'monospace', color: V2T.primary, fontSize: '11px' }}>scale-[0.97]</code> on active. No separate size system - use padding variants.
       </div>
     </div>
   )
@@ -1200,13 +1200,13 @@ function SummaryPanel({ state }: { state: CompareState }) {
   const undecided = SECTIONS.filter(s => !state[s.id]?.pick)
 
   const copyText = () => {
-    const lines = ['# Design System — Final Choices', '']
+    const lines = ['# Design System - Final Choices', '']
     const groups = ['Foundation', 'Components']
     for (const g of groups) {
       lines.push(`## ${g}`, '')
       for (const s of SECTIONS.filter(s => s.group === g)) {
         const c = state[s.id]
-        const pick = c?.pick ? c.pick.toUpperCase() : '—'
+        const pick = c?.pick ? c.pick.toUpperCase() : '-'
         lines.push(`### ${s.label} → ${pick}`)
         if (c?.comment) lines.push(`Comment: ${c.comment}`)
         lines.push('')
@@ -1238,7 +1238,7 @@ function SummaryPanel({ state }: { state: CompareState }) {
                 {c?.pick ? (
                   <span style={{ fontSize: '11px', fontWeight: 700, padding: '1px 6px', borderRadius: '4px', background: c.pick === 'v1' ? '#14141A' : '#3748FF', color: '#fff', flexShrink: 0 }}>{c.pick.toUpperCase()}</span>
                 ) : (
-                  <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', flexShrink: 0 }}>—</span>
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', flexShrink: 0 }}>-</span>
                 )}
               </div>
             )

@@ -1,4 +1,4 @@
-import { ShieldCheck, Zap, ExternalLink } from 'lucide-react'
+import { ShieldCheck, Zap } from 'lucide-react'
 import type { OperationPhase, OperationType } from '../types/operation'
 
 const ICON_BASE = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color'
@@ -34,7 +34,7 @@ function formatRelativeTime(timestamp: number): string {
 }
 
 function getRowState(status: OperationPhase): 'complete' | 'in-progress' | 'action-required' | 'failed' {
-  if (status === 'proof_ready') return 'action-required'
+  if (status === 'proof_ready' || status === 'interrupted') return 'action-required'
   if (status.startsWith('failed_') || status === 'cancelled' || status === 'timed_out') return 'failed'
   if (
     status === 'processing' ||
@@ -56,9 +56,10 @@ function getPhaseLabel(status: OperationPhase, type: OperationType): string {
     processing: type === 'unshield' ? 'Preparing release…' : 'Confirming on-chain…',
     finalizing: type === 'unshield' ? 'Releasing to public balance…' : 'Encrypting balance…',
     proof_ready: 'Action required',
-    failed_dropped: 'Failed — network dropped',
-    failed_submission: 'Failed — rejected',
-    failed_finalization: 'Failed — encryption error',
+    interrupted: 'Action required',
+    failed_dropped: 'Failed - network dropped',
+    failed_submission: 'Failed - rejected',
+    failed_finalization: 'Failed - encryption error',
     cancelled: 'Cancelled',
     timed_out: 'Timed out',
   }
@@ -139,14 +140,42 @@ function ActivityAvatar({
   const isActionRequired = rowState === 'action-required'
 
   if (isSwap && isComplete) {
-    // Two-token pair: from (left/back) + to (right/front)
+    // Source always behind, destination always in front.
+    // Shield: badge on front token (destination is shielded).
+    // Unshield: badge on back token at its bottom-right corner - front token
+    // paints over it naturally (rendered later), creating the sandwiched look.
+    const isUnshield = type === 'unshield'
+    const badge = (
+      <div
+        style={{
+          position: 'absolute',
+          bottom: '-3px',
+          right: '-3px',
+          width: '16px',
+          height: '16px',
+          borderRadius: '5px',
+          background: 'var(--color-shielded)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          border: '1.5px solid var(--color-surface-raised)',
+        }}
+      >
+        <ShieldCheck size={9} color="#fff" strokeWidth={2.5} aria-hidden />
+      </div>
+    )
     return (
       <div style={{ position: 'relative', width: '56px', height: '48px', flexShrink: 0 }}>
-        {/* From token */}
         <div style={{ position: 'absolute', top: '6px', left: 0 }}>
-          <SingleAvatar imageUrl={token.imageUrl} symbol={token.symbol} size={34} />
+          {isUnshield ? (
+            <div style={{ position: 'relative' }}>
+              <SingleAvatar imageUrl={token.imageUrl} symbol={token.symbol} size={34} />
+              {badge}
+            </div>
+          ) : (
+            <SingleAvatar imageUrl={token.imageUrl} symbol={token.symbol} size={34} />
+          )}
         </div>
-        {/* To token — overlaps, has shield badge */}
         <div style={{ position: 'absolute', bottom: 0, right: 0 }}>
           <div style={{ position: 'relative' }}>
             <SingleAvatar
@@ -155,23 +184,7 @@ function ActivityAvatar({
               size={30}
               border="2px solid var(--color-surface-raised)"
             />
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '-3px',
-                right: '-3px',
-                width: '16px',
-                height: '16px',
-                borderRadius: '5px',
-                background: 'var(--color-shielded)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1.5px solid var(--color-surface-raised)',
-              }}
-            >
-              <ShieldCheck size={9} color="#fff" strokeWidth={2.5} aria-hidden />
-            </div>
+            {!isUnshield && badge}
           </div>
         </div>
       </div>
@@ -290,7 +303,7 @@ export function ActivityRow({
   const isActionRequired = rowState === 'action-required'
   const isFailed = rowState === 'failed'
 
-  const rowLabel = getRowLabel(type, direction, isInProgress || isActionRequired, token.symbol, amount)
+  const rowLabel = getRowLabel(type, direction, isInProgress || isActionRequired || isFailed, token.symbol, amount)
   const subtitle = getSubtitle(type, token, pairedToken, direction, counterparty)
 
   // Primary: always outgoing (what left the user's balance)
@@ -334,7 +347,7 @@ export function ActivityRow({
             {rowLabel}
           </span>
           {(isInProgress || isActionRequired) && (
-            <span style={{ fontSize: '12px', color: 'var(--color-processing)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12px', color: isActionRequired ? '#78350F' : 'var(--color-processing)', fontWeight: 500 }}>
               {getPhaseLabel(status, type)}
             </span>
           )}
@@ -360,7 +373,7 @@ export function ActivityRow({
 
       {/* Amount column */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', flexShrink: 0 }}>
-        {hidden ? (
+        {isFailed ? null : hidden ? (
           <span style={{ color: 'var(--color-text-secondary)', fontSize: '11px', letterSpacing: '3px', fontWeight: 700 }}>
             ••••
           </span>
@@ -370,7 +383,7 @@ export function ActivityRow({
               style={{
                 fontSize: 'var(--text-small)',
                 fontWeight: 600,
-                color: isActionRequired ? '#78350F' : isFailed ? 'var(--color-error)' : 'var(--color-text-primary)',
+                color: isActionRequired ? '#78350F' : 'var(--color-text-primary)',
                 fontVariantNumeric: 'tabular-nums',
                 lineHeight: 1.2,
               }}
@@ -415,25 +428,6 @@ export function ActivityRow({
           </button>
         )}
 
-        {isComplete && txHash && (
-          <a
-            href={`https://etherscan.io/tx/${txHash}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '3px',
-              color: 'var(--color-text-secondary)',
-              fontSize: '11px',
-              textDecoration: 'none',
-            }}
-            aria-label="View on Etherscan"
-          >
-            <ExternalLink size={11} />
-            Etherscan
-          </a>
-        )}
       </div>
     </div>
   )

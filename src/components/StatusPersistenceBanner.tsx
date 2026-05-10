@@ -114,18 +114,17 @@ export function StatusPersistenceBanner({
       return `${opLabel} ${amountToken} in progress`
     }
     if (variant === 'action-required') {
-      if (phase === 'interrupted') return `Unshield paused — return to release ${amountToken}`
-      if (phase === 'proof_ready') return `Your ${amountToken} ${parseFloat(amount) === 1 ? 'is' : 'are'} ready to be released`
+      if (phase === 'interrupted' || phase === 'proof_ready') return `Action required - complete your unshield of ${amountToken}`
       // awaiting_wallet_step1 or step2
-      return `Approve in your wallet — ${opLabel.toLowerCase()} ${amountToken}`
+      return `Approve in your wallet - ${opLabel.toLowerCase()} ${amountToken}`
     }
     if (variant === 'completed') {
       const outcome = operation === 'shield' ? 'shielded' : operation === 'unshield' ? 'released' : 'sent'
-      return `${opLabel} complete — ${amountToken} ${outcome}`
+      return `${opLabel} complete - ${amountToken} ${outcome}`
     }
     // failed
-    if (phase === 'cancelled' || phase === 'timed_out') return `${opLabel} cancelled — no funds were moved`
-    return `${opLabel} failed — your funds are safe`
+    if (phase === 'cancelled' || phase === 'timed_out') return `${opLabel} cancelled - no funds were moved`
+    return `${opLabel} failed - your funds are safe`
   })()
 
   const ctaLabel = variant === 'action-required' ? 'Complete →' : 'View →'

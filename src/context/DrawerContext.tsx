@@ -8,7 +8,8 @@ export interface DrawerReplay {
   phase: OperationPhase
   amount: string
   token?: string
-  txHash?: string
+  txHashStep1?: string
+  txHashStep2?: string
   recipient?: string
   startedAt?: number
 }

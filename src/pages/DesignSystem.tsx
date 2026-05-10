@@ -294,7 +294,7 @@ export function DesignSystem() {
   // StatusPersistenceBanner demo
   const [bannerPhase, setBannerPhase] = useState<OperationPhase>('processing')
 
-  // NavigationWarning demo — shown inline, no modal overlay needed
+  // NavigationWarning demo - shown inline, no modal overlay needed
 
   // ConnectWalletCard demo
   const [connectState, setConnectState] = useState<ConnectState>('landing')
@@ -343,7 +343,7 @@ export function DesignSystem() {
         </Section>
 
         {/* Typography */}
-        <Section id="typography" title="Typography" description="Inter — humanist sans-serif, 4 weights. Bold display sizes signal hierarchy. Monospace stays system-level for crypto addresses. font-size ≥ 16px on inputs prevents iOS auto-zoom.">
+        <Section id="typography" title="Typography" description="Inter - humanist sans-serif, 4 weights. Bold display sizes signal hierarchy. Monospace stays system-level for crypto addresses. font-size ≥ 16px on inputs prevents iOS auto-zoom.">
           <Subsection title="Type scale">
             <div style={{ borderTop: '1px solid var(--color-border)' }}>
               {TYPE_SCALE.map(t => (
@@ -351,7 +351,7 @@ export function DesignSystem() {
                   <span style={{ fontSize: t.size, fontWeight: t.weight, color: 'var(--color-text-primary)', fontFamily: t.mono ? 'monospace' : undefined, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.sample}</span>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     <span style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--color-public)' }}>{t.token}</span>
-                    <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{t.size} · weight {t.weight} — {t.usage}</span>
+                    <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{t.size} · weight {t.weight} - {t.usage}</span>
                   </div>
                 </div>
               ))}
@@ -403,7 +403,7 @@ export function DesignSystem() {
         </Section>
 
         {/* Border Radius */}
-        <Section id="radius" title="Border Radius" description="Six-step scale from tight UI elements to fully rounded pills. Mixing unlisted radii breaks visual rhythm — always use a token.">
+        <Section id="radius" title="Border Radius" description="Six-step scale from tight UI elements to fully rounded pills. Mixing unlisted radii breaks visual rhythm - always use a token.">
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
             {RADIUS_SCALE.map(r => (
               <div key={r.token} style={{ display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center', minWidth: '88px' }}>
@@ -435,7 +435,7 @@ export function DesignSystem() {
                 { layer: 'Page surface', token: 'none', desc: 'Background, page fills' },
                 { layer: 'Cards', token: '--shadow-md', desc: 'BalanceCard, ActivityRow container' },
                 { layer: 'Floating panels', token: '--shadow-lg', desc: 'Dropdowns, StatusPersistenceBanner' },
-                { layer: 'Right panel', token: '--shadow-xl', desc: 'Drawer — always top of hierarchy' },
+                { layer: 'Right panel', token: '--shadow-xl', desc: 'Drawer - always top of hierarchy' },
               ].map(row => (
                 <div key={row.layer} style={{ display: 'grid', gridTemplateColumns: '160px 200px 1fr', gap: '24px', padding: '13px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'center' }}>
                   <span style={{ fontSize: 'var(--text-small)', fontWeight: 600, color: 'var(--color-text-primary)' }}>{row.layer}</span>
@@ -448,12 +448,12 @@ export function DesignSystem() {
         </Section>
 
         {/* Motion */}
-        <Section id="motion" title="Motion" description="Motion expresses system state — never decoration. UIPlaybook's three principles: Predictable, Purposeful, Playful. Respect prefers-reduced-motion.">
+        <Section id="motion" title="Motion" description="Motion expresses system state - never decoration. UIPlaybook's three principles: Predictable, Purposeful, Playful. Respect prefers-reduced-motion.">
           <Subsection title="Principles">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '8px' }}>
               {[
                 { p: 'Predictable', desc: 'Consistent spatial understanding. Objects enter and leave symmetrically. Users build intuition for future interactions.', color: 'var(--color-public)' },
-                { p: 'Purposeful', desc: 'Motion has informative intent — highlights connections, gives focal points, responds to user actions. Makes the interface feel alive.', color: 'var(--color-shielded)' },
+                { p: 'Purposeful', desc: 'Motion has informative intent - highlights connections, gives focal points, responds to user actions. Makes the interface feel alive.', color: 'var(--color-shielded)' },
                 { p: 'Playful', desc: 'Delightful, unexpected moments on success states and empty screens. Celebrates the user journey. Used sparingly.', color: 'var(--color-success)' },
               ].map(({ p, desc, color }) => (
                 <div key={p} style={{ padding: '20px', background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', borderTop: `3px solid ${color}` }}>
@@ -467,9 +467,9 @@ export function DesignSystem() {
           <Subsection title="Tiers">
             <div style={{ borderTop: '1px solid var(--color-border)' }}>
               {[
-                { tier: 'A — Primitive CSS', desc: 'Hover transitions, pulse indicators, spin. No external libraries.', examples: 'StatusBadge pulse, ActivityRow spinner, Button hover' },
-                { tier: 'B — Entrance / Exit', desc: 'Entrance and exit animations for elements appearing or disappearing. Prevents jarring visual jumps.', examples: 'LeftColumnOverlay fade, Notification entrance, Drawer slide' },
-                { tier: 'C — Advanced', desc: 'SVG animations, animated logos, skeleton loaders. Brand character.', examples: 'Reserved — future loading states' },
+                { tier: 'A - Primitive CSS', desc: 'Hover transitions, pulse indicators, spin. No external libraries.', examples: 'StatusBadge pulse, ActivityRow spinner, Button hover' },
+                { tier: 'B - Entrance / Exit', desc: 'Entrance and exit animations for elements appearing or disappearing. Prevents jarring visual jumps.', examples: 'LeftColumnOverlay fade, Notification entrance, Drawer slide' },
+                { tier: 'C - Advanced', desc: 'SVG animations, animated logos, skeleton loaders. Brand character.', examples: 'Reserved - future loading states' },
               ].map(row => (
                 <div key={row.tier} style={{ display: 'grid', gridTemplateColumns: '180px 1fr 1fr', gap: '24px', padding: '14px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'baseline' }}>
                   <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary)' }}>{row.tier}</span>
@@ -520,13 +520,13 @@ export function DesignSystem() {
           <div style={{ padding: '16px 20px', background: 'rgba(55,72,255,0.05)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(55,72,255,0.12)' }}>
             <div style={{ fontSize: 'var(--text-small)', fontWeight: 600, color: 'var(--color-public)', marginBottom: '4px' }}>prefers-reduced-motion rule</div>
             <div style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
-              Default to <em>no animations</em> and add them for users who haven't opted out — not the other way around. Wrap all animations in <code style={{ fontFamily: 'monospace' }}>@media (prefers-reduced-motion: no-preference)</code>. Priority targets: <code style={{ fontFamily: 'monospace' }}>pulse-badge</code>, <code style={{ fontFamily: 'monospace' }}>spin</code>, LeftColumnOverlay transition.
+              Default to <em>no animations</em> and add them for users who haven't opted out - not the other way around. Wrap all animations in <code style={{ fontFamily: 'monospace' }}>@media (prefers-reduced-motion: no-preference)</code>. Priority targets: <code style={{ fontFamily: 'monospace' }}>pulse-badge</code>, <code style={{ fontFamily: 'monospace' }}>spin</code>, LeftColumnOverlay transition.
             </div>
           </div>
         </Section>
 
         {/* Layout */}
-        <Section id="layout" title="Layout" description="Three-zone desktop layout. All financial operations happen inside the right panel — the left column is the information layer.">
+        <Section id="layout" title="Layout" description="Three-zone desktop layout. All financial operations happen inside the right panel - the left column is the information layer.">
           <div style={{ background: 'var(--color-surface-subtle)', borderRadius: 'var(--radius-lg)', padding: '32px', border: '1px solid var(--color-border)', marginBottom: '32px' }}>
             <div style={{ display: 'flex', gap: '8px', height: '180px', marginBottom: '20px' }}>
               <div style={{ width: '64px', background: 'var(--color-surface-raised)', borderRadius: 'var(--radius-md)', border: '1.5px solid var(--color-border)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', padding: '16px 8px' }}>
@@ -545,7 +545,7 @@ export function DesignSystem() {
             </div>
             <div style={{ display: 'flex', gap: '8px' }}>
               <div style={{ width: '64px', textAlign: 'center' }}><div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '3px' }}>Sidebar</div><div style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--color-public)' }}>220px</div></div>
-              <div style={{ flex: 1, textAlign: 'center' }}><div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '3px' }}>Left column</div><div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>Flexible — content layer</div></div>
+              <div style={{ flex: 1, textAlign: 'center' }}><div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', marginBottom: '3px' }}>Left column</div><div style={{ fontSize: '11px', color: 'var(--color-text-secondary)' }}>Flexible - content layer</div></div>
               <div style={{ width: '120px', textAlign: 'center' }}><div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-public)', marginBottom: '3px' }}>Right panel</div><div style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--color-public)' }}>380px fixed</div></div>
             </div>
           </div>
@@ -553,24 +553,24 @@ export function DesignSystem() {
             <div style={{ borderTop: '1px solid var(--color-border)' }}>
               <TokenRow token="--layout-nav-height" value="61px" extra="Sticky top navigation bar" />
               <TokenRow token="--layout-sidebar-width" value="220px" extra="Collapsible app sidebar" />
-              <TokenRow token="--layout-right-panel-width" value="380px" extra="Fixed transaction widget — never changes" />
+              <TokenRow token="--layout-right-panel-width" value="380px" extra="Fixed transaction widget - never changes" />
             </div>
           </Subsection>
         </Section>
 
         {/* Accessibility */}
-        <Section id="accessibility" title="Accessibility" description="WCAG AA minimum across all components. Keyboard-navigable, screen-reader-announced, motion-respectful. Accessibility is not a layer added at the end — it is built into every token and component.">
+        <Section id="accessibility" title="Accessibility" description="WCAG AA minimum across all components. Keyboard-navigable, screen-reader-announced, motion-respectful. Accessibility is not a layer added at the end - it is built into every token and component.">
           <Subsection title="ARIA roles in ShieldPay">
             <div style={{ borderTop: '1px solid var(--color-border)' }}>
               {[
-                { role: 'role="alert"', usage: 'Urgent messages (errors, network failures)', component: 'Notification — error variant' },
-                { role: 'role="status"', usage: 'Non-urgent updates (saved, processing)', component: 'Notification — info / success / warning' },
+                { role: 'role="alert"', usage: 'Urgent messages (errors, network failures)', component: 'Notification - error variant' },
+                { role: 'role="status"', usage: 'Non-urgent updates (saved, processing)', component: 'Notification - info / success / warning' },
                 { role: 'aria-live="polite"', usage: 'Announce dynamic content changes', component: 'StatusPersistenceBanner, ActivityRow' },
-                { role: 'aria-invalid="true"', usage: 'Signal invalid field to screen readers', component: 'TextField — error state' },
-                { role: 'aria-describedby', usage: 'Link inputs to their hint or error text', component: 'TextField — hint and error labels' },
+                { role: 'aria-invalid="true"', usage: 'Signal invalid field to screen readers', component: 'TextField - error state' },
+                { role: 'aria-describedby', usage: 'Link inputs to their hint or error text', component: 'TextField - hint and error labels' },
                 { role: 'aria-label', usage: 'Label icon-only controls without visible text', component: 'Button icon-only, BalanceCard eye toggle' },
-                { role: 'aria-disabled="true"', usage: 'Communicate disabled state semantically', component: 'Button — disabled and loading states' },
-                { role: 'aria-busy="true"', usage: 'Signal async operation in progress', component: 'Button — loading state' },
+                { role: 'aria-disabled="true"', usage: 'Communicate disabled state semantically', component: 'Button - disabled and loading states' },
+                { role: 'aria-busy="true"', usage: 'Signal async operation in progress', component: 'Button - loading state' },
                 { role: 'aria-hidden="true"', usage: 'Hide decorative elements from assistive tech', component: 'Icons inside buttons and badges' },
               ].map(row => (
                 <div key={row.role} style={{ display: 'grid', gridTemplateColumns: '200px 1fr 200px', gap: '24px', padding: '12px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'baseline' }}>
@@ -588,7 +588,7 @@ export function DesignSystem() {
                 { key: 'Tab / Shift+Tab', rule: 'Navigate between all interactive elements in visual order.' },
                 { key: 'Enter / Space', rule: 'Activate buttons and interactive controls.' },
                 { key: 'Escape', rule: 'Dismiss modals, sheets, and NavigationWarning dialogs.' },
-                { key: 'Focus ring', rule: 'Always visible on keyboard focus — never outline: 0 without a custom alternative. Uses 2px blue outline at 2px offset.' },
+                { key: 'Focus ring', rule: 'Always visible on keyboard focus - never outline: 0 without a custom alternative. Uses 2px blue outline at 2px offset.' },
               ].map(({ key, rule }) => (
                 <div key={key} style={{ display: 'grid', gridTemplateColumns: '180px 1fr', gap: '16px', fontSize: '13px', alignItems: 'baseline' }}>
                   <code style={{ fontFamily: 'monospace', color: 'var(--color-public)', fontWeight: 600 }}>{key}</code>
@@ -615,7 +615,7 @@ export function DesignSystem() {
 
           <Subsection title="Color contrast">
             <div style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', lineHeight: 1.65, marginBottom: '12px' }}>
-              All text/background pairings must meet <strong style={{ color: 'var(--color-text-primary)' }}>WCAG AA</strong>: normal text ≥ 4.5:1, large text ≥ 3:1. All status colors in this system are verified on white. Never convey information through color alone — always pair with an icon or label.
+              All text/background pairings must meet <strong style={{ color: 'var(--color-text-primary)' }}>WCAG AA</strong>: normal text ≥ 4.5:1, large text ≥ 3:1. All status colors in this system are verified on white. Never convey information through color alone - always pair with an icon or label.
             </div>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               {[
@@ -637,7 +637,7 @@ export function DesignSystem() {
         <SectionDivider label="Components" />
 
         {/* Button */}
-        <Section id="button" title="Button" description="Interactive element for triggering actions. Always uses native <button>. Never a <div>. Six variants — one primary CTA per view.">
+        <Section id="button" title="Button" description="Interactive element for triggering actions. Always uses native <button>. Never a <div>. Six variants - one primary CTA per view.">
           <Subsection title="Variants">
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
               <Button variant="primary">Primary</Button>
@@ -661,7 +661,7 @@ export function DesignSystem() {
               <Button variant="secondary" loading>Loading</Button>
             </div>
             <div style={{ marginTop: '12px', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-              Hover and active states are visible on interaction. Loading state locks dimensions — no layout shift.
+              Hover and active states are visible on interaction. Loading state locks dimensions - no layout shift.
             </div>
           </Subsection>
 
@@ -689,7 +689,7 @@ export function DesignSystem() {
           <Subsection title="Anatomy">
             <Anatomy parts={[
               { name: 'container', desc: 'Native <button> element. Never use <div> or <a> without proper ARIA.' },
-              { name: 'spinner', desc: 'Replaces left-icon in loading state. Button dimensions stay fixed — no reflow.' },
+              { name: 'spinner', desc: 'Replaces left-icon in loading state. Button dimensions stay fixed - no reflow.' },
               { name: 'left-icon', desc: 'Optional. 16px icon, aria-hidden. Gap reduces to 6px when paired with label.' },
               { name: 'label', desc: 'Required unless icon-only. Succinct, action-oriented. No truncation.' },
               { name: 'right-icon', desc: 'Optional. Use for directional cues (→, ↗). aria-hidden.' },
@@ -702,13 +702,13 @@ export function DesignSystem() {
                 'Use `primary` for the single forward action per view: "Shield funds →", "Confirm", "Connect wallet".',
                 'Use `secondary` alongside a primary for reversible alternatives: "Cancel", "Go back".',
                 'Use `destructive` only for irreversible fund-affecting actions, always with a confirmation step.',
-                'Switch to `loading` state immediately on submission — before the wallet popup opens.',
+                'Switch to `loading` state immediately on submission - before the wallet popup opens.',
                 'Add `aria-label` on icon-only buttons (eye toggle, close, external link).',
               ]}
               donts={[
                 "Don't use more than one `primary` button in the same view section.",
-                "Don't disable while async work is pending — show `loading` instead; disabling traps users.",
-                "Don't keep `loading` state after the operation moves to `awaiting_wallet_confirmation` — WalletConfirmationPrompt takes over focus.",
+                "Don't disable while async work is pending - show `loading` instead; disabling traps users.",
+                "Don't keep `loading` state after the operation moves to `awaiting_wallet_confirmation` - WalletConfirmationPrompt takes over focus.",
                 "Don't use a button for state toggles (use Switch) or navigation labels (use links).",
               ]}
             />
@@ -716,8 +716,8 @@ export function DesignSystem() {
         </Section>
 
         {/* TextField */}
-        <Section id="text-field" title="TextField" description="Input field for user-entered data. Label always visible above. Hint and error occupy the same slot below — error wins. Font-size ≥ 16px to prevent iOS auto-zoom.">
-          <Subsection title="Default — label + hint">
+        <Section id="text-field" title="TextField" description="Input field for user-entered data. Label always visible above. Hint and error occupy the same slot below - error wins. Font-size ≥ 16px to prevent iOS auto-zoom.">
+          <Subsection title="Default - label + hint">
             <div style={{ maxWidth: '360px' }}>
               <TextField
                 label="Amount"
@@ -759,8 +759,8 @@ export function DesignSystem() {
 
           <Subsection title="Anatomy">
             <Anatomy parts={[
-              { name: 'label', desc: 'Always above the input. Never use placeholder as a label substitute — it disappears on focus.' },
-              { name: 'required-indicator', desc: 'Red asterisk (*) when required. aria-hidden — conveyed semantically via aria-required.' },
+              { name: 'label', desc: 'Always above the input. Never use placeholder as a label substitute - it disappears on focus.' },
+              { name: 'required-indicator', desc: 'Red asterisk (*) when required. aria-hidden - conveyed semantically via aria-required.' },
               { name: 'left-icon', desc: 'Clarifies input type (Wallet, Search). aria-hidden. Adds 38px left padding to input.' },
               { name: 'input', desc: 'font-size: 16px minimum (prevents iOS auto-zoom). Use inputmode="decimal" for numbers, not type="number".' },
               { name: 'right-icon', desc: 'Provides in-field action (clear, show/hide password). Needs explicit aria-label if interactive.' },
@@ -772,24 +772,24 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Use `inputmode="decimal"` for all crypto amount fields — never `type="number"`.',
+                'Use `inputmode="decimal"` for all crypto amount fields - never `type="number"`.',
                 'Use the `hint` prop to show available balance beneath the amount input: "Available: 4.28 ETH".',
-                'Validate on blur only — not on keystroke; premature errors interrupt typing.',
-                'Label amount inputs "Amount" — never "ETH amount"; currency denomination is shown separately.',
+                'Validate on blur only - not on keystroke; premature errors interrupt typing.',
+                'Label amount inputs "Amount" - never "ETH amount"; currency denomination is shown separately.',
                 'Set font-size ≥ 16px to prevent iOS auto-zoom on focus.',
               ]}
               donts={[
-                "Don't use `type=\"number\"` — scroll-wheel changes silently corrupt crypto amounts.",
-                "Don't use placeholder as the only label — it disappears when the user types.",
+                "Don't use `type=\"number\"` - scroll-wheel changes silently corrupt crypto amounts.",
+                "Don't use placeholder as the only label - it disappears when the user types.",
                 "Don't show validation errors before the user has blurred the field.",
-                "Don't use TextField for wallet address display — use the mono type token instead.",
+                "Don't use TextField for wallet address display - use the mono type token instead.",
               ]}
             />
           </Subsection>
         </Section>
 
         {/* Notification */}
-        <Section id="notification" title="Notification" description="Informational messages giving feedback on action outcomes. Non-intrusive — never interrupts workflow. 4s standard, 10s actionable. Timer pauses on hover. Max 3 stacked.">
+        <Section id="notification" title="Notification" description="Informational messages giving feedback on action outcomes. Non-intrusive - never interrupts workflow. 4s standard, 10s actionable. Timer pauses on hover. Max 3 stacked.">
           <Subsection title="All variants">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
               {([
@@ -816,9 +816,9 @@ export function DesignSystem() {
 
           <Subsection title="Timing rules">
             <div style={{ borderTop: '1px solid var(--color-border)' }}>
-              <TokenRow token="standard" value="4 000ms" extra="Informational messages — auto-dismiss" />
-              <TokenRow token="actionable" value="10 000ms" extra="Notifications with action buttons — extra time to read and act" />
-              <TokenRow token="pause-on-hover" value="—" extra="Timer freezes when pointer enters; resumes on mouse leave" />
+              <TokenRow token="standard" value="4 000ms" extra="Informational messages - auto-dismiss" />
+              <TokenRow token="actionable" value="10 000ms" extra="Notifications with action buttons - extra time to read and act" />
+              <TokenRow token="pause-on-hover" value="-" extra="Timer freezes when pointer enters; resumes on mouse leave" />
               <TokenRow token="max-stack" value="3" extra="Oldest notification silently dismissed when limit is exceeded" />
             </div>
           </Subsection>
@@ -831,7 +831,7 @@ export function DesignSystem() {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '16px', padding: '12px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'baseline' }}>
                 <code style={{ fontSize: '13px', fontFamily: 'monospace', color: 'var(--color-public)' }}>role="status"</code>
-                <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>Non-urgent updates (info, success, warning). Announced politely — respects the user's current focus.</span>
+                <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>Non-urgent updates (info, success, warning). Announced politely - respects the user's current focus.</span>
               </div>
             </div>
           </Subsection>
@@ -840,22 +840,22 @@ export function DesignSystem() {
             <DoAndDont
               dos={[
                 'Use for lightweight transient feedback: "Copied to clipboard", "Transaction submitted".',
-                'Position bottom-left — Drawer owns the right side during active operations.',
+                'Position bottom-left - Drawer owns the right side during active operations.',
                 'Use `role="alert"` only for unexpected errors; `role="status"` for operation progress events.',
                 'Auto-dismiss informational and success notifications after 5s; never auto-dismiss actionable ones.',
               ]}
               donts={[
-                "Don't use Notification for operation phase changes — use StatusPersistenceBanner (persists across navigation) or the Drawer state (in-flow).",
-                "Don't use for inline form errors — those belong in the TextField `error` prop.",
-                "Don't show while WalletConfirmationPrompt is active — competing messages break focus.",
-                "Don't stack more than 3 — dismiss the oldest silently when exceeded.",
+                "Don't use Notification for operation phase changes - use StatusPersistenceBanner (persists across navigation) or the Drawer state (in-flow).",
+                "Don't use for inline form errors - those belong in the TextField `error` prop.",
+                "Don't show while WalletConfirmationPrompt is active - competing messages break focus.",
+                "Don't stack more than 3 - dismiss the oldest silently when exceeded.",
               ]}
             />
           </Subsection>
         </Section>
 
         {/* StatusBadge */}
-        <Section id="status-badge" title="StatusBadge" description="Inline badge for operation status. Eight variants covering the full lifecycle. action-required pulses to signal urgency — it is the only animated badge variant.">
+        <Section id="status-badge" title="StatusBadge" description="Inline badge for operation status. Eight variants covering the full lifecycle. action-required pulses to signal urgency - it is the only animated badge variant.">
           <Subsection title="All variants">
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <StatusBadge variant="processing" />
@@ -887,12 +887,12 @@ export function DesignSystem() {
               dos={[
                 'Map badge variants directly to operation phases: `processing` → processing/finalizing; `action-required` → proof_ready; `completed` → completed; `failed` → any failure type.',
                 'Override the label with specific phase copy: "Encrypting…" not "Processing", "Waiting for proof…" not "Action required".',
-                'Use `action-required` (pulsing) only when the user must tap to continue — proof_ready unshield is the only such phase in the current flow.',
+                'Use `action-required` (pulsing) only when the user must tap to continue - proof_ready unshield is the only such phase in the current flow.',
                 'Pair with PhaseIndicator inside the Drawer; use standalone in ActivityRow.',
               ]}
               donts={[
-                "Don't use `action-required` during `processing` or `finalizing` — the user has nothing to do and the pulse creates false urgency.",
-                "Don't use `completed` during the `finalizing` phase — Etherscan shows 'Success' but the private balance is still computing.",
+                "Don't use `action-required` during `processing` or `finalizing` - the user has nothing to do and the pulse creates false urgency.",
+                "Don't use `completed` during the `finalizing` phase - Etherscan shows 'Success' but the private balance is still computing.",
                 "Don't show more than one badge per ActivityRow.",
               ]}
             />
@@ -900,7 +900,7 @@ export function DesignSystem() {
         </Section>
 
         {/* PhaseIndicator */}
-        <Section id="phase-indicator" title="PhaseIndicator" description="Horizontal progress track for operation phases. Not a numbered stepper — users aren't doing steps; the system is. Labels are always visible, never hover-only.">
+        <Section id="phase-indicator" title="PhaseIndicator" description="Horizontal progress track for operation phases. Not a numbered stepper - users aren't doing steps; the system is. Labels are always visible, never hover-only.">
           <Subsection title="Variants">
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
@@ -948,16 +948,16 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Use inside the Drawer during active shield/unshield operations — this is its only placement in the app.',
-                'Show all 4 phases even when one is near-instant — skipping phases makes users doubt whether the system is progressing.',
-                'Treat `processing` and `finalizing` as separate phases — the on-chain confirmation and FHE computation are distinct steps that must not be merged.',
+                'Use inside the Drawer during active shield/unshield operations - this is its only placement in the app.',
+                'Show all 4 phases even when one is near-instant - skipping phases makes users doubt whether the system is progressing.',
+                'Treat `processing` and `finalizing` as separate phases - the on-chain confirmation and FHE computation are distinct steps that must not be merged.',
                 'Use the vertical variant inside the Drawer; horizontal only in wider standalone contexts.',
               ]}
               donts={[
-                "Don't use as a multi-step form wizard — it shows what the system is doing, not what the user must do.",
-                "Don't mark `finalizing` complete until the private balance has updated — the transaction confirming on-chain is not the end of the operation.",
-                "Don't hide or abbreviate phase labels — they are the primary communication mechanism during a wait.",
-                "Don't render outside the Drawer — it belongs to the in-flight operation context only.",
+                "Don't use as a multi-step form wizard - it shows what the system is doing, not what the user must do.",
+                "Don't mark `finalizing` complete until the private balance has updated - the transaction confirming on-chain is not the end of the operation.",
+                "Don't hide or abbreviate phase labels - they are the primary communication mechanism during a wait.",
+                "Don't render outside the Drawer - it belongs to the in-flight operation context only.",
               ]}
             />
           </Subsection>
@@ -996,21 +996,21 @@ export function DesignSystem() {
 
               {/* SVG connecting lines */}
               <svg style={{ position: 'absolute', top: 0, left: 0, width: '580px', height: '310px', pointerEvents: 'none', overflow: 'visible' }}>
-                {/* 1 — Container: left side, top */}
+                {/* 1 - Container: left side, top */}
                 <line x1="46" y1="32" x2="120" y2="32" stroke="#14141A" strokeWidth="1" />
                 <rect x="118" y="30" width="3" height="3" fill="#14141A" />
-                {/* 2 — CardHeader: right side */}
+                {/* 2 - CardHeader: right side */}
                 <line x1="410" y1="72" x2="456" y2="72" stroke="#14141A" strokeWidth="1" />
                 <rect x="409" y="70" width="3" height="3" fill="#14141A" />
-                {/* 3 — CardContent: right side */}
+                {/* 3 - CardContent: right side */}
                 <line x1="410" y1="175" x2="456" y2="175" stroke="#14141A" strokeWidth="1" />
                 <rect x="409" y="173" width="3" height="3" fill="#14141A" />
-                {/* 4 — CardFooter: left side, bottom */}
+                {/* 4 - CardFooter: left side, bottom */}
                 <line x1="46" y1="262" x2="120" y2="262" stroke="#14141A" strokeWidth="1" />
                 <rect x="118" y="260" width="3" height="3" fill="#14141A" />
               </svg>
 
-              {/* Callout circles — numbers only, descriptions in legend below */}
+              {/* Callout circles - numbers only, descriptions in legend below */}
               {([
                 { n: 1, x: 20, y: 19 },
                 { n: 2, x: 456, y: 59 },
@@ -1044,7 +1044,7 @@ export function DesignSystem() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '24px' }}>
               {/* Basic */}
               <div>
-                <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '10px' }}>Basic — informational</div>
+                <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '10px' }}>Basic - informational</div>
                 <Card>
                   <CardHeader>
                     <CardTitle>Operation summary</CardTitle>
@@ -1058,7 +1058,7 @@ export function DesignSystem() {
               </div>
               {/* Action */}
               <div>
-                <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '10px' }}>Action — primary interaction</div>
+                <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '10px' }}>Action - primary interaction</div>
                 <Card>
                   <CardHeader>
                     <CardTitle>Confirm shielding</CardTitle>
@@ -1073,7 +1073,7 @@ export function DesignSystem() {
               </div>
               {/* Status */}
               <div>
-                <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '10px' }}>Status — outcome display</div>
+                <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '10px' }}>Status - outcome display</div>
                 <Card>
                   <CardHeader>
                     <CardTitle>Transaction complete</CardTitle>
@@ -1090,7 +1090,7 @@ export function DesignSystem() {
               </div>
               {/* Summary */}
               <div>
-                <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '10px' }}>Summary — compact single value</div>
+                <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '10px' }}>Summary - compact single value</div>
                 <Card>
                   <CardContent>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
@@ -1127,22 +1127,22 @@ export function DesignSystem() {
             <DoAndDont
               dos={[
                 'Use Card for self-contained content units with a single action: a fee summary, a confirmation step, a token detail.',
-                'Use Card for the ConnectWallet flow — it lives on the full `/connect` page and expands inline; never in a drawer or modal.',
+                'Use Card for the ConnectWallet flow - it lives on the full `/connect` page and expands inline; never in a drawer or modal.',
                 'Use `CardDescription` to say what will happen next, not instructions for what the user must do.',
                 'Limit `CardFooter` to one primary and one secondary action at most.',
               ]}
               donts={[
-                "Don't use Card for multi-phase operation UI — that belongs in the Drawer.",
-                "Don't use Card as a drawer or modal substitute — it is always in the document flow.",
-                "Don't nest Card inside Card — use sections or layout primitives for hierarchy.",
-                "Don't put an amount input and a CTA in the same Card — the shield form is its own full view, not a card.",
+                "Don't use Card for multi-phase operation UI - that belongs in the Drawer.",
+                "Don't use Card as a drawer or modal substitute - it is always in the document flow.",
+                "Don't nest Card inside Card - use sections or layout primitives for hierarchy.",
+                "Don't put an amount input and a CTA in the same Card - the shield form is its own full view, not a card.",
               ]}
             />
           </Subsection>
         </Section>
 
         {/* Switch */}
-        <Section id="switch" title="Switch" description="Binary toggle for on/off settings. Uses role=switch and aria-checked for accessibility. Never use for actions — only persistent settings.">
+        <Section id="switch" title="Switch" description="Binary toggle for on/off settings. Uses role=switch and aria-checked for accessibility. Never use for actions - only persistent settings.">
           <Subsection title="States">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <Switch checked={switchOn} onChange={setSwitchOn} label={switchOn ? 'Shielded mode on' : 'Shielded mode off'} />
@@ -1161,13 +1161,13 @@ export function DesignSystem() {
             <DoAndDont
               dos={[
                 'Use for persistent binary settings that apply immediately: balance visibility, notification preferences.',
-                'Always pair with a visible label — the track alone is ambiguous without context.',
-                'Apply the change on toggle — no Save step.',
+                'Always pair with a visible label - the track alone is ambiguous without context.',
+                'Apply the change on toggle - no Save step.',
               ]}
               donts={[
-                "Don't use for initiating operations — use Button for shield, unshield, send actions.",
-                "Don't place inside forms that require explicit submission — Switch state is live, not staged.",
-                "Don't rely on color alone to convey state — thumb position is the primary indicator.",
+                "Don't use for initiating operations - use Button for shield, unshield, send actions.",
+                "Don't place inside forms that require explicit submission - Switch state is live, not staged.",
+                "Don't rely on color alone to convey state - thumb position is the primary indicator.",
               ]}
             />
           </Subsection>
@@ -1207,8 +1207,8 @@ export function DesignSystem() {
 
         {/* BalanceCard */}
         <Section id="balance-card" title="BalanceCard" description="Paired balance display used in the Overview. Both cards render side by side with dollar totals and stacked token avatars. A single page-level eye toggle controls the hidden state on both simultaneously.">
-          <Subsection title="Overview layout — side by side">
-            {/* Demo toggle — mirrors the page-level eye button in Overview, not part of BalanceCard itself */}
+          <Subsection title="Overview layout - side by side">
+            {/* Demo toggle - mirrors the page-level eye button in Overview, not part of BalanceCard itself */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
               <button
                 onClick={() => setShieldedHidden(h => !h)}
@@ -1228,7 +1228,7 @@ export function DesignSystem() {
           </Subsection>
           <Subsection title="Anatomy">
             <Anatomy parts={[
-              { name: 'header', desc: 'Icon + "Public / Shielded balance" label. The eye toggle is a page-level button that lives outside both cards — not part of the card itself.' },
+              { name: 'header', desc: 'Icon + "Public / Shielded balance" label. The eye toggle is a page-level button that lives outside both cards - not part of the card itself.' },
               { name: 'amount', desc: 'display size, weight 700, tabular-nums. Replaced with "● ● ●" when hidden=true. Format depends on context: raw token amount on section pages (e.g. "4.28 ETH"), dollar total on Overview (e.g. "$17,203").' },
               { name: 'usd-value', desc: 'Secondary denomination. Hidden when amount is hidden.' },
               { name: 'bottom-right slot', desc: 'Stacked token avatars when tokenAvatars is provided (Overview). Falls back to a 3-letter symbol badge at 12% accent opacity when omitted (section pages).' },
@@ -1237,14 +1237,14 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Always render both cards together — public and shielded are meaningless without each other.',
-                'Pass tokenAvatars — stacked coin icons communicate that the balance spans multiple assets.',
+                'Always render both cards together - public and shielded are meaningless without each other.',
+                'Pass tokenAvatars - stacked coin icons communicate that the balance spans multiple assets.',
                 'Control hidden from a single page-level toggle that affects both cards simultaneously.',
               ]}
               donts={[
-                "Don't add a per-card onToggleHidden — one toggle controls both cards, not each independently.",
-                "Don't reveal balances by default — hidden=true is the safe starting state.",
-                "Don't hardcode the accent color — always derive it from the type prop via semantic tokens.",
+                "Don't add a per-card onToggleHidden - one toggle controls both cards, not each independently.",
+                "Don't reveal balances by default - hidden=true is the safe starting state.",
+                "Don't hardcode the accent color - always derive it from the type prop via semantic tokens.",
               ]}
             />
           </Subsection>
@@ -1256,12 +1256,12 @@ export function DesignSystem() {
           {/* Two-column: demo | anatomy */}
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '40px', alignItems: 'start', marginBottom: '40px' }}>
 
-            {/* Left — all states demo */}
+            {/* Left - all states demo */}
             <div>
               <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '16px' }}>All states</div>
               <div style={{ background: 'var(--color-surface-raised)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-md)', overflow: 'hidden' }}>
                 <div style={{ padding: '12px 20px', background: 'var(--color-surface-subtle)', borderBottom: '1px solid var(--color-border)' }}>
-                  <span style={{ fontSize: 'var(--text-small)', fontWeight: 600, color: 'var(--color-text-secondary)' }}>In-progress — always first</span>
+                  <span style={{ fontSize: 'var(--text-small)', fontWeight: 600, color: 'var(--color-text-secondary)' }}>In-progress - always first</span>
                 </div>
                 <div style={{ padding: '0 20px' }}>
                   <ActivityRow
@@ -1301,7 +1301,7 @@ export function DesignSystem() {
               </div>
             </div>
 
-            {/* Right — anatomy */}
+            {/* Right - anatomy */}
             <div>
               <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '16px' }}>Anatomy</div>
               <Anatomy parts={[
@@ -1310,9 +1310,9 @@ export function DesignSystem() {
                 { name: 'primary text', desc: 'Operation label. --text-heading, weight 600, --color-text-primary. Always visible.' },
                 { name: 'phase label', desc: 'Inline next to primary text on in-progress rows only. --text-small, --color-processing. ("Encrypting…", "Waiting for proof…").' },
                 { name: 'secondary text', desc: 'Relative timestamp on line 2. --color-text-secondary, 12px.' },
-                { name: 'trailing — amount', desc: 'Right-aligned, weight 600, tabular-nums. Hidden shielded amounts display as ● ● ●. #78350F for action-required.' },
-                { name: 'trailing — action', desc: '"Complete →" button. Only on proof_ready unshield. Bordered amber pill.' },
-                { name: 'trailing — tx-link', desc: 'ExternalLink 13px icon. Only on completed rows with txHash. aria-label required.' },
+                { name: 'trailing - amount', desc: 'Right-aligned, weight 600, tabular-nums. Hidden shielded amounts display as ● ● ●. #78350F for action-required.' },
+                { name: 'trailing - action', desc: '"Complete →" button. Only on proof_ready unshield. Bordered amber pill.' },
+                { name: 'trailing - tx-link', desc: 'ExternalLink 13px icon. Only on completed rows with txHash. aria-label required.' },
                 { name: 'row divider', desc: '1px --color-border bottom on each row.' },
                 { name: 'empty state', desc: '"No more transactions" centered at list bottom. Always present as list terminator.' },
               ]} />
@@ -1348,17 +1348,17 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Always render in-progress rows above completed rows — this ordering is non-negotiable regardless of timestamp.',
-                'Use section headers ("In progress", "Completed") to divide groups — group context is load-bearing information.',
-                'Show the "Complete →" CTA only on `proof_ready` unshield rows — this is the only user-required action in the entire operation lifecycle.',
-                'Use "Sent" / "Received" as the send row label — not "Sent shielded". The token symbol (cETH, cUSDC) already communicates shielded vs public.',
-                'Default `hidden=true` for shielded send amounts — privacy is the safe default.',
+                'Always render in-progress rows above completed rows - this ordering is non-negotiable regardless of timestamp.',
+                'Use section headers ("In progress", "Completed") to divide groups - group context is load-bearing information.',
+                'Show the "Complete →" CTA only on `proof_ready` unshield rows - this is the only user-required action in the entire operation lifecycle.',
+                'Use "Sent" / "Received" as the send row label - not "Sent shielded". The token symbol (cETH, cUSDC) already communicates shielded vs public.',
+                'Default `hidden=true` for shielded send amounts - privacy is the safe default.',
                 'Always include the list terminator ("No more transactions") so users know the list is complete, not truncated.',
               ]}
               donts={[
                 "Don't render completed rows before in-progress ones, even if more recently dated.",
-                "Don't show the Complete CTA on any status other than `proof_ready` unshield — no other phase requires user action.",
-                "Don't make rows tappable to expand — no token or transaction detail pages exist yet.",
+                "Don't show the Complete CTA on any status other than `proof_ready` unshield - no other phase requires user action.",
+                "Don't make rows tappable to expand - no token or transaction detail pages exist yet.",
                 "Don't add more than one trailing action per row.",
               ]}
             />
@@ -1367,7 +1367,7 @@ export function DesignSystem() {
 
         {/* ── Planned components ── */}
 
-        <Section id="status-persistence-banner" title="StatusPersistenceBanner" description="Persistent strip at the top of the left column for all non-idle operation states. Never auto-dismisses. Completed, failed, and cancelled states are manually dismissable — the user always sees the outcome when they return.">
+        <Section id="status-persistence-banner" title="StatusPersistenceBanner" description="Persistent strip at the top of the left column for all non-idle operation states. Never auto-dismisses. Completed, failed, and cancelled states are manually dismissable - the user always sees the outcome when they return.">
           <Subsection title="Phase variants">
             <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
               {([
@@ -1404,39 +1404,39 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Mount in the AppShell layout — always rendered globally, never inside a page component.',
-                'Show for all active phases including `completed` — the banner is the user\'s persistent view into operation state while they browse the app.',
+                'Mount in the AppShell layout - always rendered globally, never inside a page component.',
+                'Show for all active phases including `completed` - the banner is the user\'s persistent view into operation state while they browse the app.',
                 'Treat the banner as the re-entry point to the Drawer: every variant shows a "View →" CTA that reopens the Drawer at the current phase. It is a shortcut, not a notification.',
-                'Show a green `completed` banner when the operation finishes — it persists until the user explicitly dismisses it so they see the result even after navigating away.',
+                'Show a green `completed` banner when the operation finishes - it persists until the user explicitly dismisses it so they see the result even after navigating away.',
                 'Make completed, failed, and cancelled states manually dismissable with the X button.',
-                'Keep visible and non-dismissable for processing and `action-required` states — the user must either wait or act.',
+                'Keep visible and non-dismissable for processing and `action-required` states - the user must either wait or act.',
               ]}
               donts={[
-                "Don't use `role=\"alert\"` — the banner is a persistent status indicator, not an urgent interruption.",
-                "Don't use processing colors for `completed` — green only after the private balance has updated.",
-                "Don't use for lightweight feedback unrelated to an active operation — use Notification instead.",
-                "Don't auto-dismiss for `action-required` or `failed` — the user must acknowledge or act.",
+                "Don't use `role=\"alert\"` - the banner is a persistent status indicator, not an urgent interruption.",
+                "Don't use processing colors for `completed` - green only after the private balance has updated.",
+                "Don't use for lightweight feedback unrelated to an active operation - use Notification instead.",
+                "Don't auto-dismiss for `action-required` or `failed` - the user must acknowledge or act.",
               ]}
             />
           </Subsection>
         </Section>
 
-        <Section id="navigation-warning" title="NavigationWarning" description="Inline dialog shown when the user attempts to navigate away during an active Unshield. Two urgency levels — soft (processing) and urgent (proof_ready). Never a browser confirm() dialog.">
+        <Section id="navigation-warning" title="NavigationWarning" description="Inline dialog shown when the user attempts to navigate away during an active Unshield. Two urgency levels - soft (processing) and urgent (proof_ready). Never a browser confirm() dialog.">
           <Subsection title="Urgency variants">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
-                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '12px', fontWeight: 500 }}>Soft — still processing</div>
+                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '12px', fontWeight: 500 }}>Soft - still processing</div>
                 <NavigationWarning urgency="soft" onStay={() => {}} onLeave={() => {}} />
               </div>
               <div>
-                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '12px', fontWeight: 500 }}>Urgent — proof ready</div>
+                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '12px', fontWeight: 500 }}>Urgent - proof ready</div>
                 <NavigationWarning urgency="urgent" onStay={() => {}} onLeave={() => {}} />
               </div>
             </div>
           </Subsection>
           <Subsection title="Anatomy">
             <Anatomy parts={[
-              { name: 'icon', desc: 'Zap icon only on urgent variant. aria-hidden — urgency conveyed via title color and copy.' },
+              { name: 'icon', desc: 'Zap icon only on urgent variant. aria-hidden - urgency conveyed via title color and copy.' },
               { name: 'title', desc: 'Urgent: colored amber (--color-warning). Soft: text-primary. Max one line.' },
               { name: 'body', desc: 'Explains consequence of leaving. Must answer: what happens to my funds if I leave? Always use "secured" for unshield intermediate state.' },
               { name: 'primary-cta', desc: '"Complete now" (urgent, primary) or "Stay" (soft, secondary). Closes the dialog, keeps user on page.' },
@@ -1446,23 +1446,23 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Show only during `proof_ready` unshield — this is the only phase where funds are in an intermediate contract and leaving has a meaningful consequence.',
-                'Intercept navigation with this dialog instead of browser `confirm()` — it allows custom copy and accessible focus management.',
-                'Always make "Leave anyway" available — never trap the user; inform, do not block.',
+                'Show only during `proof_ready` unshield - this is the only phase where funds are in an intermediate contract and leaving has a meaningful consequence.',
+                'Intercept navigation with this dialog instead of browser `confirm()` - it allows custom copy and accessible focus management.',
+                'Always make "Leave anyway" available - never trap the user; inform, do not block.',
                 'Auto-focus the "Stay" CTA on open so keyboard users land on the safer default.',
               ]}
               donts={[
-                "Don't show during `processing` or `finalizing` shield phases — users can safely navigate away; the operation continues server-side.",
+                "Don't show during `processing` or `finalizing` shield phases - users can safely navigate away; the operation continues server-side.",
                 "Don't show for Send operations.",
-                "Don't delay rendering — show the dialog immediately on navigation intercept, not after a timeout.",
-                "Don't use `role=\"alertdialog\"` with `aria-required` — users have the right to leave.",
+                "Don't delay rendering - show the dialog immediately on navigation intercept, not after a timeout.",
+                "Don't use `role=\"alertdialog\"` with `aria-required` - users have the right to leave.",
               ]}
             />
           </Subsection>
         </Section>
 
-        <Section id="connect-wallet-card" title="ConnectWalletCard" description="Entry screen for /connect. 6-state machine: landing → wallet-selector → connecting → eip712-setup → eip712-active → dashboard. EIP-712 setup explains the free signature before the wallet popup opens — preventing confusion with a paid transaction.">
-          <Subsection title="State machine — live demo">
+        <Section id="connect-wallet-card" title="ConnectWalletCard" description="Entry screen for /connect. 6-state machine: landing → wallet-selector → connecting → eip712-setup → eip712-active → dashboard. EIP-712 setup explains the free signature before the wallet popup opens - preventing confusion with a paid transaction.">
+          <Subsection title="State machine - live demo">
             <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
               {([
                 { state: 'landing' as const, label: 'Landing' },
@@ -1493,7 +1493,7 @@ export function DesignSystem() {
           </Subsection>
           <Subsection title="Anatomy">
             <Anatomy parts={[
-              { name: 'landing', desc: 'Shield icon + headline + single CTA. No wallet options shown upfront — reduces decision paralysis.' },
+              { name: 'landing', desc: 'Shield icon + headline + single CTA. No wallet options shown upfront - reduces decision paralysis.' },
               { name: 'wallet-selector', desc: 'Inline expansion, no modal. Three wallet options with icon + name. Back link.' },
               { name: 'connecting', desc: 'Spinner + "Check your browser extension" copy. "Open manually" escape hatch. Cancel button.' },
               { name: 'eip712-setup', desc: '"✓ Wallet connected" confirmation first, then the EIP-712 ask. Explains free + once. Skip option defers to Shielded section.' },
@@ -1504,23 +1504,23 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Render as the entire `/connect` page — full screen, no AppShell, no Drawer. This is the only full-page takeover in the app.',
-                'Show EIP-712 setup as a subsequent state within the card after wallet connects — never as a surprise second popup.',
+                'Render as the entire `/connect` page - full screen, no AppShell, no Drawer. This is the only full-page takeover in the app.',
+                'Show EIP-712 setup as a subsequent state within the card after wallet connects - never as a surprise second popup.',
                 'Confirm the wallet connection visually before asking for the EIP-712 signature.',
                 'Explain that EIP-712 is one-time and free before the wallet popup opens.',
               ]}
               donts={[
-                "Don't open wallet selection in a modal — expand inline within the card.",
-                "Don't auto-trigger the EIP-712 popup — show the setup state inside the card first.",
-                "Don't remove 'Skip for now' — forcing EIP-712 on first connect creates friction that breaks the onboarding funnel.",
-                "Don't use generic error copy — each error type (rejected, timeout, already-connected) needs its own recovery instruction.",
+                "Don't open wallet selection in a modal - expand inline within the card.",
+                "Don't auto-trigger the EIP-712 popup - show the setup state inside the card first.",
+                "Don't remove 'Skip for now' - forcing EIP-712 on first connect creates friction that breaks the onboarding funnel.",
+                "Don't use generic error copy - each error type (rejected, timeout, already-connected) needs its own recovery instruction.",
               ]}
             />
           </Subsection>
         </Section>
 
         <Section id="right-panel" title="Right Panel (Drawer)" description="Persistent 380px transaction drawer, always mounted. Never unmounts on route change. Tab bar hidden during any active operation phase. Every phase answers three questions: what is happening, what the user should do, and what happens if they leave.">
-          <Subsection title="State machine — live demo">
+          <Subsection title="State machine - live demo">
             {/* Controls: Operation (parent) → Phase (child), aligned labels, no extra toggle button */}
             <div style={{ marginBottom: '16px', padding: '16px 20px', background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
 
@@ -1597,7 +1597,7 @@ export function DesignSystem() {
               </div>
             </div>
 
-            {/* Demo frame — drawer always open; phase selection reflects immediately */}
+            {/* Demo frame - drawer always open; phase selection reflects immediately */}
             <div style={{ display: 'flex', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', height: '520px' }}>
               <div style={{ flex: 1, background: 'var(--color-surface-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Left column</span>
@@ -1614,7 +1614,8 @@ export function DesignSystem() {
                   publicBalance="1.24"
                   shieldedBalance="0.50"
                   startedAt={Date.now() - 120000}
-                  txHash="0xabc123def456"
+                  txHashStep1="0xabc123def456abc123def456"
+                  txHashStep2="0xdef456abc123def456abc123"
                   onStartShield={() => setPanelPhase('awaiting_wallet_step1')}
                   onStartSend={() => setPanelPhase('awaiting_wallet_step1')}
                   onStartUnshield={() => setPanelPhase('awaiting_wallet_step1')}
@@ -1639,26 +1640,26 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Use the Drawer when the user needs to focus on an operation but should still be able to see the app underneath — the semi-transparent LeftColumnOverlay dims the left column enough to signal focus without hiding it.',
-                'Always keep mounted — never unmount on route change. The Drawer is the persistent operation surface, not a page-level component.',
-                'Replace the form with phase content during an active operation — the two states are mutually exclusive.',
-                'Answer all three questions in every phase copy: what is happening, what the user should do (or "nothing — you can leave"), and what happens if they leave.',
-                'Hide the tab bar during active operations — prevent starting a second operation mid-flow.',
-                'Treat the StatusPersistenceBanner as the re-entry point: it reminds the user an operation is active or needs attention, and tapping it reopens the Drawer at the current phase. It is not a notification — it is a persistent shortcut back to the operation.',
+                'Use the Drawer when the user needs to focus on an operation but should still be able to see the app underneath - the semi-transparent LeftColumnOverlay dims the left column enough to signal focus without hiding it.',
+                'Always keep mounted - never unmount on route change. The Drawer is the persistent operation surface, not a page-level component.',
+                'Replace the form with phase content during an active operation - the two states are mutually exclusive.',
+                'Answer all three questions in every phase copy: what is happening, what the user should do (or "nothing - you can leave"), and what happens if they leave.',
+                'Hide the tab bar during active operations - prevent starting a second operation mid-flow.',
+                'Treat the StatusPersistenceBanner as the re-entry point: it reminds the user an operation is active or needs attention, and tapping it reopens the Drawer at the current phase. It is not a notification - it is a persistent shortcut back to the operation.',
                 'Clicking an in-progress or completed ActivityRow entry for shield, unshield, or send should reopen the Drawer showing the final state of that operation (the last phase screen reached).',
                 'Pair with LeftColumnOverlay: intensity 50 for `awaiting_wallet_confirmation`, intensity 30 for `processing` and `finalizing`.',
               ]}
               donts={[
-                "Don't use the Drawer for content that doesn't require the user's attention on an active operation — use full pages or cards instead.",
-                "Don't use the same copy across failure types — `failed_submission`, `failed_dropped`, and `failed_finalization` each have distinct causes and recovery paths.",
-                "Don't skip the `preparing` state — even at 1–2s, the indicator confirms the system received the action.",
-                "Don't show the shield/send form while a phase is active — the operation owns the Drawer.",
+                "Don't use the Drawer for content that doesn't require the user's attention on an active operation - use full pages or cards instead.",
+                "Don't use the same copy across failure types - `failed_submission`, `failed_dropped`, and `failed_finalization` each have distinct causes and recovery paths.",
+                "Don't skip the `preparing` state - even at 1–2s, the indicator confirms the system received the action.",
+                "Don't show the shield/send form while a phase is active - the operation owns the Drawer.",
               ]}
             />
           </Subsection>
         </Section>
 
-        <Section id="left-column-overlay" title="LeftColumnOverlay" description="A div covering the left column with variable opacity during active operations. At intensity > 0, pointer-events are blocked — the left column becomes non-interactive. Transition uses --duration-slower to feel intentional.">
+        <Section id="left-column-overlay" title="LeftColumnOverlay" description="A div covering the left column with variable opacity during active operations. At intensity > 0, pointer-events are blocked - the left column becomes non-interactive. Transition uses --duration-slower to feel intentional.">
           <Subsection title="Intensity levels">
             <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
               {([
@@ -1690,23 +1691,23 @@ export function DesignSystem() {
           <Subsection title="Anatomy">
             <Anatomy parts={[
               { name: 'div', desc: 'Single element. position: absolute; inset: 0. Requires position: relative on the left column container.' },
-              { name: 'background', desc: 'rgba(20, 20, 26, intensity/100) — Midnight color at variable alpha.' },
-              { name: 'pointer-events', desc: '"all" when intensity > 0 — blocks all left column interaction. "none" at intensity 0 — fully transparent and click-through.' },
+              { name: 'background', desc: 'rgba(20, 20, 26, intensity/100) - Midnight color at variable alpha.' },
+              { name: 'pointer-events', desc: '"all" when intensity > 0 - blocks all left column interaction. "none" at intensity 0 - fully transparent and click-through.' },
               { name: 'transition', desc: '--duration-slower (500ms) ease-in-out. The overlay must feel deliberate, not instant.' },
             ]} />
           </Subsection>
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Set intensity 50 for `awaiting_wallet_confirmation` — the user must focus entirely on the wallet popup and Drawer.',
-                'Set intensity 30 for `processing` and `finalizing` — the left column stays visible but de-emphasized; the user can see it but not interact.',
-                'Set intensity 0 at idle — fully transparent and click-through.',
-                'Transition using `--duration-slower` (500ms) — the overlay communicates a deliberate mode shift, not an instant state change.',
+                'Set intensity 50 for `awaiting_wallet_confirmation` - the user must focus entirely on the wallet popup and Drawer.',
+                'Set intensity 30 for `processing` and `finalizing` - the left column stays visible but de-emphasized; the user can see it but not interact.',
+                'Set intensity 0 at idle - fully transparent and click-through.',
+                'Transition using `--duration-slower` (500ms) - the overlay communicates a deliberate mode shift, not an instant state change.',
               ]}
               donts={[
-                "Don't use for non-operation states (page loading, empty states, errors) — it signals an active operation is blocking interaction.",
-                "Don't set opacity: 0 — dimmed content remaining visible is intentional; the user should see the left column is there but locked.",
-                "Don't hardcode rgba values — derive intensity from `--color-midnight` to stay consistent with the token system.",
+                "Don't use for non-operation states (page loading, empty states, errors) - it signals an active operation is blocking interaction.",
+                "Don't set opacity: 0 - dimmed content remaining visible is intentional; the user should see the left column is there but locked.",
+                "Don't hardcode rgba values - derive intensity from `--color-midnight` to stay consistent with the token system.",
               ]}
             />
           </Subsection>
@@ -1719,7 +1720,7 @@ export function DesignSystem() {
           title="Table"
           description="Generic table primitives for structured data layouts. Compose Table, TableHeader, TableBody, TableFooter, TableRow, and TableCell to build any tabular view."
         >
-          <Subsection title="Example — generic ruled table">
+          <Subsection title="Example - generic ruled table">
             <Table bordered accessibilityLabel="Example table">
               <TableHeader>
                 <TableRow>
@@ -1752,7 +1753,7 @@ export function DesignSystem() {
               { name: 'Table', desc: 'Root wrapper. Handles overflow scroll on narrow viewports. bordered prop adds a 1px border and border-radius.' },
               { name: 'TableHeader', desc: 'Maps to <thead>. Contains exactly one TableRow with TableCell asHeader cells.' },
               { name: 'TableBody', desc: 'Maps to <tbody>. Contains one TableRow per data record.' },
-              { name: 'TableFooter', desc: 'Maps to <tfoot>. Optional — use for pagination or summary rows.' },
+              { name: 'TableFooter', desc: 'Maps to <tfoot>. Optional - use for pagination or summary rows.' },
               { name: 'TableRow', desc: 'Maps to <tr>. hoverable prop enables mouse-over highlight.' },
               { name: 'TableCell', desc: 'Maps to <td> or <th> (asHeader). Accepts title/subtitle/start shorthand for common layouts, or children with direction/justifyContent for custom content.' },
             ]} />
@@ -1760,16 +1761,16 @@ export function DesignSystem() {
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Use as the primitive for any structured data list — TokenTable is built on top of it.',
-                'Use `title + subtitle + start` shorthand for asset rows (symbol + name + icon) — it handles layout automatically.',
+                'Use as the primitive for any structured data list - TokenTable is built on top of it.',
+                'Use `title + subtitle + start` shorthand for asset rows (symbol + name + icon) - it handles layout automatically.',
                 'Use `direction="row" justifyContent="flex-end"` for right-aligned balance or value cells.',
                 'Always set `accessibilityLabel` on the Table root for screen reader region labelling.',
               ]}
               donts={[
-                "Don't mix `asHeader` cells into TableBody rows — header styling belongs only inside TableHeader.",
-                "Don't hardcode padding or border-bottom inside TableCell children — the cell provides them.",
-                "Don't skip TableHeader — always include column labels even when they seem obvious.",
-                "Don't use Table for single-item displays — use Card or a plain layout instead.",
+                "Don't mix `asHeader` cells into TableBody rows - header styling belongs only inside TableHeader.",
+                "Don't hardcode padding or border-bottom inside TableCell children - the cell provides them.",
+                "Don't skip TableHeader - always include column labels even when they seem obvious.",
+                "Don't use Table for single-item displays - use Card or a plain layout instead.",
               ]}
             />
           </Subsection>
@@ -1791,7 +1792,7 @@ export function DesignSystem() {
                 id="token-table-hidden"
               />
               <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
-                (demo only — in the app, hidden is driven by the page-level eye toggle)
+                (demo only - in the app, hidden is driven by the page-level eye toggle)
               </span>
             </div>
             <TokenTable hidden={tokenTableHidden} />
@@ -1801,20 +1802,20 @@ export function DesignSystem() {
               { name: 'TokenAvatar', desc: 'Circular colored badge showing the token abbreviation. Shielded variant: scaled inner circle + --color-shielded border ring + ShieldCheck badge at bottom-right.' },
               { name: 'PrivacyBadge', desc: 'Pill showing Shielded (purple tint, ShieldCheck icon) or Unshielded (outlined, ShieldOff icon).' },
               { name: 'balance cell', desc: 'Right-aligned column. Primary line: token amount + unit. Secondary line: USD equivalent. Both lines are replaced with ●●● when hidden=true.' },
-              { name: 'hidden prop', desc: 'Boolean controlled by the parent. Masks all balance rows simultaneously — partial masking is not supported by design.' },
+              { name: 'hidden prop', desc: 'Boolean controlled by the parent. Masks all balance rows simultaneously - partial masking is not supported by design.' },
             ]} />
           </Subsection>
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Drive `hidden` from the same page-level toggle that controls BalanceCard — the visibility state is shared across the entire Overview.',
-                'Treat cETH, cUSDC, cDAI as separate token entries from their unshielded counterparts — they have distinct balances and identities.',
-                'Use `--color-shielded` for all shielded treatments: avatar ring, badge background, PrivacyBadge tint — never substitute another color.',
-                'Mask both token amount and USD value when hidden — revealing either one exposes balance information.',
+                'Drive `hidden` from the same page-level toggle that controls BalanceCard - the visibility state is shared across the entire Overview.',
+                'Treat cETH, cUSDC, cDAI as separate token entries from their unshielded counterparts - they have distinct balances and identities.',
+                'Use `--color-shielded` for all shielded treatments: avatar ring, badge background, PrivacyBadge tint - never substitute another color.',
+                'Mask both token amount and USD value when hidden - revealing either one exposes balance information.',
               ]}
               donts={[
-                "Don't add per-row privacy toggles — the table masks and reveals as a whole.",
-                "Don't make rows tappable — no token detail pages are defined; clickable rows with no destination break user trust.",
+                "Don't add per-row privacy toggles - the table masks and reveals as a whole.",
+                "Don't make rows tappable - no token detail pages are defined; clickable rows with no destination break user trust.",
                 "Don't use any color other than `--color-shielded` for the shielded avatar ring.",
               ]}
             />

@@ -19,34 +19,34 @@ interface PhaseEntry {
 }
 
 const SHIELD_PHASES: PhaseEntry[] = [
-  { phase: 'idle',                  label: 'Idle — form',       actor: 'user',            actorNote: 'User enters amount and clicks "Shield funds"' },
-  { phase: 'awaiting_wallet_step1', label: 'Wallet — Step 1/2', actor: 'user',            actorNote: 'Sign to authorize ShieldPay to move tokens · costs gas' },
-  { phase: 'awaiting_wallet_step2', label: 'Wallet — Step 2/2', actor: 'user',            actorNote: 'Sign to execute the shield transfer · costs gas' },
-  { phase: 'submitted',             label: 'Submitted',         actor: 'system',          actorNote: 'Tx broadcast to the network — user can leave' },
+  { phase: 'idle',                  label: 'Idle - form',       actor: 'user',            actorNote: 'User enters amount and clicks "Shield funds"' },
+  { phase: 'awaiting_wallet_step1', label: 'Wallet - Step 1/2', actor: 'user',            actorNote: 'Sign to authorize ShieldPay to move tokens · costs gas' },
+  { phase: 'awaiting_wallet_step2', label: 'Wallet - Step 2/2', actor: 'user',            actorNote: 'Sign to execute the shield transfer · costs gas' },
+  { phase: 'submitted',             label: 'Submitted',         actor: 'system',          actorNote: 'Tx broadcast to the network - user can leave' },
   { phase: 'processing',            label: 'Confirming',        actor: 'system',          actorNote: 'On-chain confirmation in progress (~12–36s)' },
-  { phase: 'finalizing',            label: 'Encrypting',        actor: 'system',          actorNote: 'FHE coprocessor encrypts shielded balance (~1–3 min) — Etherscan shows "Success" but balance not ready yet' },
+  { phase: 'finalizing',            label: 'Encrypting',        actor: 'system',          actorNote: 'FHE coprocessor encrypts shielded balance (~1–3 min) - Etherscan shows "Success" but balance not ready yet' },
   { phase: 'completed',             label: 'Complete',          actor: 'done',            actorNote: 'Shielded balance updated. Operation over.' },
-  { phase: 'cancelled',             label: 'Cancelled',         actor: 'error',           actorNote: 'User dismissed wallet prompt — no funds moved' },
-  { phase: 'failed_dropped',        label: 'Failed — dropped',  actor: 'error',           actorNote: 'Tx dropped from network — funds safe, can retry' },
+  { phase: 'cancelled',             label: 'Cancelled',         actor: 'error',           actorNote: 'User dismissed wallet prompt - no funds moved' },
+  { phase: 'failed_dropped',        label: 'Failed - dropped',  actor: 'error',           actorNote: 'Tx dropped from network - funds safe, can retry' },
 ]
 
 const SEND_PHASES: PhaseEntry[] = [
-  { phase: 'idle',                  label: 'Idle — form',       actor: 'user',            actorNote: 'User enters amount and recipient address' },
+  { phase: 'idle',                  label: 'Idle - form',       actor: 'user',            actorNote: 'User enters amount and recipient address' },
   { phase: 'awaiting_wallet_step1', label: 'Wallet confirm',    actor: 'user',            actorNote: 'User approves transfer in wallet · costs gas. One step for both public and shielded sends.' },
-  { phase: 'submitted',             label: 'Submitted',         actor: 'system',          actorNote: 'Tx broadcast — user can leave' },
+  { phase: 'submitted',             label: 'Submitted',         actor: 'system',          actorNote: 'Tx broadcast - user can leave' },
   { phase: 'processing',            label: 'Confirming',        actor: 'system',          actorNote: 'On-chain confirmation in progress' },
   { phase: 'finalizing',            label: 'Encrypting',        actor: 'system',          actorNote: 'Shielded sends only: transfer encrypted for sender and recipient (~1 min). Public sends (ETH, USDC, DAI) skip this step and go straight to completed.' },
   { phase: 'completed',             label: 'Complete',          actor: 'done',            actorNote: 'Transfer sent. Only sender and recipient can see the amount.' },
-  { phase: 'cancelled',             label: 'Cancelled',         actor: 'error',           actorNote: 'User dismissed wallet — no funds moved' },
+  { phase: 'cancelled',             label: 'Cancelled',         actor: 'error',           actorNote: 'User dismissed wallet - no funds moved' },
 ]
 
 const UNSHIELD_PHASES: PhaseEntry[] = [
-  { phase: 'idle',                  label: 'Idle — form',       actor: 'user',            actorNote: 'User enters amount to unshield' },
-  { phase: 'awaiting_wallet_step1', label: 'Wallet — Step 1/2', actor: 'user',            actorNote: 'Sign to remove from shielded balance · shielded tokens burn from this point forward' },
-  { phase: 'submitted',             label: 'Submitted',         actor: 'system',          actorNote: 'Tx broadcast — user can leave' },
+  { phase: 'idle',                  label: 'Idle - form',       actor: 'user',            actorNote: 'User enters amount to unshield' },
+  { phase: 'awaiting_wallet_step1', label: 'Wallet - Step 1/2', actor: 'user',            actorNote: 'Sign to remove from shielded balance · shielded tokens burn from this point forward' },
+  { phase: 'submitted',             label: 'Submitted',         actor: 'system',          actorNote: 'Tx broadcast - user can leave' },
   { phase: 'processing',            label: 'Proof wait',        actor: 'system',          actorNote: 'System generates decryption proof (~1–2 min). Shielded tokens already burned. User can close tab.' },
   { phase: 'proof_ready',           label: 'Proof ready',       actor: 'action-required', actorNote: 'User must return and complete Step 2 to release funds. Funds secured but not accessible until then.' },
-  { phase: 'awaiting_wallet_step2', label: 'Wallet — Step 2/2', actor: 'user',            actorNote: 'Sign to release funds to public balance · costs gas' },
+  { phase: 'awaiting_wallet_step2', label: 'Wallet - Step 2/2', actor: 'user',            actorNote: 'Sign to release funds to public balance · costs gas' },
   { phase: 'finalizing',            label: 'Releasing',         actor: 'system',          actorNote: 'ERC-20 transfer to public balance (~30s)' },
   { phase: 'completed',             label: 'Complete',          actor: 'done',            actorNote: 'Both balances updated. Public balance increased.' },
   { phase: 'interrupted',           label: 'Interrupted',       actor: 'error',           actorNote: 'User left during proof wait. On return: app checks proof status and restores correct phase.' },
@@ -282,7 +282,8 @@ function PhaseVisualizer() {
             publicBalance="1.24"
             shieldedBalance="0.50"
             startedAt={MOCK_START}
-            txHash="0xabc123def456abc123def456abc123def456abc123def456abc123def456abc1"
+            txHashStep1="0xabc123def456abc123def456abc123def456abc123def456abc123def456abc1"
+            txHashStep2="0xdef456abc123def456abc123def456abc123def456abc123def456abc123def4"
             onStartShield={NOOP}
             onStartSend={NOOP}
             onStartUnshield={NOOP}
@@ -379,11 +380,11 @@ export function UseCase() {
             Design how a human trusts a system they cannot see.
           </h1>
           <p style={{ fontSize: '17px', color: 'var(--color-text-secondary)', lineHeight: 1.7, maxWidth: '580px', margin: 0 }}>
-            ShieldPay moves funds from a public on-chain balance into an FHE-encrypted shielded balance. The operation is multi-step, asynchronous, and irreversible at certain points. The design challenge is not the UI — it is trust, recovery, and communication across time.
+            ShieldPay moves funds from a public on-chain balance into an FHE-encrypted shielded balance. The operation is multi-step, asynchronous, and irreversible at certain points. The design challenge is not the UI - it is trust, recovery, and communication across time.
           </p>
         </div>
 
-        {/* 01 — User Goal & Assumptions */}
+        {/* 01 - User Goal & Assumptions */}
         <UCSection id="user-goal" num="01" title="User Goal & Assumptions">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
             <div style={{ background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '24px' }}>
@@ -391,14 +392,14 @@ export function UseCase() {
               <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.8 }}>
                 <li>Crypto-native, basic-to-intermediate DeFi experience</li>
                 <li>Understands wallets, gas fees, and transaction states</li>
-                <li>Privacy-motivated — made a deliberate choice to shield</li>
-                <li>Risk-sensitive — first time in a new financial system</li>
+                <li>Privacy-motivated - made a deliberate choice to shield</li>
+                <li>Risk-sensitive - first time in a new financial system</li>
               </ul>
             </div>
             <div style={{ background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '24px' }}>
               <Label>Primary goal</Label>
               <p style={{ margin: '0 0 16px', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
-                Move a specific amount from their public balance into a shielded balance — then use that shielded balance for a subsequent action.
+                Move a specific amount from their public balance into a shielded balance - then use that shielded balance for a subsequent action.
               </p>
               <Label>Implicit goal</Label>
               <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
@@ -415,7 +416,7 @@ export function UseCase() {
               ['Two balances', 'Does NOT understand why', 'Explain briefly on first encounter; always label both clearly'],
               ['FHE / encryption', 'Has no concept of it', 'Never mention it. Use "shielded" as the only vocabulary'],
               ['Confirmed ≠ done', 'Assumes confirmed = complete', 'Explicitly bridge: "confirmed on-chain, encrypting now (~1 min)"'],
-              ['Intermediate Unshield state', 'Does not exist in their mental model', '"Funds not released yet" — explicit note on shielded balance decrease'],
+              ['Intermediate Unshield state', 'Does not exist in their mental model', '"Funds not released yet" - explicit note on shielded balance decrease'],
             ]}
           />
 
@@ -430,16 +431,16 @@ export function UseCase() {
           </div>
         </UCSection>
 
-        {/* 02 — Flow Map */}
+        {/* 02 - Flow Map */}
         <UCSection id="flow-map" num="02" title="Flow Map"
-          description="Each operation is a single persistent object with phases — not a sequence of dialogs. Every phase has a defined actor and a defined answer to: what's happening, what to do, and what happens if you leave.">
+          description="Each operation is a single persistent object with phases - not a sequence of dialogs. Every phase has a defined actor and a defined answer to: what's happening, what to do, and what happens if you leave.">
           <Callout tone="info">
-            <strong style={{ color: 'var(--color-text-primary)' }}>How to read this:</strong> Click any phase to see the actual panel state it produces. Blue phases require user action. Gray phases are system-driven — the user can leave. Amber phases require action but are not urgent enough to block navigation.
+            <strong style={{ color: 'var(--color-text-primary)' }}>How to read this:</strong> Click any phase to see the actual panel state it produces. Blue phases require user action. Gray phases are system-driven - the user can leave. Amber phases require action but are not urgent enough to block navigation.
           </Callout>
           <PhaseVisualizer />
         </UCSection>
 
-        {/* 03 — Interaction Model */}
+        {/* 03 - Interaction Model */}
         <UCSection id="interaction-model" num="03" title="Interaction Model"
           description="All financial operations live in the right panel. The left column is always the information layer. The right panel is always the action layer.">
 
@@ -453,27 +454,27 @@ export function UseCase() {
 └──────────────┴──────────────────────────────────┴─────────────────────┘`}</pre>
           </div>
 
-          <Label>Left column overlay — communicates urgency</Label>
+          <Label>Left column overlay - communicates urgency</Label>
           <UCTable
             headers={['Situation', 'Overlay intensity', 'Signal']}
             rows={[
-              ['Wallet confirmation required',     '50%', 'Immediate action — check your wallet now'],
-              ['Proof ready (Unshield Step 2)',     '50%', 'Immediate action — funds will not release until you act'],
-              ['System processing (no user action)', '30%', 'Background — you can leave, nothing to do'],
+              ['Wallet confirmation required',     '50%', 'Immediate action - check your wallet now'],
+              ['Proof ready (Unshield Step 2)',     '50%', 'Immediate action - funds will not release until you act'],
+              ['System processing (no user action)', '30%', 'Background - you can leave, nothing to do'],
               ['Operation resolved',                '0%',  'Full context restored, operation complete'],
             ]}
           />
 
-          <Label>StatusPersistenceBanner — cross-page operation visibility</Label>
+          <Label>StatusPersistenceBanner - cross-page operation visibility</Label>
           <ProseBlock>
-            The banner persists in the layout on every route for all non-idle operation states — including in-progress, completed, failed, and cancelled. A newer operation always overrides the previous one. This means the user can initiate a transaction and walk away: when they return, the banner shows exactly what happened. Completed, failed, and cancelled states stay visible until the user explicitly dismisses them.
+            The banner persists in the layout on every route for all non-idle operation states - including in-progress, completed, failed, and cancelled. A newer operation always overrides the previous one. This means the user can initiate a transaction and walk away: when they return, the banner shows exactly what happened. Completed, failed, and cancelled states stay visible until the user explicitly dismisses them.
           </ProseBlock>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '600px' }}>
             {([
               { phase: 'processing' as OperationPhase,      op: 'shield'   as OperationType, label: 'Processing state' },
               { phase: 'finalizing' as OperationPhase,      op: 'shield'   as OperationType, label: 'Finalizing state' },
-              { phase: 'proof_ready' as OperationPhase,     op: 'unshield' as OperationType, label: 'Proof ready — action required' },
+              { phase: 'proof_ready' as OperationPhase,     op: 'unshield' as OperationType, label: 'Proof ready - action required' },
               { phase: 'completed' as OperationPhase,       op: 'shield'   as OperationType, label: 'Completed while away' },
               { phase: 'failed_dropped' as OperationPhase,  op: 'shield'   as OperationType, label: 'Failed while away' },
             ]).map(({ phase, op, label }) => (
@@ -485,43 +486,43 @@ export function UseCase() {
           </div>
         </UCSection>
 
-        {/* 04 — Key Screens */}
+        {/* 04 - Key Screens */}
         <UCSection id="key-screens" num="04" title="Key Screens"
-          description="These four states represent the highest-stakes moments in the flow — the ones most likely to cause confusion, anxiety, or fund loss if handled poorly.">
+          description="These four states represent the highest-stakes moments in the flow - the ones most likely to cause confusion, anxiety, or fund loss if handled poorly.">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
             <ScreenDemo
               op="shield" phase="awaiting_wallet_step1"
-              caption="Shield — Wallet Step 1 of 2"
-              annotation="Pre-declares what will be approved before the wallet popup appears. Step counter sets expectations: 2 confirmations, this is the first. Left column overlaid at 50% — user must act now."
+              caption="Shield - Wallet Step 1 of 2"
+              annotation="Pre-declares what will be approved before the wallet popup appears. Step counter sets expectations: 2 confirmations, this is the first. Left column overlaid at 50% - user must act now."
             />
             <ScreenDemo
               op="shield" phase="finalizing"
-              caption="Shield — Encrypting balance (critical)"
+              caption="Shield - Encrypting balance (critical)"
               annotation='The trickiest state. Etherscan shows "Success" here, but the shielded balance is not ready. Copy explicitly bridges this gap. Never says "Confirmed" or "Complete" until balance is updated.'
             />
             <ScreenDemo
               op="unshield" phase="proof_ready"
-              caption="Unshield — Proof ready (action required)"
-              annotation='Amber urgency. Shielded tokens already burned — funds are "secured" but not yet released. The only CTA is "Complete unshield →". StatusPersistenceBanner on all routes drives return.'
+              caption="Unshield - Proof ready (action required)"
+              annotation='Amber urgency. Shielded tokens already burned - funds are "secured" but not yet released. The only CTA is "Complete unshield →". StatusPersistenceBanner on all routes drives return.'
             />
             <ScreenDemo
               op="shield" phase="failed_dropped"
-              caption="Failed — Fund safety leads"
+              caption="Failed - Fund safety leads"
               annotation='"Your funds are safe" is the first line of every error state where funds are genuinely untouched. Error explanation and retry come after. No red heading for cancellations.'
             />
           </div>
         </UCSection>
 
-        {/* 05 — Content Design */}
+        {/* 05 - Content Design */}
         <UCSection id="content-design" num="05" title="Content Design"
-          description="Copy is the primary trust mechanism. Every state must answer three questions — and answer them in the right order.">
+          description="Copy is the primary trust mechanism. Every state must answer three questions - and answer them in the right order.">
 
           <div style={{ background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '24px', marginBottom: '32px' }}>
-            <Label>The 3-question rule — every status state must answer:</Label>
+            <Label>The 3-question rule - every status state must answer:</Label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[
                 { n: '1', q: 'What is happening?', a: 'Named phase in plain language. Never just a spinner.' },
-                { n: '2', q: 'What should I do?', a: 'Explicit required action — or explicit permission to do nothing.' },
+                { n: '2', q: 'What should I do?', a: 'Explicit required action - or explicit permission to do nothing.' },
                 { n: '3', q: 'What happens if I leave?', a: '"You can close this tab" or the specific consequence of leaving. Never silence.' },
               ].map(({ n, q, a }) => (
                 <div key={n} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
@@ -535,7 +536,7 @@ export function UseCase() {
             </div>
           </div>
 
-          <Label>Copy contrast — the Encrypting state</Label>
+          <Label>Copy contrast - the Encrypting state</Label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
             <div style={{ background: 'rgba(185,28,28,0.04)', border: '1px solid rgba(185,28,28,0.2)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
               <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-error)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>Before</div>
@@ -551,7 +552,7 @@ export function UseCase() {
                 Encrypting your balance<br />
                 Your transaction is confirmed on-chain.<br />
                 We're now encrypting your shielded<br />
-                balance — ~1 min. Your funds are safe.<br />
+                balance - ~1 min. Your funds are safe.<br />
                 You can close this tab.
               </code>
             </div>
@@ -565,15 +566,17 @@ export function UseCase() {
               ['"Shielded balance"',         '"Private balance", "hidden balance"', 'Consistent with the verb "Shield"'],
               ['"Public balance"',           '"Regular balance", "wallet balance"', 'Explicit contrast with "shielded"'],
               ['"Network fee"',              '"Gas", "gas fee"',               'Gas is jargon. Network fee is accessible.'],
-              ['"Your funds are safe"',      '(nothing — silence during errors)', 'Fund safety must be stated; never left to inference'],
+              ['"Your funds are safe"',      '(nothing - silence during errors)', 'Fund safety must be stated; never left to inference'],
               ['"Your funds are secured"',   '"Your funds are safe" (Unshield)',  '"Safe" = untouched. "Secured" = protected in intermediate state.'],
               ['"~2 minutes"',               '"A few moments", "shortly"',     'Specific times reduce anxiety. Vague times increase it.'],
               ['"You can close this tab"',   '(nothing)',                      'Explicit permission to leave prevents abandonment anxiety'],
+              ['"Shield" / "Unshield" as phase labels', '"Mint cToken" / "Burn cToken"', 'Phase labels name the experience, not the on-chain mechanic. Minting is an implementation detail. Burn sounds like fund destruction mid-operation.'],
+              ['Burn/mint in confirmation prose', 'Burn/mint in phase labels or status headings', '"This step removes your cETH from the shielded balance - once the proof is ready, the equivalent ETH is released." Belongs in body copy, never in a progress node label.'],
             ]}
           />
         </UCSection>
 
-        {/* 06 — Design System */}
+        {/* 06 - Design System */}
         <UCSection id="design-system" num="06" title="Design System Implications"
           description="3 operation types × 13 phases = 39 possible panel states. One architecture handles all of them.">
 
@@ -586,7 +589,7 @@ export function UseCase() {
             rows={[
               ['RightPanel',              'All transaction states across all ops',         'Only one instance. Maps directly to the operation state machine.'],
               ['PhaseIndicator',          'Visual progress across named phases',            'Never numbered steps. Phases are named after what the system does.'],
-              ['StatusPersistenceBanner', 'Cross-page operation visibility',               'Lives in AppShell — renders on every route while an op is active.'],
+              ['StatusPersistenceBanner', 'Cross-page operation visibility',               'Lives in AppShell - renders on every route while an op is active.'],
               ['NavigationWarning',       'Interrupt protection during critical phases',    'Two levels: soft (proof wait) and urgent (proof ready).'],
               ['BalanceCard',             'Balance display',                               'Overview: both side by side. Section pages: relevant type only.'],
               ['WalletConfirmStep',       'Wallet confirmation state in right panel',       'Always full right panel + 50% overlay. Never a toast or banner.'],
@@ -594,19 +597,38 @@ export function UseCase() {
             ]}
           />
 
-          <Label>PhaseIndicator — across operation types</Label>
+          <Label>PhaseIndicator - across operation types</Label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '560px', marginBottom: '24px' }}>
             {(['shield', 'send', 'unshield'] as OperationType[]).map((op, i) => (
               <div key={op}>
                 <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '8px', fontWeight: 500 }}>
-                  {['Shield — step 2 of 4 (wallet step 2)', 'Send — step 3 of 4 (processing)', 'Unshield — step 4 of 4 (proof ready)'][i]}
+                  {['Shield - step 2 of 4 (wallet step 2)', 'Send - step 3 of 4 (processing)', 'Unshield - step 4 of 4 (proof ready)'][i]}
                 </div>
                 <PhaseIndicator phases={[]} currentPhase={i + 1} operation={op} />
               </div>
             ))}
           </div>
 
-          <Label>StatusBadge — operation states</Label>
+          <Label>Phase label vocabulary - aligned across three surfaces</Label>
+          <ProseBlock>
+            The same root word appears in the PhaseIndicator during the operation, the success timeline afterwards, and the Etherscan row labels in the Details tab. A user who watches "Shield" on the progress bar will see "Submitted & confirmed" in the timeline and "Shield" on the Etherscan link - the same event, named consistently.
+          </ProseBlock>
+          <UCTable
+            headers={['Operation', 'PhaseIndicator node', 'Success timeline', 'Etherscan row label']}
+            rows={[
+              ['Shield',   'Authorize',  'Authorized',            'Authorization'],
+              ['Shield',   'Shield',     'Submitted & confirmed', 'Shield'],
+              ['Shield',   'Encrypting', 'Balance encrypted',     '-'],
+              ['Unshield', 'Unshield',   'Unshield initiated',    'Unshield'],
+              ['Unshield', 'Confirming', 'Confirmed on-chain',    '-'],
+              ['Unshield', 'Releasing',  'Released to public balance', 'Release'],
+            ]}
+          />
+          <Callout tone="warning">
+            <strong style={{ color: 'var(--color-text-primary)' }}>Why not "Burn" / "Mint" as phase nodes?</strong> Technically, unshielding burns the cToken and shielding mints one. But "Burn" in a phase label triggers fund-loss anxiety even in experienced DeFi users - the word implies destruction while funds are in flight. "Mint" is an ERC-20 implementation detail that adds jargon without adding trust. Both concepts belong in the wallet confirmation body copy (WalletConfirmView InfoBox), where they have context and are surrounded by fund-safety language. They do not belong in a 4-node progress bar.
+          </Callout>
+
+          <Label>StatusBadge - operation states</Label>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '8px' }}>
             {(['processing', 'action-required', 'success', 'cancelled', 'failed'] as const).map(v => (
               <StatusBadge key={v} variant={v} />
@@ -614,18 +636,18 @@ export function UseCase() {
           </div>
         </UCSection>
 
-        {/* 07 — Risks & Trade-offs */}
+        {/* 07 - Risks & Trade-offs */}
         <UCSection id="risks" num="07" title="Risks & Trade-offs"
-          description="The design decisions that matter most are the ones that prevent real user harm — panic, abandonment, and misinterpreted fund states.">
+          description="The design decisions that matter most are the ones that prevent real user harm - panic, abandonment, and misinterpreted fund states.">
 
-          <Label>Top confusion points — ranked by likelihood × impact</Label>
+          <Label>Top confusion points - ranked by likelihood × impact</Label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
             {[
               { risk: 'Shielded balance shows 0 after Etherscan says "Success"', mitigation: 'The finalizing state explicitly names this gap. Never say "Confirmed" until balance is updated.' },
-              { risk: 'User closed the tab — did the operation go through?', mitigation: 'StatusPersistenceBanner on every route. Right panel restores from localStorage on next load.' },
-              { risk: 'Shielded balance decreased but public balance unchanged (Unshield)', mitigation: '"Funds not released yet" note inline. "Your funds are secured" — never "safe" in this state.' },
-              { risk: 'User abandons Unshield at proof_ready — funds stay locked', mitigation: 'Urgent NavigationWarning + amber banner on all routes + ActivityRow CTA. Three entry points.' },
-              { risk: 'Second wallet popup appears with no context', mitigation: 'Step counter declared before Step 1. After Step 1 is approved, the Step 2 confirm screen appears immediately — user approves again.' },
+              { risk: 'User closed the tab - did the operation go through?', mitigation: 'StatusPersistenceBanner on every route. Right panel restores from localStorage on next load.' },
+              { risk: 'Shielded balance decreased but public balance unchanged (Unshield)', mitigation: '"Funds not released yet" note inline. "Your funds are secured" - never "safe" in this state.' },
+              { risk: 'User abandons Unshield at proof_ready - funds stay locked', mitigation: 'Urgent NavigationWarning + amber banner on all routes + ActivityRow CTA. Three entry points.' },
+              { risk: 'Second wallet popup appears with no context', mitigation: 'Step counter declared before Step 1. After Step 1 is approved, the Step 2 confirm screen appears immediately - user approves again.' },
             ].map(({ risk, mitigation }, i) => (
               <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
                 <div style={{ padding: '14px 16px', background: 'rgba(185,28,28,0.03)', borderRight: '1px solid var(--color-border)' }}>
@@ -646,19 +668,19 @@ export function UseCase() {
               title: 'Transparency vs cognitive load',
               decision: 'Default to high-level status. Surface technical details (tx hash, block number) as optional secondary elements.',
               risk: 'Advanced users may not trust a system that hides details.',
-              mitigation: '"View on Etherscan →" always available. Never hidden — just deprioritized.',
+              mitigation: '"View on Etherscan →" always available. Never hidden - just deprioritized.',
             },
             {
               title: 'Persistent banner vs clean UI',
               decision: 'Accept the visual clutter. Operation visibility is more important than visual cleanliness during a financial operation.',
-              risk: 'Banner fatigue — users start ignoring it.',
+              risk: 'Banner fatigue - users start ignoring it.',
               mitigation: 'Pulse animation only on action-required states. Static banner for background operations.',
             },
             {
               title: 'Time estimates vs accuracy',
               decision: 'Show estimates with ~ prefix and ranges. If actual time exceeds estimate by 2×, update copy.',
               risk: 'Blockchain times are variable. A wrong estimate increases anxiety.',
-              mitigation: '"Taking longer than expected — still processing. Your funds are safe." updates automatically.',
+              mitigation: '"Taking longer than expected - still processing. Your funds are safe." updates automatically.',
             },
           ].map(({ title, decision, risk, mitigation }) => (
             <div key={title} style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '16px 20px', marginBottom: '12px' }}>
@@ -672,7 +694,7 @@ export function UseCase() {
           ))}
         </UCSection>
 
-        {/* 08 — Collaboration */}
+        {/* 08 - Collaboration */}
         <UCSection id="collaboration" num="08" title="Collaboration Context"
           description="The design system scales across teams and AI-driven development because it is rule-based, not intuition-based.">
 
@@ -703,7 +725,7 @@ export function UseCase() {
 Is the operation complete or failed?
   COMPLETE → SuccessView with BalanceCard delta animations
   FAILED   → FailedView (fund safety as first element)
-  CANCELLED → CancelledView (neutral — not an error)
+  CANCELLED → CancelledView (neutral - not an error)
 
 Is an operation active while user navigates?
   YES → StatusPersistenceBanner in AppShell
@@ -719,13 +741,13 @@ Is user trying to leave during Unshield?
           </Callout>
         </UCSection>
 
-        {/* 09 — UX Rules */}
+        {/* 09 - UX Rules */}
         <UCSection id="ux-rules" num="09" title="UX Rules (Agent-Ready)"
           description="Reusable decision rules derived from this flow. Each rule includes the constraint, the reason it exists, and a correct/incorrect example.">
 
           <RuleCard
             num="1"
-            rule="Multi-step blockchain operations are single persistent objects — never a sequence of independent dialogs."
+            rule="Multi-step blockchain operations are single persistent objects - never a sequence of independent dialogs."
             why="Users cannot maintain mental context across fragmented interactions. Presenting 'Confirm transaction 1 of 3' as three separate modals means users lose track of their overall state, cannot assess progress, and are more likely to abandon. Partial completion can leave funds in an intermediate state with no clear path to recovery."
             correct={`One PhaseIndicator inside RightPanel:
 Auth · Confirm · Encrypt · Done
@@ -746,7 +768,7 @@ how many steps remain or what was done.`}
             why="Blockchain operations are asynchronous and often require users to wait without acting. Users misinterpret silence as failure. Explicitly answering 'you can close this tab' reduces abandonment. Without question 3, users either stay anxious or leave and assume the worst."
             correct={`"Your funds are being moved to your shielded balance.
 This may take ~2 minutes. You can close this tab
-— your balance will update automatically."`}
+- your balance will update automatically."`}
             incorrect={`"Transaction pending"
 [spinner]
 
@@ -756,14 +778,14 @@ act, or whether leaving is safe.`}
           />
 
           <RuleCard
-            num="6 — FHE-specific"
+            num="6 - FHE-specific"
             rule='The finalizing phase (FHE encryption after on-chain confirmation) must be communicated as distinct from "transaction confirmed." Never show "Confirmed" or "Complete" until the shielded balance is actually updated.'
             why='Crypto users interpret "transaction confirmed" as "operation complete." In FHE-based systems, on-chain confirmation triggers an additional encryption step that takes 1–3 minutes. If the UI shows "confirmed" before the shielded balance is ready, users will try to use it, find it empty, and assume a loss.'
             correct={`Phase label: "Encrypting your balance"
 
 "Your transaction is confirmed on the network.
 We're now applying encryption to your shielded
-balance — ~1 minute. You can close this tab."`}
+balance - ~1 minute. You can close this tab."`}
             incorrect={`Phase label: "Confirmed ✓"
 
 (shielded balance not yet updated)
@@ -774,11 +796,11 @@ checks shielded balance: 0. Assumes loss.`}
 
           <RuleCard
             num="Filter copy"
-            rule='Active filter states must communicate scope exclusivity — use "Only [Category]" not just "[Category]" when a view is narrowed.'
-            why='A trigger label that only reads "Shielded" is ambiguous — it looks identical to a column header or a status badge. "Only Shielded" unambiguously signals that the view is a subset, that other items exist but are hidden, and that clearing the filter restores the full list. Without "Only", users may interpret a filtered empty state as a data error rather than an intentional scope restriction.'
+            rule='Active filter states must communicate scope exclusivity - use "Only [Category]" not just "[Category]" when a view is narrowed.'
+            why='A trigger label that only reads "Shielded" is ambiguous - it looks identical to a column header or a status badge. "Only Shielded" unambiguously signals that the view is a subset, that other items exist but are hidden, and that clearing the filter restores the full list. Without "Only", users may interpret a filtered empty state as a data error rather than an intentional scope restriction.'
             correct={`Filter trigger (active): "Only Shielded"
 Filter trigger (active): "Only Unshielded"
-Filter trigger (default): icon only — no label
+Filter trigger (default): icon only - no label
 
 User knows immediately the view is narrowed.
 Clearing the filter is understood as "show all".`}
@@ -787,6 +809,25 @@ Clearing the filter is understood as "show all".`}
 Same label as the column header and the
 PrivacyBadge. User cannot tell if the table
 is filtered or just labeled.`}
+          />
+
+          <RuleCard
+            num="On-chain vocabulary"
+            rule={"Phase labels name the user's experience, not the on-chain mechanism. Never use \"Burn\" or \"Mint\" as phase labels."}
+            why='"Burn" sounds like destruction of funds. Even experienced DeFi users feel anxiety seeing it as a named phase while their transaction is in flight. "Mint" is an ERC-20 implementation detail that adds jargon without adding trust. The fact that unshielding burns the cToken and that shielding mints one is technically accurate - but it belongs in wallet confirmation prose, where it has context and is surrounded by fund-safety copy. A 4-node progress bar has neither the space nor the context to make "Burn" feel safe.'
+            correct={`PhaseIndicator: Unshield → Confirming → Releasing → Done
+
+WalletConfirmView body copy:
+"This step removes your cETH from the shielded
+balance. Your cETH will be burned - once the
+decryption proof is ready, the equivalent ETH
+will be released to your public balance."`}
+            incorrect={`PhaseIndicator: Burn cETH → Proof → Mint ETH → Done
+
+User sees "Burn" as a named phase while their
+funds are in motion. "Burn" = destruction in
+most mental models. The anxiety it creates
+cannot be repaired by surrounding copy.`}
           />
 
           <Callout tone="info">

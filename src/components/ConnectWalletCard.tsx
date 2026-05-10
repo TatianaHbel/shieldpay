@@ -281,7 +281,7 @@ export function ConnectWalletCard({
           Your wallet will ask you to sign.
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '24px' }}>
-          {['This is free — no network fee.', 'You only need to do this once.'].map(item => (
+          {['This is free - no network fee.', 'You only need to do this once.'].map(item => (
             <div
               key={item}
               style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)' }}
