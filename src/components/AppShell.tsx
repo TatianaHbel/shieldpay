@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { LayoutDashboard, Eye, Shield, Compass, PanelLeft, Layers } from 'lucide-react'
+import { LayoutDashboard, Shield, PanelLeft, Layers, FileText } from 'lucide-react'
 import { RightPanel } from './RightPanel'
 import { StatusPersistenceBanner } from './StatusPersistenceBanner'
 import { NavigationWarning } from './NavigationWarning'
@@ -12,11 +12,51 @@ import type { OperationPhase } from '../types/operation'
 
 const MOCK_WALLET = '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b'
 
+const UC_SECTIONS = [
+  { id: 'user-goal',         num: '01', label: 'User Goal & Assumptions' },
+  { id: 'flow-map',          num: '02', label: 'Flow Map' },
+  { id: 'interaction-model', num: '03', label: 'Interaction Model' },
+  { id: 'key-screens',       num: '04', label: 'Key Screens' },
+  { id: 'content-design',    num: '05', label: 'Content Design' },
+  { id: 'design-system',     num: '06', label: 'Design System' },
+  { id: 'risks',             num: '07', label: 'Risks & Trade-offs' },
+  { id: 'collaboration',     num: '08', label: 'Collaboration' },
+  { id: 'ux-rules',          num: '09', label: 'UX Rules' },
+]
+
+const DS_FOUNDATION = [
+  { id: 'color',         label: 'Color' },
+  { id: 'typography',    label: 'Typography' },
+  { id: 'spacing',       label: 'Spacing' },
+  { id: 'radius',        label: 'Border Radius' },
+  { id: 'elevation',     label: 'Elevation' },
+  { id: 'motion',        label: 'Motion' },
+  { id: 'layout',        label: 'Layout' },
+  { id: 'accessibility', label: 'Accessibility' },
+]
+
+const DS_COMPONENTS = [
+  { id: 'button',                    label: 'Button' },
+  { id: 'text-field',                label: 'TextField' },
+  { id: 'notification',              label: 'Notification' },
+  { id: 'status-badge',              label: 'StatusBadge' },
+  { id: 'phase-indicator',           label: 'PhaseIndicator' },
+  { id: 'card',                      label: 'Card' },
+  { id: 'switch',                    label: 'Switch' },
+  { id: 'progress-bar',              label: 'ProgressBar' },
+  { id: 'balance-card',              label: 'BalanceCard' },
+  { id: 'activity-row',              label: 'ActivityRow' },
+  { id: 'status-persistence-banner', label: 'StatusPersistenceBanner' },
+  { id: 'navigation-warning',        label: 'NavigationWarning' },
+  { id: 'connect-wallet-card',       label: 'ConnectWalletCard' },
+  { id: 'right-panel',               label: 'RightPanel' },
+  { id: 'left-column-overlay',       label: 'LeftColumnOverlay' },
+  { id: 'table',                     label: 'Table' },
+  { id: 'token-table',               label: 'TokenTable' },
+]
+
 const NAV_ITEMS = [
-  { to: '/', label: 'Overview', icon: LayoutDashboard, end: true },
-  { to: '/public', label: 'Public', icon: Eye, end: false },
-  { to: '/shielded', label: 'Shielded', icon: Shield, end: false },
-  { to: '/explore', label: 'Explore', icon: Compass, end: false },
+  { to: '/', label: 'Portfolio', icon: LayoutDashboard, end: true },
 ]
 
 
@@ -61,11 +101,13 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
   const handleLeave = useCallback(() => setNavWarning(null), [])
   const handleStay = useCallback(() => setNavWarning(null), [])
 
+  const isOnUseCase = location.pathname === '/use-case'
+  const isOnDesignSystem = location.pathname === '/design-system'
   const sidebarWidth = collapsed ? '60px' : 'var(--layout-sidebar-width)'
 
   return (
     <DrawerContext.Provider value={{ openDrawer }}>
-      <div style={{ display: 'flex', minHeight: '100dvh', background: 'var(--color-surface)' }}>
+      <div style={{ display: 'flex', height: '100dvh', background: 'var(--color-surface)' }}>
 
         {/* ── Sidebar ─────────────────────────────────────────────── */}
         <aside style={{
@@ -76,7 +118,8 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
           background: 'var(--color-surface-raised)',
           borderRight: '1px solid var(--color-border)',
           transition: 'width 0.2s var(--ease-out)',
-          overflow: 'hidden',
+          overflowY: 'auto',
+          overflowX: 'hidden',
         }}>
 
           {/* Header: logo + collapse toggle */}
@@ -152,6 +195,52 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
 
             <div style={{ marginTop: '4px', borderTop: '1px solid var(--color-border)', paddingTop: '8px' }}>
               <NavLink
+                to="/use-case"
+                style={({ isActive }) => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: collapsed ? '10px' : '9px 12px',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  fontWeight: 400,
+                  color: isActive ? 'var(--color-blue)' : 'var(--color-text-secondary)',
+                  background: isActive ? 'rgba(55, 72, 255, 0.08)' : 'transparent',
+                  textDecoration: 'none',
+                  transition: 'all 0.15s ease',
+                  justifyContent: collapsed ? 'center' : 'flex-start',
+                  whiteSpace: 'nowrap',
+                  opacity: 0.7,
+                })}
+              >
+                <FileText size={14} style={{ flexShrink: 0 }} />
+                {!collapsed && 'Use Case'}
+              </NavLink>
+
+              {isOnUseCase && !collapsed && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', paddingLeft: '26px', marginTop: '2px' }}>
+                  {UC_SECTIONS.map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                      style={{
+                        display: 'flex', alignItems: 'flex-start', gap: '6px',
+                        width: '100%', padding: '4px 8px',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        textAlign: 'left', borderRadius: '6px',
+                        fontFamily: 'inherit', transition: 'background 100ms ease',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-border)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                    >
+                      <span style={{ fontSize: '9px', fontWeight: 700, color: 'var(--color-border)', fontVariantNumeric: 'tabular-nums', flexShrink: 0, paddingTop: '3px', letterSpacing: '0.03em' }}>{s.num}</span>
+                      <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>{s.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <NavLink
                 to="/design-system"
                 style={({ isActive }) => ({
                   display: 'flex',
@@ -173,6 +262,46 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
                 <Layers size={14} style={{ flexShrink: 0 }} />
                 {!collapsed && 'Design System'}
               </NavLink>
+
+              {isOnDesignSystem && !collapsed && (
+                <div style={{ display: 'flex', flexDirection: 'column', paddingLeft: '26px', marginTop: '4px' }}>
+                  <div style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-border)', padding: '2px 8px 3px' }}>Foundation</div>
+                  {DS_FOUNDATION.map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                      style={{
+                        display: 'flex', width: '100%', padding: '4px 8px',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        textAlign: 'left', borderRadius: '6px', fontFamily: 'inherit',
+                        transition: 'background 100ms ease',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-border)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                    >
+                      <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>{s.label}</span>
+                    </button>
+                  ))}
+                  <div style={{ height: '1px', background: 'var(--color-border)', margin: '4px 0' }} />
+                  <div style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-border)', padding: '2px 8px 3px' }}>Components</div>
+                  {DS_COMPONENTS.map(s => (
+                    <button
+                      key={s.id}
+                      onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                      style={{
+                        display: 'flex', width: '100%', padding: '4px 8px',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        textAlign: 'left', borderRadius: '6px', fontFamily: 'inherit',
+                        transition: 'background 100ms ease',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-border)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                    >
+                      <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>{s.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </nav>
         </aside>

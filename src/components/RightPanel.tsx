@@ -61,7 +61,8 @@ export interface RightPanelProps {
   onCancel: () => void
   onComplete: () => void
   onDone: () => void
-  onOverlayIntensity: (v: 0 | 30 | 50) => void
+  onOverlayIntensity?: (v: 0 | 30 | 50) => void
+  demo?: boolean
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -1020,9 +1021,17 @@ function SuccessView({ op, amount, recipient, txHash, publicBalance, shieldedBal
 
 function FailedOrCancelledView({ op, phase, onDone }: PhaseViewProps) {
   const isCancelled = phase === 'cancelled' || phase === 'timed_out'
+  const isInterrupted = phase === 'interrupted'
   const opLabel = { shield: 'Shielding', send: 'Sending', unshield: 'Unshielding' }[op]
 
+  const heading = (() => {
+    if (isInterrupted) return 'Unshield paused'
+    if (isCancelled) return `${opLabel} cancelled`
+    return 'Something went wrong'
+  })()
+
   const fundSafetyCopy = (() => {
+    if (isInterrupted) return 'Your funds are secured.'
     if (isCancelled) return 'No funds were moved. Your balances are unchanged.'
     if (phase === 'failed_finalization' && op === 'shield')
       return 'Your public balance has been refunded.'
@@ -1030,6 +1039,7 @@ function FailedOrCancelledView({ op, phase, onDone }: PhaseViewProps) {
   })()
 
   const failureCopy = (() => {
+    if (isInterrupted) return 'You have an unfinished unshield from your last session. Return to complete Step 2 and release your funds to your public balance.'
     if (phase === 'failed_dropped') return 'The transaction didn\'t go through — the network was congested. Retry with the same amount.'
     if (phase === 'failed_submission') return 'The network rejected this transaction. This is usually temporary. Please try again.'
     if (phase === 'failed_finalization') return 'An error occurred while encrypting your balance.'
@@ -1041,7 +1051,7 @@ function FailedOrCancelledView({ op, phase, onDone }: PhaseViewProps) {
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
         {!isCancelled && <AlertCircle size={18} style={{ color: 'var(--color-error)', flexShrink: 0 }} aria-hidden="true" />}
         <h3 style={{ margin: 0, fontSize: 'var(--text-heading)', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.01em' }}>
-          {isCancelled ? `${opLabel} cancelled` : 'Something went wrong'}
+          {heading}
         </h3>
       </div>
       <p style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: '0 0 8px' }}>
@@ -1106,7 +1116,8 @@ export function RightPanel({
   onCancel,
   onComplete,
   onDone,
-  onOverlayIntensity,
+  onOverlayIntensity = () => {},
+  demo = false,
 }: RightPanelProps) {
   const [activeTab, setActiveTab] = useState<TabId>('shield')
   const [activeToken, setActiveToken] = useState('ETH')
@@ -1143,7 +1154,7 @@ export function RightPanel({
   const isProofReady = phase === 'proof_ready'
   const isCompleted = phase === 'completed'
   const isFailed = phase.startsWith('failed_')
-  const isCancelled = phase === 'cancelled' || phase === 'timed_out'
+  const isCancelled = phase === 'cancelled' || phase === 'timed_out' || phase === 'interrupted'
 
   const phaseViewProps: PhaseViewProps = {
     op: operationType, amount, phase, recipient, startedAt, txHash,
@@ -1154,6 +1165,74 @@ export function RightPanel({
   const showIdleForms = isIdle || isPreparing
   const isPrivacyTab = activeTab === 'shield' || activeTab === 'unshield'
   const isTransferTab = activeTab === 'send' || activeTab === 'receive'
+
+  const panelBody = (
+    <>
+      {showIdleForms && isPrivacyTab && (
+        <>
+          <TabBar tabs={PRIVACY_TABS} active={activeTab} onChange={setActiveTab} />
+          {activeTab === 'shield' && (
+            <ShieldForm
+              preparing={isPreparing && operationType === 'shield'}
+              onSubmit={handleStartShield}
+            />
+          )}
+          {activeTab === 'unshield' && (
+            <UnshieldForm
+              preparing={isPreparing && operationType === 'unshield'}
+              onSubmit={handleStartUnshield}
+            />
+          )}
+        </>
+      )}
+      {showIdleForms && isTransferTab && (
+        <>
+          <TabBar tabs={TRANSFER_TABS} active={activeTab} onChange={setActiveTab} />
+          {activeTab === 'send' && (
+            <SendForm
+              preparing={isPreparing && operationType === 'send'}
+              onSubmit={handleStartSend}
+            />
+          )}
+          {activeTab === 'receive' && <ReceiveView />}
+        </>
+      )}
+      {isWalletConfirm && <WalletConfirmView {...phaseViewProps} />}
+      {isProcessing && <ProcessingView {...phaseViewProps} />}
+      {isProofReady && <ProofReadyView {...phaseViewProps} />}
+      {isCompleted && <SuccessView {...phaseViewProps} />}
+      {(isFailed || isCancelled) && <FailedOrCancelledView {...phaseViewProps} />}
+    </>
+  )
+
+  if (demo) {
+    return (
+      <div style={{
+        background: 'var(--color-surface-raised)',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-xl)',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: 'var(--shadow-xl)',
+      }}>
+        <div style={{
+          padding: '14px 20px',
+          borderBottom: '1px solid var(--color-border)',
+          flexShrink: 0,
+          fontSize: '15px',
+          fontWeight: 600,
+          color: 'var(--color-text-primary)',
+          letterSpacing: '-0.01em',
+        }}>
+          {drawerTitle(activeTab, phase, operationType)}
+        </div>
+        <div style={{ overflowY: 'auto', padding: '24px' }}>
+          {panelBody}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -1213,43 +1292,7 @@ export function RightPanel({
 
         {/* Scrollable content */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
-
-          {showIdleForms && isPrivacyTab && (
-            <>
-              <TabBar tabs={PRIVACY_TABS} active={activeTab} onChange={setActiveTab} />
-              {activeTab === 'shield' && (
-                <ShieldForm
-                  preparing={isPreparing && operationType === 'shield'}
-                  onSubmit={handleStartShield}
-                />
-              )}
-              {activeTab === 'unshield' && (
-                <UnshieldForm
-                  preparing={isPreparing && operationType === 'unshield'}
-                  onSubmit={handleStartUnshield}
-                />
-              )}
-            </>
-          )}
-
-          {showIdleForms && isTransferTab && (
-            <>
-              <TabBar tabs={TRANSFER_TABS} active={activeTab} onChange={setActiveTab} />
-              {activeTab === 'send' && (
-                <SendForm
-                  preparing={isPreparing && operationType === 'send'}
-                  onSubmit={handleStartSend}
-                />
-              )}
-              {activeTab === 'receive' && <ReceiveView />}
-            </>
-          )}
-
-          {isWalletConfirm && <WalletConfirmView {...phaseViewProps} />}
-          {isProcessing && <ProcessingView {...phaseViewProps} />}
-          {isProofReady && <ProofReadyView {...phaseViewProps} />}
-          {isCompleted && <SuccessView {...phaseViewProps} />}
-          {(isFailed || isCancelled) && <FailedOrCancelledView {...phaseViewProps} />}
+          {panelBody}
         </div>
       </div>
     </>

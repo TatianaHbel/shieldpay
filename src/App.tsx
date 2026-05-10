@@ -3,11 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
 import { Connect } from './pages/Connect'
 import { Overview } from './pages/Overview'
-import { PublicSection } from './pages/PublicSection'
-import { ShieldedSection } from './pages/ShieldedSection'
-import { Explore } from './pages/Explore'
 import { DesignSystem } from './pages/DesignSystem'
 import { DesignSystemCompare } from './pages/DesignSystemCompare'
+import { UseCase } from './pages/UseCase'
 
 const MOCK_PUBLIC_BALANCE = '1.24'
 const MOCK_SHIELDED_BALANCE = '0.50'
@@ -32,35 +30,22 @@ function AppWithShell({ publicBalance, shieldedBalance }: { publicBalance: strin
         }
       />
       <Route
-        path="/public"
+        path="/design-system"
         element={
-          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance}>
-            <PublicSection publicBalance={publicBalance} />
+          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} hideRightPanel>
+            <DesignSystem />
           </AppShell>
         }
       />
-      <Route
-        path="/shielded"
-        element={
-          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance}>
-            <ShieldedSection
-              shieldedBalance={shieldedBalance}
-              shieldedHidden={shieldedHidden}
-              onToggleShielded={toggleShielded}
-            />
-          </AppShell>
-        }
-      />
-      <Route
-        path="/explore"
-        element={
-          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance}>
-            <Explore />
-          </AppShell>
-        }
-      />
-      <Route path="/design-system" element={<DesignSystem />} />
       <Route path="/design-system-compare" element={<DesignSystemCompare />} />
+      <Route
+        path="/use-case"
+        element={
+          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} hideRightPanel>
+            <UseCase />
+          </AppShell>
+        }
+      />
     </Routes>
   )
 }
@@ -83,14 +68,6 @@ export default function App() {
               ? <Navigate to="/" replace />
               : <Connect onConnected={handleConnected} />
           }
-        />
-        <Route
-          path="/design-system"
-          element={<DesignSystem />}
-        />
-        <Route
-          path="/design-system-compare"
-          element={<DesignSystemCompare />}
         />
         <Route
           path="/*"

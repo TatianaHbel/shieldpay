@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { ShieldCheck, ArrowRight, Search, Wallet, Eye, ArrowLeft } from 'lucide-react'
+import { useState } from 'react'
+import { ShieldCheck, ArrowRight, Search, Wallet, Eye } from 'lucide-react'
 import { Button } from '../components/Button'
 import { TextField } from '../components/TextField'
 import { NotificationContainer, useNotifications } from '../components/Notification'
@@ -161,50 +161,6 @@ const NOW = Date.now()
 // Sidebar
 // ────────────────────────────────────────────────────────
 
-function NavGroup({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div style={{ marginBottom: '8px' }}>
-      <div style={{
-        fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)',
-        textTransform: 'uppercase', letterSpacing: '0.08em', padding: '0 20px', marginBottom: '4px',
-      }}>
-        {label}
-      </div>
-      {children}
-    </div>
-  )
-}
-
-function NavItem({ label, active, onClick, done }: {
-  label: string; active: boolean; onClick: () => void; done?: boolean
-}) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        width: '100%', padding: '7px 20px',
-        background: active ? 'rgba(55, 72, 255, 0.06)' : 'none',
-        border: 'none', borderLeft: `2px solid ${active ? 'var(--color-blue)' : 'transparent'}`,
-        cursor: 'pointer', textAlign: 'left',
-        fontSize: 'var(--text-small)', fontWeight: active ? 600 : 400,
-        color: active ? 'var(--color-blue)' : 'var(--color-text-secondary)',
-        transition: 'all var(--duration-fast) var(--ease-out)',
-        fontFamily: 'Inter, sans-serif',
-      }}
-    >
-      {label}
-      {done === false && (
-        <span style={{
-          fontSize: '10px', fontWeight: 600, color: 'var(--color-text-secondary)',
-          background: 'var(--color-surface-subtle)', padding: '1px 6px',
-          borderRadius: 'var(--radius-full)', flexShrink: 0,
-        }}>planned</span>
-      )}
-    </button>
-  )
-}
-
 // ────────────────────────────────────────────────────────
 // Layout primitives
 // ────────────────────────────────────────────────────────
@@ -319,7 +275,6 @@ function DoAndDont({ dos, donts }: { dos: string[]; donts: string[] }) {
 // ────────────────────────────────────────────────────────
 
 export function DesignSystem() {
-  const [activeId, setActiveId] = useState('color')
   const [shieldedHidden, setShieldedHidden] = useState(true)
   const [tfValue, setTfValue] = useState('')
   const { items: notifications, dismiss: dismissNotification } = useNotifications()
@@ -350,68 +305,9 @@ export function DesignSystem() {
   const [panelOp, setPanelOp] = useState<OperationType>('shield')
   const [panelOpen, setPanelOpen] = useState(false)
 
-  useEffect(() => {
-    const allIds = [...FOUNDATION_ITEMS, ...COMPONENT_ITEMS].map(i => i.id)
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries.filter(e => e.isIntersecting)
-        if (!visible.length) return
-        const top = visible.reduce((a, b) => a.boundingClientRect.top < b.boundingClientRect.top ? a : b)
-        setActiveId(top.target.id)
-      },
-      { rootMargin: '-10% 0px -75% 0px', threshold: 0 }
-    )
-    allIds.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el) })
-    return () => observer.disconnect()
-  }, [])
-
-  const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+    <div style={{ padding: '56px 72px' }}>
       <NotificationContainer items={notifications} onDismiss={dismissNotification} />
-
-      {/* ── Sidebar ──────────────────────────────────── */}
-      <aside style={{
-        width: 'var(--layout-ds-sidebar-width)', flexShrink: 0,
-        position: 'sticky', top: 'var(--layout-nav-height)',
-        height: 'calc(100dvh - var(--layout-nav-height))', overflowY: 'auto',
-        borderRight: '1px solid var(--color-border)', background: 'var(--color-surface-raised)',
-        paddingTop: '32px', paddingBottom: '48px',
-      }}>
-        <div style={{ padding: '0 20px 20px' }}>
-          <a
-            href="/"
-            style={{
-              display: 'inline-flex', alignItems: 'center', gap: '6px',
-              fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)',
-              textDecoration: 'none', marginBottom: '16px',
-              transition: 'color var(--duration-fast)',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-text-primary)')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-text-secondary)')}
-          >
-            <ArrowLeft size={14} /> Overview
-          </a>
-          <div style={{ fontSize: 'var(--text-small)', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.01em' }}>ShieldPay</div>
-          <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>Design System · v1.0</div>
-        </div>
-        <div style={{ height: '1px', background: 'var(--color-border)', margin: '0 0 24px' }} />
-        <NavGroup label="Foundation">
-          {FOUNDATION_ITEMS.map(item => (
-            <NavItem key={item.id} label={item.label} active={activeId === item.id} onClick={() => scrollTo(item.id)} />
-          ))}
-        </NavGroup>
-        <div style={{ height: '20px' }} />
-        <NavGroup label="Components">
-          {COMPONENT_ITEMS.map(item => (
-            <NavItem key={item.id} label={item.label} active={activeId === item.id} onClick={() => scrollTo(item.id)} done={item.done} />
-          ))}
-        </NavGroup>
-      </aside>
-
-      {/* ── Content ──────────────────────────────────── */}
-      <div style={{ flex: 1, padding: '56px 72px', minWidth: 0 }}>
 
         {/* Page header */}
         <div style={{ marginBottom: '80px' }}>
@@ -1851,7 +1747,6 @@ export function DesignSystem() {
           </Subsection>
         </Section>
 
-      </div>
     </div>
   )
 }
