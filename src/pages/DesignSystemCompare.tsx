@@ -978,6 +978,9 @@ function V1RightPanelContent() {
       <ColLabel v="V1" sub="Fixed-width operation panel · idle → form → processing" />
       <div style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', height: '500px', position: 'relative' }}>
         <RightPanel
+          isOpen={true}
+          onClose={() => {}}
+          activeAction="shield"
           phase="idle"
           operationType="shield"
           publicBalance="2.450"

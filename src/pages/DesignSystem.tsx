@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ShieldCheck, ArrowRight, Search, Wallet, Eye } from 'lucide-react'
+import { ShieldCheck, ArrowRight, Search, Wallet, Eye, ArrowLeft } from 'lucide-react'
 import { Button } from '../components/Button'
 import { TextField } from '../components/TextField'
 import { NotificationContainer, useNotifications } from '../components/Notification'
@@ -348,6 +348,7 @@ export function DesignSystem() {
   // RightPanel demo
   const [panelPhase, setPanelPhase] = useState<OperationPhase>('idle')
   const [panelOp, setPanelOp] = useState<OperationType>('shield')
+  const [panelOpen, setPanelOpen] = useState(false)
 
   useEffect(() => {
     const allIds = [...FOUNDATION_ITEMS, ...COMPONENT_ITEMS].map(i => i.id)
@@ -379,6 +380,19 @@ export function DesignSystem() {
         paddingTop: '32px', paddingBottom: '48px',
       }}>
         <div style={{ padding: '0 20px 20px' }}>
+          <a
+            href="/"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              fontSize: '13px', fontWeight: 500, color: 'var(--color-text-secondary)',
+              textDecoration: 'none', marginBottom: '16px',
+              transition: 'color var(--duration-fast)',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--color-text-primary)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--color-text-secondary)')}
+          >
+            <ArrowLeft size={14} /> Overview
+          </a>
           <div style={{ fontSize: 'var(--text-small)', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.01em' }}>ShieldPay</div>
           <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>Design System · v1.0</div>
         </div>
@@ -1614,12 +1628,20 @@ export function DesignSystem() {
                 ))}
               </div>
             </div>
+            <div style={{ marginBottom: '12px' }}>
+              <Button size="sm" variant="secondary" onClick={() => setPanelOpen(o => !o)}>
+                {panelOpen ? 'Close drawer' : 'Open drawer demo'}
+              </Button>
+            </div>
             <div style={{ display: 'flex', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', height: '520px' }}>
               <div style={{ flex: 1, background: 'var(--color-surface-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Left column</span>
               </div>
               <div style={{ width: '380px', height: '100%', overflowY: 'auto', flexShrink: 0 }}>
                 <RightPanel
+                  isOpen={panelOpen}
+                  onClose={() => setPanelOpen(false)}
+                  activeAction="shield"
                   phase={panelPhase}
                   operationType={panelOp}
                   amount="0.50"

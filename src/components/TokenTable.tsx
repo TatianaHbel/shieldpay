@@ -46,7 +46,6 @@ function TokenAvatar({
           height: '100%',
           borderRadius: '50%',
           objectFit: 'cover',
-          transform: isShielded ? 'scale(0.82)' : undefined,
         }}
       />
 
@@ -140,7 +139,7 @@ export function TokenTable({ hidden }: TokenTableProps) {
       <TableHeader>
         <TableRow>
           <TableCell asHeader title="Asset" width="40%" />
-          <TableCell asHeader title="Privacy" width="25%" />
+          <TableCell asHeader title="Privacy" width="25%" justifyContent="center" />
           <TableCell
             asHeader
             title="Balance"
@@ -163,7 +162,7 @@ export function TokenTable({ hidden }: TokenTableProps) {
               title={token.symbol}
               subtitle={token.name}
             />
-            <TableCell>
+            <TableCell alignItems="center">
               <PrivacyBadge isShielded={token.isShielded} />
             </TableCell>
             <TableCell direction="row" justifyContent="flex-end" alignItems="center">

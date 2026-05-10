@@ -1,0 +1,292 @@
+{
+  "brand": {
+    "blue": {
+      "$value": "#3748FF",
+      "$type": "color",
+      "$description": "Primary brand blue — public balance, primary actions"
+    },
+    "midnight": {
+      "$value": "#14141A",
+      "$type": "color",
+      "$description": "Deep dark — text primary in light mode"
+    },
+    "lime": {
+      "$value": "#CEFF1C",
+      "$type": "color",
+      "$description": "Accent lime — high-contrast highlight"
+    },
+    "iceWhite": {
+      "$value": "#F5F6FC",
+      "$type": "color",
+      "$description": "Base surface in light mode"
+    }
+  },
+  "color": {
+    "surface": {
+      "default": {
+        "$value": "#F5F6FC",
+        "$type": "color"
+      },
+      "raised": {
+        "$value": "#FFFFFF",
+        "$type": "color"
+      },
+      "subtle": {
+        "$value": "#ECEDF5",
+        "$type": "color"
+      }
+    },
+    "border": {
+      "$value": "#E2E3EE",
+      "$type": "color"
+    },
+    "text": {
+      "primary": {
+        "$value": "#14141A",
+        "$type": "color"
+      },
+      "secondary": {
+        "$value": "#6B6C80",
+        "$type": "color"
+      }
+    },
+    "semantic": {
+      "public": {
+        "$value": "#3748FF",
+        "$type": "color",
+        "$description": "Public balance accent"
+      },
+      "shielded": {
+        "$value": "#6D28D9",
+        "$type": "color",
+        "$description": "Shielded balance accent — deep purple"
+      },
+      "accent": {
+        "$value": "#CEFF1C",
+        "$type": "color"
+      }
+    },
+    "status": {
+      "success": {
+        "$value": "#5BB81E",
+        "$type": "color"
+      },
+      "warning": {
+        "$value": "#F5CF00",
+        "$type": "color"
+      },
+      "error": {
+        "$value": "#B91C1C",
+        "$type": "color"
+      },
+      "processing": {
+        "$value": "#3748FF",
+        "$type": "color"
+      },
+      "destructive": {
+        "$value": "#DC2626",
+        "$type": "color"
+      }
+    }
+  },
+  "darkMode": {
+    "surface": {
+      "default": {
+        "$value": "#0F0F14",
+        "$type": "color"
+      },
+      "raised": {
+        "$value": "#1A1A22",
+        "$type": "color"
+      },
+      "subtle": {
+        "$value": "#22222E",
+        "$type": "color"
+      }
+    },
+    "border": {
+      "$value": "#2E2E3E",
+      "$type": "color"
+    },
+    "text": {
+      "primary": {
+        "$value": "#F5F6FC",
+        "$type": "color"
+      },
+      "secondary": {
+        "$value": "#9E9FB0",
+        "$type": "color"
+      }
+    }
+  },
+  "fontSize": {
+    "display": {
+      "$value": "32",
+      "$type": "fontSize",
+      "$description": "Large balance numbers"
+    },
+    "heading": {
+      "$value": "20",
+      "$type": "fontSize"
+    },
+    "body": {
+      "$value": "16",
+      "$type": "fontSize"
+    },
+    "small": {
+      "$value": "14",
+      "$type": "fontSize"
+    },
+    "mono": {
+      "$value": "13",
+      "$type": "fontSize",
+      "$description": "Wallet addresses, tx hashes"
+    },
+    "h1": {
+      "$value": "48",
+      "$type": "fontSize"
+    },
+    "h2": {
+      "$value": "36",
+      "$type": "fontSize"
+    },
+    "h3": {
+      "$value": "30",
+      "$type": "fontSize"
+    },
+    "h4": {
+      "$value": "24",
+      "$type": "fontSize"
+    },
+    "h5": {
+      "$value": "20",
+      "$type": "fontSize"
+    },
+    "h6": {
+      "$value": "16",
+      "$type": "fontSize"
+    }
+  },
+  "fontWeight": {
+    "regular": {
+      "$value": "400",
+      "$type": "fontWeight"
+    },
+    "medium": {
+      "$value": "500",
+      "$type": "fontWeight"
+    },
+    "semibold": {
+      "$value": "600",
+      "$type": "fontWeight"
+    },
+    "bold": {
+      "$value": "700",
+      "$type": "fontWeight"
+    },
+    "extrabold": {
+      "$value": "800",
+      "$type": "fontWeight"
+    }
+  },
+  "fontFamily": {
+    "sans": {
+      "$value": "Manrope",
+      "$type": "fontFamily"
+    },
+    "mono": {
+      "$value": "monospace",
+      "$type": "fontFamily"
+    }
+  },
+  "lineHeight": {
+    "tight": {
+      "$value": "1.2",
+      "$type": "lineHeight"
+    },
+    "normal": {
+      "$value": "1.5",
+      "$type": "lineHeight"
+    },
+    "relaxed": {
+      "$value": "1.6",
+      "$type": "lineHeight"
+    }
+  },
+  "spacing": {
+    "1": {
+      "$value": "4",
+      "$type": "spacing"
+    },
+    "2": {
+      "$value": "8",
+      "$type": "spacing"
+    },
+    "3": {
+      "$value": "12",
+      "$type": "spacing"
+    },
+    "4": {
+      "$value": "16",
+      "$type": "spacing"
+    },
+    "5": {
+      "$value": "20",
+      "$type": "spacing"
+    },
+    "6": {
+      "$value": "24",
+      "$type": "spacing"
+    },
+    "7": {
+      "$value": "28",
+      "$type": "spacing"
+    },
+    "8": {
+      "$value": "32",
+      "$type": "spacing"
+    },
+    "9": {
+      "$value": "36",
+      "$type": "spacing"
+    },
+    "10": {
+      "$value": "40",
+      "$type": "spacing"
+    },
+    "11": {
+      "$value": "44",
+      "$type": "spacing"
+    },
+    "12": {
+      "$value": "48",
+      "$type": "spacing"
+    }
+  },
+  "borderRadius": {
+    "sm": {
+      "$value": "4",
+      "$type": "borderRadius"
+    },
+    "md": {
+      "$value": "8",
+      "$type": "borderRadius"
+    },
+    "lg": {
+      "$value": "12",
+      "$type": "borderRadius"
+    },
+    "xl": {
+      "$value": "16",
+      "$type": "borderRadius"
+    },
+    "2xl": {
+      "$value": "24",
+      "$type": "borderRadius"
+    },
+    "full": {
+      "$value": "9999",
+      "$type": "borderRadius"
+    }
+  }
+}

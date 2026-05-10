@@ -1,9 +1,13 @@
-import { ShieldCheck, ArrowUpRight, ArrowDownLeft, ExternalLink, Zap } from 'lucide-react'
+import { ShieldCheck, Zap, ExternalLink } from 'lucide-react'
 import { Asterisk } from '@phosphor-icons/react'
 import type { OperationPhase, OperationType } from '../types/operation'
 
+const ICON_BASE = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color'
+const DEFAULT_TOKEN = { symbol: 'ETH', imageUrl: `${ICON_BASE}/eth.png` }
+
 interface ActivityRowProps {
   type: OperationType
+  token?: { symbol: string; imageUrl: string }
   amount: string
   status: OperationPhase
   date: number
@@ -12,21 +16,21 @@ interface ActivityRowProps {
   onComplete?: () => void
 }
 
-const TYPE_CONFIG: Record<OperationType, { label: string; icon: typeof ShieldCheck; directionLabel: Record<'in' | 'out', string> }> = {
+const TYPE_CONFIG: Record<OperationType, {
+  directionLabel: Record<'in' | 'out', string>
+  defaultDirection: '+' | '-'
+}> = {
   shield: {
-    label: 'Shielded',
-    icon: ShieldCheck,
     directionLabel: { in: 'Shielded in', out: 'Shielded' },
+    defaultDirection: '-',
   },
   send: {
-    label: 'Sent shielded',
-    icon: ArrowUpRight,
     directionLabel: { in: 'Received shielded', out: 'Sent shielded' },
+    defaultDirection: '-',
   },
   unshield: {
-    label: 'Unshielded',
-    icon: ArrowDownLeft,
     directionLabel: { in: 'Unshielded', out: 'Unshielding' },
+    defaultDirection: '+',
   },
 }
 
@@ -43,10 +47,16 @@ function formatRelativeTime(timestamp: number): string {
   return new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-function getRowState(status: OperationPhase): 'complete' | 'in-progress' | 'action-required' | 'decrypting' {
-  if (status === 'completed') return 'complete'
+function getRowState(status: OperationPhase): 'complete' | 'in-progress' | 'action-required' {
   if (status === 'proof_ready') return 'action-required'
-  if (status === 'processing' || status === 'submitted' || status === 'finalizing' || status === 'preparing' || status === 'awaiting_wallet_step1' || status === 'awaiting_wallet_step2') return 'in-progress'
+  if (
+    status === 'processing' ||
+    status === 'submitted' ||
+    status === 'finalizing' ||
+    status === 'preparing' ||
+    status === 'awaiting_wallet_step1' ||
+    status === 'awaiting_wallet_step2'
+  ) return 'in-progress'
   return 'complete'
 }
 
@@ -63,81 +73,153 @@ function getPhaseLabel(status: OperationPhase, type: OperationType): string {
   return labels[status] ?? ''
 }
 
-function Spinner() {
+function ActivityAvatar({
+  imageUrl,
+  symbol,
+  rowState,
+  type,
+}: {
+  imageUrl: string
+  symbol: string
+  rowState: 'complete' | 'in-progress' | 'action-required'
+  type: OperationType
+}) {
+  const showShieldBadge = rowState === 'complete' && (type === 'shield' || type === 'send')
+  const showZapBadge = rowState === 'action-required'
+  const isSpinning = rowState === 'in-progress'
+
   return (
-    <div
-      style={{
-        width: '24px',
-        height: '24px',
-        borderRadius: '50%',
-        border: '2.5px solid var(--color-border)',
-        borderTopColor: 'var(--color-processing)',
-        animation: 'spin 0.8s linear infinite',
-        flexShrink: 0,
-      }}
-    />
+    <div style={{ position: 'relative', width: '48px', height: '48px', flexShrink: 0 }}>
+      <img
+        src={imageUrl}
+        alt={symbol}
+        width={48}
+        height={48}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          borderRadius: '50%',
+          objectFit: 'cover',
+        }}
+      />
+
+      {isSpinning && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '50%',
+            border: '2.5px solid var(--color-border)',
+            borderTopColor: 'var(--color-processing)',
+            animation: 'spin 0.8s linear infinite',
+            pointerEvents: 'none',
+          }}
+        />
+      )}
+
+      {showShieldBadge && (
+        <>
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              borderRadius: '50%',
+              border: '2px solid var(--color-shielded)',
+              pointerEvents: 'none',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '-4px',
+              right: '-4px',
+              width: '20px',
+              height: '20px',
+              borderRadius: '6px',
+              background: 'var(--color-shielded)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '2px solid var(--color-surface-raised)',
+            }}
+          >
+            <ShieldCheck size={12} color="#fff" strokeWidth={2.5} aria-hidden />
+          </div>
+        </>
+      )}
+
+      {showZapBadge && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '-4px',
+            right: '-4px',
+            width: '20px',
+            height: '20px',
+            borderRadius: '6px',
+            background: '#f59e0b',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '2px solid var(--color-surface-raised)',
+            animation: 'pulse-badge 1.5s ease-in-out infinite',
+          }}
+        >
+          <Zap size={11} color="#fff" strokeWidth={2.5} aria-hidden />
+        </div>
+      )}
+    </div>
   )
 }
 
-export function ActivityRow({ type, amount, status, date, txHash, hidden, onComplete }: ActivityRowProps) {
+export function ActivityRow({
+  type,
+  token = DEFAULT_TOKEN,
+  amount,
+  status,
+  date,
+  txHash,
+  hidden,
+  onComplete,
+}: ActivityRowProps) {
   const config = TYPE_CONFIG[type]
   const rowState = getRowState(status)
   const isComplete = rowState === 'complete'
   const isInProgress = rowState === 'in-progress'
   const isActionRequired = rowState === 'action-required'
 
-  const isHiddenAmount = hidden && type !== 'unshield'
-  const displayAmount = isHiddenAmount ? null : `${amount} ETH`
-  const dirKey = type === 'unshield' ? 'out' : 'out'
-  const rowLabel = isInProgress && type === 'unshield' ? 'Unshielding' : config.directionLabel[dirKey]
+  const rowLabel = isInProgress && type === 'unshield'
+    ? 'Unshielding'
+    : config.directionLabel['out']
+
+  const dirSign = config.defaultDirection === '-' ? '−' : '+'
+  const amountDisplay = `${dirSign}${amount} ${token.symbol}`
 
   return (
     <div
       style={{
         display: 'flex',
         alignItems: 'center',
-        gap: '16px',
-        padding: '16px 0',
+        gap: '12px',
+        padding: '14px 16px',
         borderBottom: '1px solid var(--color-border)',
       }}
     >
-      {/* Leading element — 64×64 circular, no background */}
-      <div
-        style={{
-          width: '64px',
-          height: '64px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-        }}
-      >
-        {isInProgress ? (
-          <Spinner />
-        ) : isActionRequired ? (
-          <Zap
-            size={28}
-            style={{
-              color: '#78350F',
-              animation: 'pulse-badge 1.5s ease-in-out infinite',
-            }}
-          />
-        ) : (
-          <config.icon
-            size={28}
-            style={{ color: 'var(--color-text-secondary)' }}
-          />
-        )}
-      </div>
+      <ActivityAvatar
+        imageUrl={token.imageUrl}
+        symbol={token.symbol}
+        rowState={rowState}
+        type={type}
+      />
 
-      {/* Content — primary (heading) + phase label + timestamp */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px', flexWrap: 'wrap' }}>
           <span
             style={{
-              fontSize: 'var(--text-heading)',
-              fontWeight: 600,
+              fontSize: 'var(--text-small)',
+              fontWeight: 500,
               color: 'var(--color-text-primary)',
               lineHeight: 1.2,
             }}
@@ -145,23 +227,22 @@ export function ActivityRow({ type, amount, status, date, txHash, hidden, onComp
             {rowLabel}
           </span>
           {isInProgress && (
-            <span style={{ fontSize: 'var(--text-small)', color: 'var(--color-processing)', fontWeight: 500 }}>
+            <span style={{ fontSize: '12px', color: 'var(--color-processing)', fontWeight: 500 }}>
               {getPhaseLabel(status, type)}
             </span>
           )}
         </div>
-        <span style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)' }}>
+        <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
           {formatRelativeTime(date)}
         </span>
       </div>
 
-      {/* Trailing — amount stacked above action/link */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
-        {isHiddenAmount ? (
-          <span style={{ display: 'flex', alignItems: 'center', gap: '2px', color: 'var(--color-text-secondary)' }}>
-            <Asterisk weight="bold" size={16} />
-            <Asterisk weight="bold" size={16} />
-            <Asterisk weight="bold" size={16} />
+        {hidden ? (
+          <span style={{ display: 'flex', alignItems: 'center', gap: '1px', color: 'var(--color-text-secondary)' }}>
+            <Asterisk weight="bold" size={13} />
+            <Asterisk weight="bold" size={13} />
+            <Asterisk weight="bold" size={13} />
           </span>
         ) : (
           <span
@@ -172,7 +253,7 @@ export function ActivityRow({ type, amount, status, date, txHash, hidden, onComp
               fontVariantNumeric: 'tabular-nums',
             }}
           >
-            {displayAmount}
+            {amountDisplay}
           </span>
         )}
 
