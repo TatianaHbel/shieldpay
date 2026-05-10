@@ -103,3 +103,25 @@ Persist operation state to `localStorage` so the return-state flow (`StatusPersi
 2. Netlify link — live prototype + `/design-system` route showing all components
 3. Optional: Loom walkthrough
 4. Optional: Figma export via MCP
+
+## Design Context
+
+### Users
+DeFi-literate users who understand wallets and balances but shouldn't need to understand FHE, gas mechanics, or coprocessors. They are moving real (simulated) funds and need to feel in control — especially during multi-phase operations where the system is doing work they can't see.
+
+### Brand Personality
+**Trustworthy, clear, modern.** The product handles money; every design decision should reinforce competence and transparency. Clarity is the primary constraint — when in doubt, say more, not less.
+
+### Reference & Anti-Reference
+- **Reference:** Coinbase — crypto-native but accessible, bridges technical and non-technical users, earns trust through visual restraint and precision.
+- **Anti-reference:** 2017-era DeFi aesthetics — no neon greens, no aggressive gradients, no dark-and-glowing UI, no motion for motion's sake.
+
+### Theme
+Light mode only for this delivery. Dark mode tokens are defined in the token system and should not be removed, but are not a shipping requirement.
+
+### Design Principles
+1. **Clarity over cleverness** — every state communicates what's happening, what the user should do, and what happens if they leave. No ambiguity.
+2. **System phases, not user steps** — the PhaseIndicator shows what the system is doing; users are passengers, not operators.
+3. **Financial weight** — balances, amounts, and status changes are treated with visual gravity. No casual micro-copy around fund movements.
+4. **Earned motion** — animations exist to communicate state transitions (Framer Motion, spring easing), not to decorate. Aggressive or looping motion is off-brand.
+5. **Component discipline** — the design system is the source of truth. Every visual decision lives in a component; screens assemble, they don't style.

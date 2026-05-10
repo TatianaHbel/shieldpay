@@ -28,3 +28,7 @@ dist-ssr
 
 # Private notes — not for public repo
 private/
+.agents/skills/impeccable/SKILL.md
+.agents/skills/impeccable/*
+.claude/skills/impeccable
+skills-lock.json

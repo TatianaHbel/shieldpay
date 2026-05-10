@@ -772,6 +772,23 @@ User opens app, sees "Confirmed",
 checks shielded balance: 0. Assumes loss.`}
           />
 
+          <RuleCard
+            num="Filter copy"
+            rule='Active filter states must communicate scope exclusivity — use "Only [Category]" not just "[Category]" when a view is narrowed.'
+            why='A trigger label that only reads "Shielded" is ambiguous — it looks identical to a column header or a status badge. "Only Shielded" unambiguously signals that the view is a subset, that other items exist but are hidden, and that clearing the filter restores the full list. Without "Only", users may interpret a filtered empty state as a data error rather than an intentional scope restriction.'
+            correct={`Filter trigger (active): "Only Shielded"
+Filter trigger (active): "Only Unshielded"
+Filter trigger (default): icon only — no label
+
+User knows immediately the view is narrowed.
+Clearing the filter is understood as "show all".`}
+            incorrect={`Filter trigger (active): "Shielded"
+
+Same label as the column header and the
+PrivacyBadge. User cannot tell if the table
+is filtered or just labeled.`}
+          />
+
           <Callout tone="info">
             The full ruleset (9 rules with correct/incorrect/exceptions) is defined in <InlineCode>docs/05-ux-rules.md</InlineCode> and enforced via <InlineCode>CLAUDE.md</InlineCode>. Rules are written to be consumed by AI agents, design systems, and cross-functional teams without requiring design intuition to apply correctly.
           </Callout>
