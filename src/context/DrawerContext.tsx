@@ -7,8 +7,10 @@ export interface DrawerReplay {
   action: OperationType
   phase: OperationPhase
   amount: string
+  token?: string
   txHash?: string
   recipient?: string
+  startedAt?: number
 }
 
 interface DrawerContextValue {

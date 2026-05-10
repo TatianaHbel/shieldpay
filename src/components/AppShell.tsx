@@ -90,6 +90,18 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
 
   const { drawerOpen, drawerAction, drawerReplay, openDrawer, openDrawerReplay, closeDrawer } = useDrawerState()
 
+  const FORM_ACTIONS = ['shield', 'send', 'unshield', 'receive'] as const
+  const TERMINAL_PHASES: OperationPhase[] = ['completed', 'cancelled', 'timed_out', 'failed_submission', 'failed_dropped', 'failed_finalization']
+
+  // When a user opens a fresh form action while a terminal-phase op is showing,
+  // clear the old op so the drawer shows the form rather than the result screen.
+  const handleOpenDrawer = useCallback((action: Parameters<typeof openDrawer>[0]) => {
+    if ((FORM_ACTIONS as readonly string[]).includes(action) && TERMINAL_PHASES.includes(op.phase)) {
+      op.reset()
+    }
+    openDrawer(action)
+  }, [openDrawer, op, op.phase]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleNavClick = useCallback((e: React.MouseEvent, destination: string) => {
     if (!warningLevel) return
     if (location.pathname === destination) return
@@ -105,7 +117,7 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
   const sidebarWidth = collapsed ? '60px' : 'var(--layout-sidebar-width)'
 
   return (
-    <DrawerContext.Provider value={{ openDrawer, openDrawerReplay }}>
+    <DrawerContext.Provider value={{ openDrawer: handleOpenDrawer, openDrawerReplay }}>
       <div style={{ display: 'flex', height: '100dvh', background: 'var(--color-surface)' }}>
 
         {/* ── Sidebar ─────────────────────────────────────────────── */}
@@ -338,6 +350,7 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
               phase={op.phase}
               operation={op.operationType}
               amount={op.amount}
+              token={op.token}
               startedAt={op.startedAt}
               onView={() => openDrawer('status')}
               onDismiss={op.reset}
@@ -362,8 +375,9 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
             recipient={drawerReplay?.recipient ?? op.recipient}
             publicBalance={publicBalance}
             shieldedBalance={shieldedBalance}
-            startedAt={op.startedAt}
+            startedAt={drawerReplay?.startedAt ?? op.startedAt}
             txHash={drawerReplay?.txHash ?? op.txHash}
+            replayToken={drawerReplay?.token}
             onStartShield={op.startShield}
             onStartSend={op.startSend}
             onStartUnshield={op.startUnshield}

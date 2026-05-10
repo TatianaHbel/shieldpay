@@ -13,7 +13,7 @@ function useRowClick() {
   const { openDrawerReplay } = useDrawer()
   return (row: MockActivityEntry) => {
     if (row.type === 'send' && row.direction === 'in') return undefined
-    return () => openDrawerReplay({ action: row.type, phase: row.status, amount: row.amount, txHash: row.txHash, recipient: row.counterparty })
+    return () => openDrawerReplay({ action: row.type, phase: row.status, amount: row.amount, txHash: row.txHash, recipient: row.counterparty, token: row.token.symbol, startedAt: row.date })
   }
 }
 

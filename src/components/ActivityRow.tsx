@@ -33,8 +33,9 @@ function formatRelativeTime(timestamp: number): string {
   return new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-function getRowState(status: OperationPhase): 'complete' | 'in-progress' | 'action-required' {
+function getRowState(status: OperationPhase): 'complete' | 'in-progress' | 'action-required' | 'failed' {
   if (status === 'proof_ready') return 'action-required'
+  if (status.startsWith('failed_') || status === 'cancelled' || status === 'timed_out') return 'failed'
   if (
     status === 'processing' ||
     status === 'submitted' ||
@@ -49,20 +50,25 @@ function getRowState(status: OperationPhase): 'complete' | 'in-progress' | 'acti
 function getPhaseLabel(status: OperationPhase, type: OperationType): string {
   const labels: Partial<Record<OperationPhase, string>> = {
     preparing: 'Preparing…',
-    awaiting_wallet_step1: 'Waiting for wallet…',
-    awaiting_wallet_step2: 'Waiting for wallet…',
+    awaiting_wallet_step1: 'Waiting for approval…',
+    awaiting_wallet_step2: 'Waiting for approval…',
     submitted: 'Confirming on-chain…',
     processing: type === 'unshield' ? 'Preparing release…' : 'Confirming on-chain…',
     finalizing: type === 'unshield' ? 'Releasing to public balance…' : 'Encrypting balance…',
     proof_ready: 'Action required',
+    failed_dropped: 'Failed — network dropped',
+    failed_submission: 'Failed — rejected',
+    failed_finalization: 'Failed — encryption error',
+    cancelled: 'Cancelled',
+    timed_out: 'Timed out',
   }
   return labels[status] ?? ''
 }
 
-function getRowLabel(type: OperationType, direction: 'in' | 'out', isInProgress: boolean): string {
-  if (type === 'shield') return isInProgress ? 'Shielding' : 'Shielded'
-  if (type === 'unshield') return isInProgress ? 'Unshielding' : 'Unshielded'
-  if (type === 'send') return direction === 'in' ? 'Received' : isInProgress ? 'Sending' : 'Sent'
+function getRowLabel(type: OperationType, direction: 'in' | 'out', isInProgress: boolean, tokenSymbol: string): string {
+  if (type === 'shield') return isInProgress ? `Shielding ${tokenSymbol}` : `Shielded ${tokenSymbol}`
+  if (type === 'unshield') return isInProgress ? `Unshielding ${tokenSymbol}` : `Unshielded ${tokenSymbol}`
+  if (type === 'send') return direction === 'in' ? `Received ${tokenSymbol}` : isInProgress ? `Sending ${tokenSymbol}` : `Sent ${tokenSymbol}`
   return ''
 }
 
@@ -123,7 +129,7 @@ function ActivityAvatar({
 }: {
   token: { symbol: string; imageUrl: string }
   pairedToken?: { symbol: string; imageUrl: string }
-  rowState: 'complete' | 'in-progress' | 'action-required'
+  rowState: 'complete' | 'in-progress' | 'action-required' | 'failed'
   type: OperationType
 }) {
   const isSwap = (type === 'shield' || type === 'unshield') && !!pairedToken
@@ -281,8 +287,9 @@ export function ActivityRow({
   const isComplete = rowState === 'complete'
   const isInProgress = rowState === 'in-progress'
   const isActionRequired = rowState === 'action-required'
+  const isFailed = rowState === 'failed'
 
-  const rowLabel = getRowLabel(type, direction, isInProgress || isActionRequired)
+  const rowLabel = getRowLabel(type, direction, isInProgress || isActionRequired, token.symbol)
   const subtitle = getSubtitle(type, token, pairedToken, direction, counterparty)
 
   // Primary: always outgoing (what left the user's balance)
@@ -330,6 +337,11 @@ export function ActivityRow({
               {getPhaseLabel(status, type)}
             </span>
           )}
+          {isFailed && (
+            <span style={{ fontSize: '12px', color: 'var(--color-error)', fontWeight: 500 }}>
+              {getPhaseLabel(status, type)}
+            </span>
+          )}
         </div>
 
         {/* Row 2: subtitle (token pair or counterparty) */}
@@ -357,7 +369,7 @@ export function ActivityRow({
               style={{
                 fontSize: 'var(--text-small)',
                 fontWeight: 600,
-                color: isActionRequired ? '#78350F' : 'var(--color-text-primary)',
+                color: isActionRequired ? '#78350F' : isFailed ? 'var(--color-error)' : 'var(--color-text-primary)',
                 fontVariantNumeric: 'tabular-nums',
                 lineHeight: 1.2,
               }}

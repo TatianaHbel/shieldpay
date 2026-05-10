@@ -6,6 +6,7 @@ export interface StatusPersistenceBannerProps {
   phase: OperationPhase
   operation: OperationType
   amount: string
+  token?: string
   startedAt: number
   onView: () => void
   onDismiss?: () => void
@@ -16,15 +17,19 @@ type BannerVariant = 'processing' | 'action-required' | 'completed' | 'failed'
 function getBannerVariant(phase: OperationPhase): BannerVariant | null {
   if (phase === 'idle') return null
   if (phase === 'completed') return 'completed'
-  if (phase === 'proof_ready' || phase === 'interrupted') return 'action-required'
+  if (
+    phase === 'awaiting_wallet_step1' ||
+    phase === 'awaiting_wallet_step2' ||
+    phase === 'proof_ready' ||
+    phase === 'interrupted'
+  ) return 'action-required'
   if (
     phase === 'failed_submission' ||
     phase === 'failed_dropped' ||
     phase === 'failed_finalization' ||
     phase === 'cancelled' ||
     phase === 'timed_out'
-  )
-    return 'failed'
+  ) return 'failed'
   return 'processing'
 }
 
@@ -83,6 +88,7 @@ export function StatusPersistenceBanner({
   phase,
   operation,
   amount,
+  token,
   startedAt,
   onView,
   onDismiss,
@@ -100,17 +106,25 @@ export function StatusPersistenceBanner({
   const cfg = VARIANT_CONFIG[variant]
   const { Icon } = cfg
   const opLabel = OPERATION_LABEL[operation]
+  const tokenLabel = token ? ` ${token}` : ''
+  const amountToken = `${amount}${tokenLabel}`
 
   const title = (() => {
-    if (variant === 'processing') return `${opLabel} ${amount} ETH in progress`
-    if (variant === 'action-required')
-      return phase === 'interrupted'
-        ? 'Unshield paused — action required'
-        : 'Action required: Your unshield is ready'
-    if (variant === 'completed')
-      return `${opLabel} complete — ${amount} ETH ${operation === 'shield' ? 'shielded' : operation === 'unshield' ? 'released' : 'sent'}`
-    if (phase === 'cancelled' || phase === 'timed_out')
-      return `${opLabel} cancelled — no funds were moved`
+    if (variant === 'processing') {
+      return `${opLabel} ${amountToken} in progress`
+    }
+    if (variant === 'action-required') {
+      if (phase === 'interrupted') return `Unshield paused — return to release ${amountToken}`
+      if (phase === 'proof_ready') return `Your ${amountToken} ${parseFloat(amount) === 1 ? 'is' : 'are'} ready to be released`
+      // awaiting_wallet_step1 or step2
+      return `Approve in your wallet — ${opLabel.toLowerCase()} ${amountToken}`
+    }
+    if (variant === 'completed') {
+      const outcome = operation === 'shield' ? 'shielded' : operation === 'unshield' ? 'released' : 'sent'
+      return `${opLabel} complete — ${amountToken} ${outcome}`
+    }
+    // failed
+    if (phase === 'cancelled' || phase === 'timed_out') return `${opLabel} cancelled — no funds were moved`
     return `${opLabel} failed — your funds are safe`
   })()
 

@@ -55,9 +55,10 @@ export interface RightPanelProps {
   shieldedBalance: string
   startedAt?: number
   txHash?: string
-  onStartShield: (amount: string) => void
-  onStartSend: (amount: string, recipient: string, isShielded: boolean) => void
-  onStartUnshield: (amount: string) => void
+  replayToken?: string
+  onStartShield: (amount: string, token: string) => void
+  onStartSend: (amount: string, recipient: string, isShielded: boolean, token: string) => void
+  onStartUnshield: (amount: string, token: string) => void
   onConfirmWalletStep?: () => void
   onCancel: () => void
   onComplete: () => void
@@ -919,13 +920,15 @@ function ProcessingView({ op, amount, phase, startedAt, txHash, token = 'ETH' }:
           Started {elapsed(startedAt)}
         </p>
       )}
-      {txHash && op !== 'send' && <EtherscanLink txHash={txHash} />}
+      {txHash && (op !== 'send' || !SHIELDED_TOKENS.some(t => t.symbol === token)) && (
+        <EtherscanLink txHash={txHash} />
+      )}
     </div>
   )
 }
 
 function ProofReadyView({ amount, onComplete, token = 'ETH' }: PhaseViewProps) {
-  const pairedSymbol = getToken(token).pairedSymbol
+  const plural = parseFloat(amount) === 1 ? 'is' : 'are'
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
@@ -937,8 +940,7 @@ function ProofReadyView({ amount, onComplete, token = 'ETH' }: PhaseViewProps) {
       <PhaseIndicator phases={[]} currentPhase={2} operation="unshield" />
       <div style={{ height: '20px' }} />
       <p style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: '0 0 8px' }}>
-        Your unshield is ready to complete. One more confirmation will release{' '}
-        <strong style={{ color: 'var(--color-text-primary)' }}>{amount} {pairedSymbol}</strong> to your public balance.
+        Your <strong style={{ color: 'var(--color-text-primary)' }}>{amount} {token}</strong> {plural} ready to be released to your public balance. One more wallet confirmation will complete this.
       </p>
       <p style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: '0 0 24px' }}>
         <strong style={{ color: 'var(--color-text-primary)' }}>Your funds are secured.</strong> Complete this step to release them.
@@ -950,25 +952,21 @@ function ProofReadyView({ amount, onComplete, token = 'ETH' }: PhaseViewProps) {
   )
 }
 
-function SuccessView({ op, amount, recipient, txHash, publicBalance, shieldedBalance, onDone, token = 'ETH' }: PhaseViewProps) {
-  const a = parseFloat(amount) || 0
-  const pub = parseFloat(publicBalance) || 0
-  const shi = parseFloat(shieldedBalance) || 0
+function SuccessView({ op, amount, recipient, txHash, startedAt, onDone, token = 'ETH' }: PhaseViewProps) {
   const pairedSymbol = getToken(token).pairedSymbol
+  const isShieldedSend = op === 'send' && SHIELDED_TOKENS.some(t => t.symbol === token)
 
   const heading = { shield: 'Funds shielded', send: 'Transfer sent', unshield: 'Funds unshielded' }[op]
 
-  const rows = op === 'shield'
-    ? [
-        { label: 'Public balance', value: Math.max(pub - a, 0).toFixed(2), delta: `−${a.toFixed(2)}`, unit: token },
-        { label: 'Shielded balance', value: (shi + a).toFixed(2), delta: `+${a.toFixed(2)}`, unit: pairedSymbol },
-      ]
-    : op === 'send'
-    ? [{ label: 'Shielded balance', value: Math.max(shi - a, 0).toFixed(2), delta: `−${a.toFixed(2)}`, unit: token }]
-    : [
-        { label: 'Public balance', value: (pub + a).toFixed(2), delta: `+${a.toFixed(2)}`, unit: pairedSymbol },
-        { label: 'Shielded balance', value: Math.max(shi - a, 0).toFixed(2), delta: `−${a.toFixed(2)}`, unit: token },
-      ]
+  const completedAt = startedAt
+    ? new Date(startedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+    : 'just now'
+
+  const feeAmount = op === 'unshield' ? '~0.005 ETH' : isShieldedSend ? '~0.003 ETH' : op === 'send' ? '~0.001 ETH' : '~0.002 ETH'
+  const showEtherscan = txHash && (op !== 'send' || !isShieldedSend)
+
+  const cellStyle = { display: 'flex', justifyContent: 'space-between', padding: '11px 16px', borderBottom: '1px solid var(--color-border)', fontSize: '13px' } as const
+  const lastCellStyle = { ...cellStyle, borderBottom: 'none' }
 
   return (
     <div>
@@ -981,36 +979,54 @@ function SuccessView({ op, amount, recipient, txHash, publicBalance, shieldedBal
       <PhaseIndicator phases={[]} currentPhase={3} operation={op} />
       <div style={{ height: '20px' }} />
 
-      {op === 'send' && recipient ? (
-        <p style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', margin: '0 0 16px', lineHeight: 1.55 }}>
-          {amount} {token} sent to <span style={{ fontFamily: 'monospace', color: 'var(--color-text-primary)' }}>{truncateAddress(recipient)}</span>
-        </p>
-      ) : (
-        <p style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', margin: '0 0 16px', lineHeight: 1.55 }}>
-          {amount} {op === 'shield' ? pairedSymbol : pairedSymbol} {op === 'shield' ? 'added to your shielded balance.' : 'added to your public balance.'}
-        </p>
-      )}
-
-      <div style={{ marginBottom: '16px' }}>
-        {rows.map(r => (
-          <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', padding: '5px 0', borderBottom: '1px solid var(--color-border)' }}>
-            <span style={{ color: 'var(--color-text-secondary)' }}>{r.label}</span>
-            <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
-              {r.value} {r.unit} <span style={{ color: 'var(--color-text-secondary)', fontWeight: 400 }}>({r.delta})</span>
+      <div style={{
+        background: 'var(--color-surface-subtle)',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-md)',
+        marginBottom: '20px',
+        overflow: 'hidden',
+      }}>
+        <div style={cellStyle}>
+          <span style={{ color: 'var(--color-text-secondary)' }}>Sent</span>
+          <span style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-primary)' }}>
+            {amount} {token}
+          </span>
+        </div>
+        {op !== 'send' && (
+          <div style={cellStyle}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>Received</span>
+            <span style={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums', color: 'var(--color-success)' }}>
+              +{amount} {pairedSymbol}
             </span>
           </div>
-        ))}
+        )}
+        {op === 'send' && recipient && (
+          <div style={cellStyle}>
+            <span style={{ color: 'var(--color-text-secondary)' }}>To</span>
+            <span style={{ fontFamily: 'monospace', color: 'var(--color-text-primary)', fontSize: '12px' }}>
+              {truncateAddress(recipient)}
+            </span>
+          </div>
+        )}
+        <div style={cellStyle}>
+          <span style={{ color: 'var(--color-text-secondary)' }}>Network fee</span>
+          <span style={{ fontVariantNumeric: 'tabular-nums', color: 'var(--color-text-secondary)' }}>{feeAmount}</span>
+        </div>
+        <div style={lastCellStyle}>
+          <span style={{ color: 'var(--color-text-secondary)' }}>Completed</span>
+          <span style={{ color: 'var(--color-text-secondary)' }}>{completedAt}</span>
+        </div>
       </div>
 
-      {op === 'send' && (
+      {isShieldedSend && (
         <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '0 0 16px', lineHeight: 1.55 }}>
           Only you and the recipient can see this transaction.
         </p>
       )}
 
-      {txHash && op !== 'send' && (
+      {showEtherscan && (
         <div style={{ marginBottom: '20px' }}>
-          <EtherscanLink txHash={txHash} />
+          <EtherscanLink txHash={txHash!} />
         </div>
       )}
 
@@ -1115,6 +1131,7 @@ export function RightPanel({
   shieldedBalance,
   startedAt,
   txHash,
+  replayToken,
   onStartShield,
   onStartSend,
   onStartUnshield,
@@ -1126,7 +1143,7 @@ export function RightPanel({
   demo = false,
 }: RightPanelProps) {
   const [activeTab, setActiveTab] = useState<TabId>('shield')
-  const [activeToken, setActiveToken] = useState('ETH')
+  const [activeToken, setActiveToken] = useState(replayToken ?? 'ETH')
 
   useEffect(() => {
     if (isOpen && (activeAction === 'shield' || activeAction === 'unshield' || activeAction === 'send' || activeAction === 'receive')) {
@@ -1135,23 +1152,27 @@ export function RightPanel({
   }, [isOpen, activeAction])
 
   useEffect(() => {
+    if (replayToken) setActiveToken(replayToken)
+  }, [replayToken])
+
+  useEffect(() => {
     onOverlayIntensity(getOverlayIntensity(phase))
   }, [phase, onOverlayIntensity])
 
   const handleStartShield = (amt: string, token: string) => {
     setActiveToken(token)
-    onStartShield(amt)
+    onStartShield(amt, token)
   }
 
   const handleStartUnshield = (amt: string, token: string) => {
     setActiveToken(token)
-    onStartUnshield(amt)
+    onStartUnshield(amt, token)
   }
 
   const handleStartSend = (amt: string, rec: string, token: string) => {
     setActiveToken(token)
     const isShielded = SHIELDED_TOKENS.some(t => t.symbol === token)
-    onStartSend(amt, rec, isShielded)
+    onStartSend(amt, rec, isShielded, token)
   }
 
   const isIdle = phase === 'idle'

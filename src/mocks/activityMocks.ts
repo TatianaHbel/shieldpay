@@ -77,6 +77,25 @@ export const MOCK_ACTIVITY: MockActivityEntry[] = [
     date: now - 259200000,
     counterparty: '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b',
   },
+  // Failed
+  {
+    id: 'fail-1',
+    type: 'shield',
+    token: ETH_TOKEN,
+    pairedToken: cETH_TOKEN,
+    amount: '0.5',
+    status: 'failed_dropped',
+    date: now - 43200000,
+  },
+  {
+    id: 'fail-2',
+    type: 'shield',
+    token: DAI_TOKEN,
+    pairedToken: cDAI_TOKEN,
+    amount: '100.00',
+    status: 'failed_finalization',
+    date: now - 604800000,
+  },
 ]
 
 export const IN_PROGRESS_STATUSES = new Set<OperationPhase>([

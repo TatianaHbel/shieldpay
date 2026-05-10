@@ -7,6 +7,7 @@ interface OperationState {
   phase: OperationPhase
   type: OperationType
   amount: string
+  token: string
   recipient?: string
   startedAt: number
   txHash?: string
@@ -16,6 +17,7 @@ const IDLE: OperationState = {
   phase: 'idle',
   type: 'shield',
   amount: '',
+  token: 'ETH',
   startedAt: 0,
 }
 
@@ -27,18 +29,18 @@ function persist(op: OperationState) {
   if (op.phase === 'idle') {
     localStorage.removeItem(STORAGE_KEY)
   } else {
-    const saved: ActiveOperation = {
+    const saved: ActiveOperation & { token?: string } = {
       type: op.type,
       phase: op.phase,
       amount: op.amount,
       startedAt: op.startedAt,
+      token: op.token,
       ...(op.txHash ? { unwrapTxHash: op.txHash } : {}),
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(saved))
   }
 }
 
-// All phases that should be restored on page load
 const RESTORABLE_PHASES = new Set<OperationPhase>([
   'processing', 'proof_ready', 'interrupted',
   'completed',
@@ -50,14 +52,14 @@ function restore(): OperationState | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return null
-    const saved: ActiveOperation = JSON.parse(raw)
+    const saved = JSON.parse(raw) as ActiveOperation & { token?: string }
     if (!RESTORABLE_PHASES.has(saved.phase)) return null
-    // Mid-process when page closed → show as interrupted
     const phase: OperationPhase = saved.phase === 'processing' ? 'interrupted' : saved.phase
     return {
       phase,
       type: saved.type,
       amount: saved.amount,
+      token: saved.token ?? 'ETH',
       startedAt: saved.startedAt,
       txHash: saved.unwrapTxHash,
     }
@@ -69,7 +71,6 @@ function restore(): OperationState | null {
 export function useOperation() {
   const [op, setOp] = useState<OperationState>(() => restore() ?? IDLE)
   const abortRef = useRef(false)
-  // Holds the resolve fn for the current "waiting for wallet confirm" promise
   const confirmRef = useRef<(() => void) | null>(null)
 
   const update = useCallback((patch: Partial<OperationState>) => {
@@ -82,27 +83,24 @@ export function useOperation() {
 
   const reset = useCallback(() => {
     abortRef.current = true
-    confirmRef.current?.()  // unblock any pending confirm so the async fn can exit
+    confirmRef.current?.()
     confirmRef.current = null
     setOp(IDLE)
     localStorage.removeItem(STORAGE_KEY)
   }, [])
 
-  // Returns a promise that resolves when the user clicks "Approve" in the wallet confirm UI.
-  // Stored in a ref so it's stable across renders without needing to be in dep arrays.
   const waitForWalletConfirm = useCallback((): Promise<void> => {
     return new Promise(resolve => { confirmRef.current = resolve })
   }, [])
 
-  // Called by WalletConfirmView's "Approve" button to advance past a wallet step.
   const confirmWalletStep = useCallback(() => {
     confirmRef.current?.()
     confirmRef.current = null
   }, [])
 
-  const startShield = useCallback(async (amount: string) => {
+  const startShield = useCallback(async (amount: string, token: string) => {
     abortRef.current = false
-    const base: OperationState = { phase: 'preparing', type: 'shield', amount, startedAt: Date.now() }
+    const base: OperationState = { phase: 'preparing', type: 'shield', amount, token, startedAt: Date.now() }
     setOp(base)
     persist(base)
 
@@ -137,11 +135,10 @@ export function useOperation() {
     update({ phase: 'completed' })
   }, [update, waitForWalletConfirm])
 
-  // isShielded controls whether the finalizing (FHE encryption) phase is included.
-  // Public sends (ETH, USDC, DAI) skip it; shielded sends (cETH, cUSDC, cDAI) include it.
-  const startSend = useCallback(async (amount: string, recipient: string, isShielded: boolean) => {
+  // isShielded: skips finalizing for public token sends (ETH, USDC, DAI)
+  const startSend = useCallback(async (amount: string, recipient: string, isShielded: boolean, token: string) => {
     abortRef.current = false
-    const base: OperationState = { phase: 'preparing', type: 'send', amount, recipient, startedAt: Date.now() }
+    const base: OperationState = { phase: 'preparing', type: 'send', amount, token, recipient, startedAt: Date.now() }
     setOp(base)
     persist(base)
 
@@ -151,7 +148,7 @@ export function useOperation() {
 
     await waitForWalletConfirm()
     if (abortRef.current) return
-    update({ phase: 'submitted' })
+    update({ phase: 'submitted', txHash: '0xmock_send_tx' })
 
     await delay(3000)
     if (abortRef.current) return
@@ -175,9 +172,9 @@ export function useOperation() {
     update({ phase: 'completed' })
   }, [update, waitForWalletConfirm])
 
-  const startUnshield = useCallback(async (amount: string) => {
+  const startUnshield = useCallback(async (amount: string, token: string) => {
     abortRef.current = false
-    const base: OperationState = { phase: 'preparing', type: 'unshield', amount, startedAt: Date.now() }
+    const base: OperationState = { phase: 'preparing', type: 'unshield', amount, token, startedAt: Date.now() }
     setOp(base)
     persist(base)
 
@@ -211,11 +208,9 @@ export function useOperation() {
     update({ phase: 'completed' })
   }, [update, waitForWalletConfirm])
 
-  // Cancels the active operation. Does NOT auto-reset — the cancelled banner persists
-  // until the user explicitly dismisses it, so they can see what happened after returning.
   const cancel = useCallback(() => {
     abortRef.current = true
-    confirmRef.current?.()  // unblock any pending confirm → async fn exits on next abort check
+    confirmRef.current?.()
     confirmRef.current = null
     update({ phase: 'cancelled' })
   }, [update])
@@ -228,6 +223,7 @@ export function useOperation() {
     phase: op.phase,
     operationType: op.type,
     amount: op.amount,
+    token: op.token,
     recipient: op.recipient,
     startedAt: op.startedAt,
     txHash: op.txHash,
