@@ -292,7 +292,6 @@ export function ActivityRow({
   amount,
   status,
   date,
-  txHash,
   hidden,
   onClick,
   onComplete,

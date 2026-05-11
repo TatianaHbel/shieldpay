@@ -25,27 +25,7 @@ import type { OperationPhase, OperationType } from '../types/operation'
 // Navigation structure
 // ────────────────────────────────────────────────────────
 
-const FOUNDATION_ITEMS = [
-  { id: 'color', label: 'Color' },
-  { id: 'typography', label: 'Typography' },
-  { id: 'spacing', label: 'Spacing' },
-  { id: 'radius', label: 'Border Radius' },
-  { id: 'elevation', label: 'Elevation' },
-  { id: 'motion', label: 'Motion' },
-  { id: 'layout', label: 'Layout' },
-  { id: 'accessibility', label: 'Accessibility' },
-]
 
-const COMPONENT_CATEGORIES = [
-  { label: 'Avatar',         items: [{ id: 'blockie', label: 'Blockie' }, { id: 'token-avatar', label: 'TokenAvatar' }] },
-  { label: 'Buttons',        items: [{ id: 'button', label: 'Button' }, { id: 'action-button-row', label: 'ActionButtonRow' }] },
-  { label: 'Inputs',         items: [{ id: 'text-field', label: 'TextField' }] },
-  { label: 'Card',           items: [{ id: 'card', label: 'Card' }, { id: 'balance-card', label: 'BalanceCard' }, { id: 'connect-wallet-card', label: 'ConnectWalletCard' }] },
-  { label: 'Notifications',  items: [{ id: 'status-persistence-banner', label: 'InfoBar' }, { id: 'navigation-warning', label: 'NavigationWarning' }, { id: 'status-badge', label: 'StatusBadge' }] },
-  { label: 'Table',          items: [{ id: 'table', label: 'Table' }, { id: 'activity-row', label: 'ActivityRow' }, { id: 'token-table', label: 'TokenTable' }] },
-  { label: 'Phase Indicator', items: [{ id: 'phase-indicator-vertical', label: 'PhaseIndicatorVertical' }] },
-  { label: 'Drawer',         items: [{ id: 'right-panel', label: 'Drawer' }, { id: 'left-column-overlay', label: 'LeftColumnOverlay' }] },
-]
 
 // ────────────────────────────────────────────────────────
 // Token data

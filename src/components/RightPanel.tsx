@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ExternalLink, Zap, CheckCircle, AlertCircle, AlertTriangle, X, QrCode, ArrowLeft, ArrowDown, ChevronDown, Check, ShieldCheck, Copy } from 'lucide-react'
+import { ExternalLink, Zap, CheckCircle, AlertTriangle, X, QrCode, ArrowLeft, ArrowDown, ChevronDown, Check, ShieldCheck, Copy } from 'lucide-react'
 import { PhaseIndicatorVertical } from './PhaseIndicatorVertical'
 import { Button } from './Button'
 import { TextField } from './TextField'
@@ -474,16 +474,6 @@ function PhaseHeader({ op, amount, phase, token = 'ETH', description, note, star
   )
 }
 
-function ManualOpenLink() {
-  return (
-    <p style={{ margin: '0 0 16px', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
-      Not seeing a popup?{' '}
-      <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-blue)', fontWeight: 600, fontFamily: 'Manrope, sans-serif', fontSize: '12px', padding: 0 }}>
-        Open wallet manually
-      </button>
-    </p>
-  )
-}
 
 function EtherscanLink({ txHash }: { txHash: string }) {
   return (

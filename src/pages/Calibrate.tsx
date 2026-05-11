@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { CalibrationProvider, useCalibration, ACCENT } from '../context/CalibrationContext'
 import { UseCase } from './UseCase'
 
-function LegendDot({ kind, label }: { kind: 'section' | 'title' | 'desc'; label: string }) {
+function LegendDot({ kind, label }: { kind: 'section' | 'title' | 'desc' | 'custom'; label: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--color-text-secondary)' }}>
       <div style={{ width: '10px', height: '2px', background: ACCENT[kind], borderRadius: '1px', flexShrink: 0 }} />

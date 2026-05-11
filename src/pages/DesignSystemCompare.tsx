@@ -11,7 +11,6 @@ import { ConnectWalletCard } from '../components/ConnectWalletCard'
 import type { ConnectState } from '../components/ConnectWalletCard'
 import { RightPanel } from '../components/RightPanel'
 import { LeftColumnOverlay } from '../components/LeftColumnOverlay'
-import type { OperationPhase, OperationType } from '../types/operation'
 import '../styles/tokens-v2.css'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -717,8 +716,8 @@ function V1ButtonContent() {
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <Button variant="primary" size="md">Primary</Button>
           <Button variant="ghost" size="md">Ghost</Button>
-          <Button variant="danger" size="md">Danger</Button>
-          <Button variant="text" size="md">Text</Button>
+          <Button variant="destructive" size="md">Danger</Button>
+          <Button variant="link" size="md">Text</Button>
         </div>
       </div>
       <div>
@@ -761,7 +760,7 @@ function V1InputContent() {
     <div>
       <ColLabel v="V1" sub="Label · hint · error · disabled states" />
       <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '360px' }}>
-        <TextField label="Amount" placeholder="0.00 ETH" value={val} onChange={setVal} hint="Enter the amount to shield" />
+        <TextField label="Amount" placeholder="0.00 ETH" value={val} onChange={(e) => setVal(e.target.value)} hint="Enter the amount to shield" />
         <TextField label="Wallet address" placeholder="0x…" value="" onChange={() => {}} />
         <TextField label="Error state" placeholder="0x…" value="bad input" onChange={() => {}} error="Invalid address format" />
         <TextField label="Disabled" placeholder="0x…" value="" onChange={() => {}} disabled />
@@ -966,6 +965,10 @@ function V1ConnectWalletContent() {
         onConnect={() => setState('connecting')}
         onBack={() => setState('landing')}
         onRetry={() => setState('landing')}
+        onCancel={() => setState('landing')}
+        onEnableShielded={() => setState('landing')}
+        onSkipShielded={() => setState('landing')}
+        onDashboard={() => setState('landing')}
       />
     </div>
   )
@@ -1319,7 +1322,8 @@ export function DesignSystemCompare() {
 
   const update = (id: string, patch: Partial<SectionChoice>) => {
     setChoices(prev => {
-      const next = { ...prev, [id]: { pick: null, comment: '', ...prev[id], ...patch } }
+      const existing = prev[id] ?? { pick: null, comment: '' }
+      const next = { ...prev, [id]: { ...existing, ...patch } }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
       return next
     })
