@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { User, Cpu, CheckCircle, AlertTriangle, Zap } from 'lucide-react'
 import { RightPanel } from '../components/RightPanel'
 import { InfoBar } from '../components/InfoBar'
@@ -74,13 +74,13 @@ function UCSection({ id, num, title, description, children }: {
   return (
     <section id={id} style={{ marginBottom: '96px', scrollMarginTop: '32px' }}>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
-        <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-border)', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>{num}</span>
+        <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>{num}</span>
         <h2 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
           {title}
         </h2>
       </div>
       {description && (
-        <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', margin: '0 0 36px', lineHeight: 1.7, maxWidth: '580px' }}>
+        <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', margin: '0 0 36px', lineHeight: 1.7 }}>
           {description}
         </p>
       )}
@@ -99,7 +99,7 @@ function Label({ children }: { children: React.ReactNode }) {
 
 function ProseBlock({ children }: { children: React.ReactNode }) {
   return (
-    <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', lineHeight: 1.75, margin: '0 0 24px', maxWidth: '620px' }}>
+    <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', lineHeight: 1.75, margin: '0 0 24px' }}>
       {children}
     </p>
   )
@@ -151,7 +151,7 @@ function Callout({ tone, children }: { tone: 'info' | 'warning' | 'success'; chi
   )
 }
 
-// ── Phase visualizer (Section 02) ───────────────────────────────────────────
+// ── Phase visualizer (Section 04) ───────────────────────────────────────────
 
 const NOOP = () => {}
 const MOCK_START = Date.now() - 95_000
@@ -256,14 +256,14 @@ function PhaseVisualizer() {
               disabled={phaseIdx === 0}
               style={{ flex: 1, padding: '8px', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', background: 'var(--color-surface-raised)', cursor: phaseIdx === 0 ? 'default' : 'pointer', fontSize: '12px', fontWeight: 600, color: phaseIdx === 0 ? 'var(--color-border)' : 'var(--color-text-secondary)', fontFamily: 'Manrope, sans-serif', transition: 'color 100ms' }}
             >
-              ← Prev
+              {String.fromCharCode(8592)} Prev
             </button>
             <button
               onClick={() => setPhaseIdx(i => Math.min(phases.length - 1, i + 1))}
               disabled={phaseIdx === phases.length - 1}
               style={{ flex: 1, padding: '8px', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', background: 'var(--color-surface-raised)', cursor: phaseIdx === phases.length - 1 ? 'default' : 'pointer', fontSize: '12px', fontWeight: 600, color: phaseIdx === phases.length - 1 ? 'var(--color-border)' : 'var(--color-text-secondary)', fontFamily: 'Manrope, sans-serif', transition: 'color 100ms' }}
             >
-              Next →
+              Next {String.fromCharCode(8594)}
             </button>
           </div>
         </div>
@@ -302,194 +302,312 @@ function PhaseVisualizer() {
 // ── Flow map (Section 02) ────────────────────────────────────────────────────
 
 function FlowMap() {
-  const NW = 88
-  const NH = 54
+  // layout constants
+  const NW = 86, NH = 50
+  const FW = 72, FH = 34
   const STEP = 102
-  const MX = 24
+  const MAIN_X = 248
 
-  const SY = 68
-  const SBY = 174
-  const UY = 298
-  const UBY = 404
+  const SY   = 100
+  const SFY  = 208
+  const SEP  = 287
+  const UY   = 374
+  const UFY  = 480
+  const ENT_Y = Math.round((SY + UY) / 2)
 
-  const SEP_Y = Math.round((SBY + NH / 2 + UY - NH / 2) / 2)
-  const CANVAS_W = MX + 7 * STEP + NW + MX
-  const CANVAS_H = UBY + NH / 2 + 52
+  const CANVAS_W = MAIN_X + 8 * STEP + NW + 40
+  const CANVAS_H = UFY + FH / 2 + 52
 
   type A = 'user' | 'system' | 'action-required' | 'done' | 'error'
-  interface FN { id: string; label: string; actor: A; x: number; y: number }
+  interface FN {
+    id: string; label: string; sub?: string
+    actor: A; x: number; y: number; small?: boolean
+  }
 
   const COL: Record<A, string> = {
-    user: '#3748FF',
-    system: '#6B6C80',
-    'action-required': '#B45309',
-    done: '#5BB81E',
-    error: '#B91C1C',
+    user: '#3748FF', system: '#6B6C80',
+    'action-required': '#B45309', done: '#5BB81E', error: '#B91C1C',
   }
   const FMBG: Record<A, string> = {
-    user: 'rgba(55,72,255,0.08)',
-    system: 'rgba(107,108,128,0.09)',
-    'action-required': 'rgba(180,83,9,0.09)',
-    done: 'rgba(91,184,30,0.09)',
-    error: 'rgba(185,28,28,0.08)',
+    user: 'rgba(55,72,255,0.07)', system: 'rgba(107,108,128,0.08)',
+    'action-required': 'rgba(180,83,9,0.08)',
+    done: 'rgba(91,184,30,0.08)', error: 'rgba(185,28,28,0.07)',
   }
   const FMAL: Record<A, string> = {
-    user: 'User',
-    system: 'System',
-    'action-required': 'Action req.',
-    done: 'Done',
-    error: 'Terminal',
+    user: 'USER', system: 'SYSTEM',
+    'action-required': 'ACTION', done: 'DONE', error: 'TERMINAL',
   }
 
-  const px = (i: number) => MX + i * STEP
+  const px = (i: number) => MAIN_X + i * STEP
+
+  const entryNodes: FN[] = [
+    { id: 'e0', label: 'Connect Wallet', sub: 'EIP-712 on first use', actor: 'user',   x: 20,  y: ENT_Y },
+    { id: 'e1', label: 'Overview',       sub: 'wallet confirmed',     actor: 'system', x: 130, y: ENT_Y },
+  ]
 
   const sMain: FN[] = [
-    { id: 'si', label: 'Form',        actor: 'user',            x: px(0), y: SY },
-    { id: 's1', label: 'Wallet 1/2',  actor: 'user',            x: px(1), y: SY },
-    { id: 's2', label: 'Wallet 2/2',  actor: 'user',            x: px(2), y: SY },
-    { id: 'ss', label: 'Submitted',   actor: 'system',          x: px(3), y: SY },
-    { id: 'sc', label: 'Confirming',  actor: 'system',          x: px(4), y: SY },
-    { id: 'se', label: 'Encrypting',  actor: 'system',          x: px(5), y: SY },
-    { id: 'sd', label: 'Done',        actor: 'done',            x: px(6), y: SY },
+    { id: 'si', label: 'Form',        sub: 'enter amount',    actor: 'user',   x: px(0), y: SY },
+    { id: 'sp', label: 'Preparing',   sub: '~1s ZKPoK',       actor: 'system', x: px(1), y: SY },
+    { id: 's1', label: 'Wallet 1/2',  sub: 'approve tokens',  actor: 'user',   x: px(2), y: SY },
+    { id: 's2', label: 'Wallet 2/2',  sub: 'execute shield',  actor: 'user',   x: px(3), y: SY },
+    { id: 'ss', label: 'Submitted',   sub: 'broadcast',       actor: 'system', x: px(4), y: SY },
+    { id: 'sc', label: 'Confirming',  sub: '~12-36s',         actor: 'system', x: px(5), y: SY },
+    { id: 'se', label: 'Encrypting',  sub: '~1-3 min',        actor: 'system', x: px(6), y: SY },
+    { id: 'sd', label: 'Done',        actor: 'done',                           x: px(7), y: SY },
   ]
-  const sBranch: FN[] = [
-    { id: 'scx', label: 'Cancelled',  actor: 'error',           x: px(1), y: SBY },
-    { id: 'sfx', label: 'Tx dropped', actor: 'error',           x: px(4), y: SBY },
+
+  const sFail: FN[] = [
+    { id: 'sf1', label: 'Cancelled',  sub: 'step 1',     actor: 'error', x: px(2), y: SFY, small: true },
+    { id: 'sf2', label: 'Cancelled',  sub: 'step 2',     actor: 'error', x: px(3), y: SFY, small: true },
+    { id: 'sf3', label: 'Rejected',   sub: 'network',    actor: 'error', x: px(4), y: SFY, small: true },
+    { id: 'sf4', label: 'Tx dropped', sub: 'low gas',    actor: 'error', x: px(5), y: SFY, small: true },
+    { id: 'sf5', label: 'Enc. failed',sub: 'FHE error',  actor: 'error', x: px(6), y: SFY, small: true },
   ]
+
   const uMain: FN[] = [
-    { id: 'ui', label: 'Form',        actor: 'user',            x: px(0), y: UY },
-    { id: 'u1', label: 'Wallet 1/2',  actor: 'user',            x: px(1), y: UY },
-    { id: 'us', label: 'Submitted',   actor: 'system',          x: px(2), y: UY },
-    { id: 'up', label: 'Proof wait',  actor: 'system',          x: px(3), y: UY },
-    { id: 'ur', label: 'Proof ready', actor: 'action-required', x: px(4), y: UY },
-    { id: 'u2', label: 'Wallet 2/2',  actor: 'user',            x: px(5), y: UY },
-    { id: 'uf', label: 'Releasing',   actor: 'system',          x: px(6), y: UY },
-    { id: 'ud', label: 'Done',        actor: 'done',            x: px(7), y: UY },
-  ]
-  const uBranch: FN[] = [
-    { id: 'ucx', label: 'Cancelled',   actor: 'error',           x: px(1), y: UBY },
-    { id: 'unx', label: 'Interrupted', actor: 'action-required', x: px(3), y: UBY },
+    { id: 'ui', label: 'Form',        sub: 'enter amount',    actor: 'user',             x: px(0), y: UY },
+    { id: 'up', label: 'Preparing',   sub: '~1s ZKPoK',       actor: 'system',           x: px(1), y: UY },
+    { id: 'u1', label: 'Wallet 1/2',  sub: 'unwrap tokens',   actor: 'user',             x: px(2), y: UY },
+    { id: 'us', label: 'Submitted',   sub: 'tokens burned',   actor: 'system',           x: px(3), y: UY },
+    { id: 'uw', label: 'Proof wait',  sub: '~1-2 min',        actor: 'system',           x: px(4), y: UY },
+    { id: 'ur', label: 'Proof ready', sub: 'return required', actor: 'action-required',  x: px(5), y: UY },
+    { id: 'u2', label: 'Wallet 2/2',  sub: 'finalize unwrap', actor: 'user',             x: px(6), y: UY },
+    { id: 'uf', label: 'Releasing',   sub: '~30s',            actor: 'system',           x: px(7), y: UY },
+    { id: 'ud', label: 'Done',        actor: 'done',                                     x: px(8), y: UY },
   ]
 
-  const allNodes = [...sMain, ...sBranch, ...uMain, ...uBranch]
+  const uFail: FN[] = [
+    { id: 'uf1', label: 'Cancelled',    sub: 'step 1',        actor: 'error',           x: px(2), y: UFY, small: true },
+    { id: 'uf2', label: 'Rejected',     sub: 'network',       actor: 'error',           x: px(3), y: UFY, small: true },
+    { id: 'uf3', label: 'Interrupted',  sub: 'user left',     actor: 'action-required', x: px(4), y: UFY, small: true },
+    { id: 'uf4', label: 'Step 2 cancel',sub: 'returns later', actor: 'action-required', x: px(6), y: UFY, small: true },
+  ]
 
-  const link = (a: FN, b: FN) => `M${a.x + NW},${a.y} L${b.x},${b.y}`
+  const allNodes = [...entryNodes, ...sMain, ...sFail, ...uMain, ...uFail]
+
+  const hLink = (a: FN, b: FN) => `M${a.x + NW},${a.y} L${b.x},${b.y}`
 
   const drop = (from: FN, to: FN) => {
     const cx = from.x + NW / 2
     const y1 = from.y + NH / 2
-    const y2 = to.y - NH / 2
+    const y2 = to.y - FH / 2
     return `M${cx},${y1} C${cx},${y1 + 22} ${cx},${y2 - 22} ${cx},${y2}`
   }
 
-  const intNode = uBranch[1]
-  const prdNode = uMain[4]
-  const arcPath = (() => {
-    const x1 = intNode.x + NW / 2
-    const y1 = intNode.y - NH / 2
-    const x2 = prdNode.x + NW / 2
-    const y2 = prdNode.y + NH / 2
+  const entryArc = (to: FN) => {
+    const ov = entryNodes[1]
+    const x1 = ov.x + NW, y1 = ov.y, x2 = to.x, y2 = to.y
+    return `M${x1},${y1} C${x1 + 18},${y1} ${x2 - 10},${y2} ${x2},${y2}`
+  }
+
+  const prdNode = uMain[5]
+  const recArc1 = (() => {
+    const n = uFail[2]
+    const x1 = n.x + FW, y1 = n.y
+    const x2 = prdNode.x + NW / 2, y2 = prdNode.y + NH / 2
+    return `M${x1},${y1} C${x1 + 42},${y1} ${x2 + 28},${y2 + 52} ${x2},${y2}`
+  })()
+  const recArc2 = (() => {
+    const n = uFail[3]
+    const x1 = n.x + FW / 2, y1 = n.y - FH / 2
+    const x2 = prdNode.x + NW / 2, y2 = prdNode.y + NH / 2
     return `M${x1},${y1} C${x1},${y1 - 44} ${x2},${y2 + 44} ${x2},${y2}`
   })()
 
-  const arcLabelX = Math.round((intNode.x + NW / 2 + prdNode.x + NW / 2) / 2) + 18
-  const arcLabelY = Math.round((intNode.y - NH / 2 + prdNode.y + NH / 2) / 2)
+  const INIT_SCALE = 0.72
+  const containerRef = useRef<HTMLDivElement>(null)
+  const scaleRef     = useRef(INIT_SCALE)
+  const txRef        = useRef(0)
+  const tyRef        = useRef(0)
+  const dragRef      = useRef<{ sx: number; sy: number; stx: number; sty: number } | null>(null)
+  const [xform, setXform]           = useState({ tx: 0, ty: 0, scale: INIT_SCALE })
+  const [isDragging, setIsDragging] = useState(false)
 
-  const actorKeys: A[] = ['user', 'system', 'action-required', 'done', 'error']
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const factor = e.deltaY > 0 ? 0.92 : 1.09
+      const next = Math.min(2.5, Math.max(0.3, scaleRef.current * factor))
+      const rect = el.getBoundingClientRect()
+      const mx = e.clientX - rect.left
+      const my = e.clientY - rect.top
+      const ntx = mx - (mx - txRef.current) * (next / scaleRef.current)
+      const nty = my - (my - tyRef.current) * (next / scaleRef.current)
+      scaleRef.current = next; txRef.current = ntx; tyRef.current = nty
+      setXform({ tx: ntx, ty: nty, scale: next })
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [])
+
+  const onPtrDown = (e: React.PointerEvent) => {
+    dragRef.current = { sx: e.clientX, sy: e.clientY, stx: txRef.current, sty: tyRef.current }
+    setIsDragging(true)
+    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  }
+  const onPtrMove = (e: React.PointerEvent) => {
+    if (!dragRef.current) return
+    const ntx = dragRef.current.stx + e.clientX - dragRef.current.sx
+    const nty = dragRef.current.sty + e.clientY - dragRef.current.sy
+    txRef.current = ntx; tyRef.current = nty
+    setXform(x => ({ ...x, tx: ntx, ty: nty }))
+  }
+  const onPtrUp = () => { dragRef.current = null; setIsDragging(false) }
 
   return (
     <div>
-      <div style={{ position: 'relative', width: CANVAS_W, height: CANVAS_H }}>
+      <div
+        ref={containerRef}
+        onPointerDown={onPtrDown}
+        onPointerMove={onPtrMove}
+        onPointerUp={onPtrUp}
+        onPointerLeave={onPtrUp}
+        style={{
+          width: '100%', height: 520, overflow: 'hidden',
+          cursor: isDragging ? 'grabbing' : 'grab',
+          background: 'var(--color-surface-raised)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          position: 'relative', userSelect: 'none',
+        }}
+      >
+        <div style={{ position: 'absolute', bottom: 12, right: 12, zIndex: 10, display: 'flex', gap: 4, alignItems: 'center' }}>
+          <span style={{ fontSize: 10, color: 'var(--color-text-secondary)', marginRight: 6, fontVariantNumeric: 'tabular-nums', fontFamily: 'Manrope, sans-serif' }}>
+            {Math.round(xform.scale * 100)}%
+          </span>
+          {([
+            ['+', () => { const n = Math.min(2.5, scaleRef.current * 1.2); scaleRef.current = n; setXform(x => ({ ...x, scale: n })) }],
+            ['-', () => { const n = Math.max(0.3, scaleRef.current / 1.2); scaleRef.current = n; setXform(x => ({ ...x, scale: n })) }],
+            ['reset', () => { scaleRef.current = INIT_SCALE; txRef.current = 0; tyRef.current = 0; setXform({ tx: 0, ty: 0, scale: INIT_SCALE }) }],
+          ] as [string, () => void][]).map(([lbl, fn]) => (
+            <button key={lbl} onClick={fn} style={{
+              padding: '0 8px', height: 26,
+              border: '1px solid var(--color-border)',
+              borderRadius: 5, background: 'var(--color-surface)',
+              fontSize: 11, fontWeight: 600,
+              color: 'var(--color-text-secondary)',
+              cursor: 'pointer', fontFamily: 'Manrope, sans-serif',
+            }}>{lbl}</button>
+          ))}
+        </div>
+
+        <div style={{ position: 'absolute', top: 10, right: 14, fontSize: 9, color: 'var(--color-text-secondary)', letterSpacing: '0.05em', fontFamily: 'Manrope, sans-serif', opacity: 0.55 }}>
+          scroll to zoom | drag to pan
+        </div>
 
         <div style={{
-          position: 'absolute', left: 0, right: 0, top: SEP_Y, height: 1,
-          background: 'var(--color-border)', opacity: 0.4,
-        }} />
+          position: 'absolute', top: 0, left: 0,
+          transformOrigin: '0 0',
+          transform: `translate(${xform.tx}px,${xform.ty}px) scale(${xform.scale})`,
+          width: CANVAS_W, height: CANVAS_H,
+        }}>
+          <svg width={CANVAS_W} height={CANVAS_H}
+            style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', overflow: 'visible' }}
+          >
+            <defs>
+              <marker id="fmz-a" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                <polygon points="0 0, 8 3, 0 6" fill="var(--color-border)" />
+              </marker>
+              <marker id="fmz-e" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+                <polygon points="0 0, 6 2.5, 0 5" fill="#B91C1C" />
+              </marker>
+              <marker id="fmz-w" markerWidth="6" markerHeight="5" refX="5" refY="2.5" orient="auto">
+                <polygon points="0 0, 6 2.5, 0 5" fill="#B45309" />
+              </marker>
+            </defs>
 
-        {[
-          { label: 'Shield',   topY: SY - NH / 2 - 22, color: '#3748FF' },
-          { label: 'Unshield', topY: UY - NH / 2 - 22, color: '#B45309' },
-        ].map(({ label, topY, color }) => (
-          <div key={label} style={{
-            position: 'absolute', left: MX, top: topY,
-            fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color,
-            display: 'flex', alignItems: 'center', gap: '7px',
-          }}>
-            <span style={{ width: 14, height: 2, background: color, display: 'inline-block', borderRadius: 1 }} />
-            {label}
-          </div>
-        ))}
+            <path d={hLink(entryNodes[0], entryNodes[1])} stroke="var(--color-border)" strokeWidth="1.5" fill="none" markerEnd="url(#fmz-a)" />
+            <path d={entryArc(sMain[0])} stroke="var(--color-border)" strokeWidth="1.5" fill="none" markerEnd="url(#fmz-a)" />
+            <path d={entryArc(uMain[0])} stroke="var(--color-border)" strokeWidth="1.5" fill="none" markerEnd="url(#fmz-a)" />
 
-        <svg
-          width={CANVAS_W} height={CANVAS_H}
-          style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', overflow: 'visible' }}
-        >
-          <defs>
-            <marker id="fm-a" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-              <polygon points="0 0, 8 3, 0 6" fill="var(--color-border)" />
-            </marker>
-            <marker id="fm-e" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-              <polygon points="0 0, 8 3, 0 6" fill="#B91C1C" />
-            </marker>
-            <marker id="fm-w" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-              <polygon points="0 0, 8 3, 0 6" fill="#B45309" />
-            </marker>
-          </defs>
+            {sMain.slice(0, -1).map((n, i) => (
+              <path key={`sm${i}`} d={hLink(n, sMain[i + 1])} stroke="var(--color-border)" strokeWidth="2" fill="none" markerEnd="url(#fmz-a)" />
+            ))}
+            {uMain.slice(0, -1).map((n, i) => (
+              <path key={`um${i}`} d={hLink(n, uMain[i + 1])} stroke="var(--color-border)" strokeWidth="2" fill="none" markerEnd="url(#fmz-a)" />
+            ))}
 
-          {sMain.slice(0, -1).map((n, i) => (
-            <path key={`sa${i}`} d={link(n, sMain[i + 1])} stroke="var(--color-border)" strokeWidth="1.5" fill="none" markerEnd="url(#fm-a)" />
-          ))}
-          {uMain.slice(0, -1).map((n, i) => (
-            <path key={`ua${i}`} d={link(n, uMain[i + 1])} stroke="var(--color-border)" strokeWidth="1.5" fill="none" markerEnd="url(#fm-a)" />
-          ))}
+            {([
+              [sMain[2], sFail[0]], [sMain[3], sFail[1]],
+              [sMain[4], sFail[2]], [sMain[5], sFail[3]], [sMain[6], sFail[4]],
+            ] as [FN, FN][]).map(([f, t], i) => (
+              <path key={`sd${i}`} d={drop(f, t)} stroke="#B91C1C" strokeWidth="1" fill="none" strokeDasharray="4,3" opacity={0.38} markerEnd="url(#fmz-e)" />
+            ))}
+            {([
+              [uMain[2], uFail[0], false], [uMain[3], uFail[1], false],
+              [uMain[4], uFail[2], true],  [uMain[6], uFail[3], true],
+            ] as [FN, FN, boolean][]).map(([f, t, warn], i) => (
+              <path key={`ud${i}`} d={drop(f, t)} stroke={warn ? '#B45309' : '#B91C1C'} strokeWidth="1" fill="none" strokeDasharray="4,3" opacity={0.38} markerEnd={warn ? 'url(#fmz-w)' : 'url(#fmz-e)'} />
+            ))}
 
-          <path d={drop(sMain[1], sBranch[0])} stroke="#B91C1C" strokeWidth="1.5" fill="none" strokeDasharray="5,4" markerEnd="url(#fm-e)" />
-          <path d={drop(sMain[4], sBranch[1])} stroke="#B91C1C" strokeWidth="1.5" fill="none" strokeDasharray="5,4" markerEnd="url(#fm-e)" />
-          <path d={drop(uMain[1], uBranch[0])} stroke="#B91C1C" strokeWidth="1.5" fill="none" strokeDasharray="5,4" markerEnd="url(#fm-e)" />
-          <path d={drop(uMain[3], uBranch[1])} stroke="#B45309" strokeWidth="1.5" fill="none" strokeDasharray="5,4" markerEnd="url(#fm-w)" />
-          <path d={arcPath} stroke="#B45309" strokeWidth="1.5" fill="none" strokeDasharray="5,4" markerEnd="url(#fm-w)" />
+            <path d={recArc1} stroke="#B45309" strokeWidth="1.5" fill="none" strokeDasharray="5,4" opacity={0.8} markerEnd="url(#fmz-w)" />
+            <path d={recArc2} stroke="#B45309" strokeWidth="1.5" fill="none" strokeDasharray="5,4" opacity={0.8} markerEnd="url(#fmz-w)" />
 
-          <text x={arcLabelX} y={arcLabelY} fontSize="9" fill="#B45309" fontFamily="Manrope, sans-serif" fontWeight="700" textAnchor="middle">
-            user returns
-          </text>
-        </svg>
+            <text x={uFail[2].x + FW + 54} y={UFY - 26} style={{ fontSize: 9, fill: '#B45309', fontFamily: 'Manrope, sans-serif', fontWeight: 700 }}>user returns</text>
+            <text x={uFail[3].x + FW / 2} y={UFY - 50} style={{ fontSize: 9, fill: '#B45309', fontFamily: 'Manrope, sans-serif', fontWeight: 700, textAnchor: 'middle' }}>retry step 2</text>
 
-        {allNodes.map(node => (
-          <div key={node.id} style={{
-            position: 'absolute',
-            left: node.x, top: node.y - NH / 2,
-            width: NW, height: NH,
-            background: FMBG[node.actor],
-            border: `1.5px solid ${COL[node.actor]}38`,
-            borderRadius: '8px',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            gap: '4px', boxSizing: 'border-box',
-          }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-primary)', textAlign: 'center', lineHeight: 1.2 }}>
-              {node.label}
-            </span>
-            <span style={{ fontSize: '9px', fontWeight: 700, color: COL[node.actor], textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              {FMAL[node.actor]}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div style={{
-        display: 'flex', gap: '20px', flexWrap: 'wrap',
-        marginTop: '20px', paddingTop: '14px', borderTop: '1px solid var(--color-border)',
-      }}>
-        {actorKeys.map(actor => (
-          <div key={actor} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <div style={{ width: 10, height: 10, borderRadius: '3px', background: FMBG[actor], border: `1.5px solid ${COL[actor]}38` }} />
-            <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>{FMAL[actor]}</span>
-          </div>
-        ))}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <svg width="20" height="12" style={{ display: 'block' }}>
-            <line x1="0" y1="6" x2="20" y2="6" stroke="var(--color-border)" strokeWidth="1.5" strokeDasharray="4,3" />
+            <line x1={16} y1={SEP} x2={CANVAS_W - 16} y2={SEP} stroke="var(--color-border)" strokeWidth="1" opacity={0.28} />
+            <text x={20} y={ENT_Y - NH / 2 - 14} style={{ fontSize: 9, fill: 'var(--color-text-secondary)', fontFamily: 'Manrope, sans-serif', fontWeight: 700 }}>ENTRY</text>
           </svg>
-          <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Failure / branch</span>
+
+          {[
+            { label: 'SHIELD',   top: SY - NH / 2 - 22,  color: '#3748FF' },
+            { label: 'UNSHIELD', top: UY - NH / 2 - 22,  color: '#B45309' },
+          ].map(({ label, top, color }) => (
+            <div key={label} style={{
+              position: 'absolute', left: MAIN_X, top,
+              fontSize: 10, fontWeight: 800, textTransform: 'uppercase',
+              letterSpacing: '0.1em', color,
+              display: 'flex', alignItems: 'center', gap: 7,
+              fontFamily: 'Manrope, sans-serif',
+            }}>
+              <span style={{ width: 14, height: 2, background: color, display: 'inline-block', borderRadius: 1 }} />
+              {label}
+            </div>
+          ))}
+
+          {allNodes.map(node => {
+            const w = node.small ? FW : NW
+            const h = node.small ? FH : NH
+            const col = COL[node.actor]
+            return (
+              <div key={node.id} style={{
+                position: 'absolute',
+                left: node.x, top: node.y - h / 2,
+                width: w, height: h,
+                background: FMBG[node.actor],
+                border: `1px solid ${col}${node.small ? '28' : '3C'}`,
+                borderRadius: 6,
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: 2, boxSizing: 'border-box',
+                opacity: node.small ? 0.7 : 1,
+                fontFamily: 'Manrope, sans-serif',
+              }}>
+                <span style={{
+                  fontSize: node.small ? 9 : 11,
+                  fontWeight: node.actor === 'system' ? 500 : 700,
+                  color: 'var(--color-text-primary)',
+                  textAlign: 'center', lineHeight: 1.15,
+                  padding: '0 4px',
+                }}>{node.label}</span>
+                {node.sub && (
+                  <span style={{
+                    fontSize: 7.5,
+                    color: node.small ? col : 'var(--color-text-secondary)',
+                    textAlign: 'center', lineHeight: 1.1,
+                    padding: '0 4px',
+                  }}>{node.sub}</span>
+                )}
+                <span style={{
+                  fontSize: 7, fontWeight: 800, color: col,
+                  textTransform: 'uppercase', letterSpacing: '0.06em',
+                }}>{FMAL[node.actor]}</span>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
@@ -581,11 +699,21 @@ export function UseCase() {
           </p>
         </div>
 
-        {/* 01 - User Goal & Assumptions */}
-        <UCSection id="user-goal" num="01" title="User Goal & Assumptions">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
-            <div style={{ background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '24px' }}>
-              <Label>Who they are</Label>
+        {/* 01 - User Goal */}
+        <UCSection id="user-goal" num="01" title="User Goal">
+          {/* 2-column grid: left stacked cards + right full-height image */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '52% 48%',
+            gridTemplateRows: '1fr 1fr',
+            height: '476px',
+            border: '1px solid var(--color-border)',
+            borderRadius: '6px',
+            overflow: 'hidden',
+            marginBottom: '40px',
+          }}>
+            <div style={{ padding: '24px', background: 'var(--color-surface-raised)', borderBottom: '1px solid var(--color-border)', borderRight: '1px solid var(--color-border)', overflow: 'hidden' }}>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.277em', lineHeight: 1.18, marginBottom: '16px' }}>Who the User is</div>
               <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.8 }}>
                 <li>Crypto-native, basic-to-intermediate DeFi experience</li>
                 <li>Understands wallets, gas fees, and transaction states</li>
@@ -593,37 +721,45 @@ export function UseCase() {
                 <li>Risk-sensitive - first time in a new financial system</li>
               </ul>
             </div>
-            <div style={{ background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '24px' }}>
-              <Label>Primary goal</Label>
-              <p style={{ margin: '0 0 16px', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
+            <div style={{ gridRow: '1 / 3', borderLeft: '1px solid var(--color-border)', overflow: 'hidden' }}>
+              <img src="/images/usecase-section01-photo-30671d.png" alt="User context" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            </div>
+            <div style={{ padding: '24px', background: 'var(--color-surface-raised)', borderTop: '1px solid var(--color-border)', overflow: 'hidden' }}>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.277em', lineHeight: 1.18, marginBottom: '8px' }}>Primary goal</div>
+              <p style={{ margin: '0 0 15px', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
                 Move a specific amount from their public balance into a shielded balance - then use that shielded balance for a subsequent action.
               </p>
-              <Label>Implicit goal</Label>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: '#C3B827', textTransform: 'uppercase', letterSpacing: '0.277em', lineHeight: 1.18, marginBottom: '8px' }}>Implicit goal</div>
               <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
                 Not lose funds, not get stuck, not need support.
               </p>
             </div>
           </div>
 
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>1.1</span>
+            <h3 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>User Assumptions</h3>
+          </div>
+
           <UCTable
             headers={['Concept', 'Assumed knowledge', 'Design implication']}
             rows={[
               ['Wallet confirmations', 'Knows how to connect and sign', 'Pre-declare each wallet interaction before popup appears'],
-              ['Transaction fees', 'Knows gas exists and varies', 'Show fee estimate upfront; high-gas warning if >2× typical'],
+              ['Transaction fees', 'Knows gas exists and varies', 'Show fee estimate upfront; high-gas warning if >2x typical'],
               ['Two balances', 'Does NOT understand why', 'Explain briefly on first encounter; always label both clearly'],
               ['FHE / encryption', 'Has no concept of it', 'Never mention it. Use "shielded" as the only vocabulary'],
-              ['Confirmed ≠ done', 'Assumes confirmed = complete', 'Explicitly bridge: "confirmed on-chain, encrypting now (~1 min)"'],
+              ['Confirmed not done', 'Assumes confirmed = complete', 'Explicitly bridge: "confirmed on-chain, encrypting now (~1 min)"'],
               ['Intermediate Unshield state', 'Does not exist in their mental model', '"Funds not released yet" - explicit note on shielded balance decrease'],
             ]}
           />
 
-          <div style={{ background: 'var(--color-midnight)', borderRadius: 'var(--radius-lg)', padding: '24px 28px', marginBottom: '24px' }}>
+          <div style={{ background: 'var(--color-midnight)', borderRadius: 'var(--radius-lg)', padding: '40px 28px 24px', marginBottom: '24px' }}>
             <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.4)', marginBottom: '12px' }}>Target mental model</div>
             <blockquote style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#fff', lineHeight: 1.6, letterSpacing: '-0.01em' }}>
-              "I initiated an operation. It's in progress. The system is handling it. I can check back later. My funds are safe."
+              {"\"I initiated an operation. It's in progress. The system is handling it. I can check back later. My funds are safe.\""}
             </blockquote>
             <div style={{ marginTop: '12px', fontSize: '13px', color: 'rgba(255,255,255,0.45)' }}>
-              Not: "I clicked something and now I don't know if it worked."
+              {"Not: \"I clicked something and now I don't know if it worked.\""}
             </div>
           </div>
         </UCSection>
@@ -642,27 +778,16 @@ export function UseCase() {
           description="All financial operations live in the right panel. The left column is always the information layer. The right panel is always the action layer.">
 
           <Label>3-zone layout</Label>
-          <div style={{ background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '24px', marginBottom: '28px', fontFamily: 'monospace', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.8, overflowX: 'auto' }}>
-            <pre style={{ margin: 0 }}>{'┌──────────────┬──────────────────────────────────┬─────────────────────┐\n│   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Sidebar</strong>{'    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Left column</strong>{'                    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Right panel</strong>{'       │\n│   Navigation │   Balance cards                  │   Transaction       │\n│              │   Wallet                         │   widget            │\n│              │   Activity feed                  │   All ops live here │\n│              │   ← InfoBar       │                     │\n└──────────────┴──────────────────────────────────┴─────────────────────┘'}</pre>
+          <div style={{ background: '#FFFFFF', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '33px 28px 25px 25px', marginBottom: '28px', fontFamily: 'monospace', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.8, overflowX: 'auto' }}>
+            <pre style={{ margin: 0 }}>{'┌──────────────┬──────────────────────────────────┬─────────────────────┐\n│   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Sidebar</strong>{'    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Left column</strong>{'                    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Right panel</strong>{'       │\n│   Navigation │   Wallet                         │   Transaction       │\n│              │   Balance cards                  │   widget            │\n│              │   Activity feed                  │   All ops live here │\n├──────────────┴────────────────── InfoBar ────────┴─────────────────────┤\n└─────────────────────────────────────────────────────────────────────────┘'}</pre>
           </div>
 
-          <Label>Left column overlay - communicates urgency</Label>
-          <UCTable
-            headers={['Situation', 'Overlay intensity', 'Signal']}
-            rows={[
-              ['Wallet confirmation required',     '50%', 'Immediate action - check your wallet now'],
-              ['Proof ready (Unshield Step 2)',     '50%', 'Immediate action - funds will not release until you act'],
-              ['System processing (no user action)', '30%', 'Background - you can leave, nothing to do'],
-              ['Operation resolved',                '0%',  'Full context restored, operation complete'],
-            ]}
-          />
-
-          <Label>InfoBar - cross-page operation visibility</Label>
+          <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.327em', lineHeight: 1, marginBottom: '16px', fontFamily: 'Manrope, sans-serif' }}>InfoBar - cross-page operation visibility</div>
           <ProseBlock>
             The banner persists in the layout on every route for all non-idle operation states - including in-progress, completed, failed, and cancelled. A newer operation always overrides the previous one. This means the user can initiate a transaction and walk away: when they return, the banner shows exactly what happened. Completed, failed, and cancelled states stay visible until the user explicitly dismisses them.
           </ProseBlock>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '600px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {([
               { phase: 'processing' as OperationPhase,      op: 'shield'   as OperationType, label: 'Processing state' },
               { phase: 'finalizing' as OperationPhase,      op: 'shield'   as OperationType, label: 'Finalizing state' },
@@ -783,7 +908,7 @@ export function UseCase() {
         <UCSection id="content-design" num="05" title="Content Design"
           description="Copy is the primary trust mechanism. Every state must answer three questions - and answer them in the right order.">
 
-          <div style={{ background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '24px', marginBottom: '32px' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '24px', marginBottom: '32px' }}>
             <Label>The 3-question rule - every status state must answer:</Label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[
@@ -804,20 +929,20 @@ export function UseCase() {
 
           <Label>Copy contrast - the Encrypting state</Label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
-            <div style={{ background: 'rgba(185,28,28,0.04)', border: '1px solid rgba(185,28,28,0.2)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
+            <div style={{ background: 'rgba(185,28,28,0.04)', border: '1px solid rgba(185,28,28,0.2)', borderRadius: '8px', padding: '16px' }}>
               <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-error)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>Before</div>
               <code style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.7, display: 'block' }}>
-                Transaction confirmed ✓<br />
+                Transaction confirmed<br />
                 [spinner]
               </code>
               <div style={{ marginTop: '10px', fontSize: '12px', color: 'var(--color-error)' }}>Fails all 3 questions. User opens Etherscan, sees "Success", refreshes, finds balance unchanged, assumes loss.</div>
             </div>
-            <div style={{ background: 'rgba(91,184,30,0.04)', border: '1px solid rgba(91,184,30,0.2)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
+            <div style={{ background: 'rgba(91,184,30,0.04)', border: '1px solid rgba(91,184,30,0.2)', borderRadius: '8px', padding: '16px' }}>
               <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-success)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>After</div>
               <code style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.7, display: 'block' }}>
                 Encrypting your balance<br />
                 Your transaction is confirmed on-chain.<br />
-                We're now encrypting your shielded<br />
+                {"We're"} now encrypting your shielded<br />
                 balance - ~1 min. Your funds are safe.<br />
                 You can close this tab.
               </code>
@@ -840,11 +965,27 @@ export function UseCase() {
               ['Burn/mint in confirmation prose', 'Burn/mint in phase labels or status headings', '"This step removes your cETH from the shielded balance - once the proof is ready, the equivalent ETH is released." Belongs in body copy, never in a progress node label.'],
             ]}
           />
+
+          <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.327em', lineHeight: 1, marginTop: '8px', marginBottom: '16px', fontFamily: 'Manrope, sans-serif' }}>Phase label vocabulary - aligned across three surfaces</div>
+          <ProseBlock>
+            The same root word appears in the PhaseIndicatorVertical during the operation, the success timeline afterwards, and the Etherscan row labels in the Details tab. A user who watches "Shield" on the progress bar will see "Submitted & confirmed" in the timeline and "Shield" on the Etherscan link - the same event, named consistently.
+          </ProseBlock>
+          <UCTable
+            headers={['Operation', 'PhaseIndicatorVertical node', 'Success timeline', 'Etherscan row label']}
+            rows={[
+              ['Shield',   'Authorize',  'Authorized',            'Authorization'],
+              ['Shield',   'Shield',     'Submitted & confirmed', 'Shield'],
+              ['Shield',   'Encrypting', 'Balance encrypted',     '-'],
+              ['Unshield', 'Unshield',   'Unshield initiated',    'Unshield'],
+              ['Unshield', 'Confirming', 'Confirmed on-chain',    '-'],
+              ['Unshield', 'Releasing',  'Released to public balance', 'Release'],
+            ]}
+          />
         </UCSection>
 
         {/* 06 - Design System */}
         <UCSection id="design-system" num="06" title="Design System Implications"
-          description="3 operation types × 13 phases = 39 possible panel states. One architecture handles all of them.">
+          description="3 operation types x 13 phases = 39 possible panel states. One architecture handles all of them.">
 
           <Callout tone="success">
             <strong style={{ color: 'var(--color-text-primary)' }}>The scaling principle:</strong> Adding a new operation type (private swap, private staking) requires exactly two things: a new idle form and updated copy per phase. Zero new components needed.
@@ -875,25 +1016,6 @@ export function UseCase() {
             ))}
           </div>
 
-          <Label>Phase label vocabulary - aligned across three surfaces</Label>
-          <ProseBlock>
-            The same root word appears in the PhaseIndicatorVertical during the operation, the success timeline afterwards, and the Etherscan row labels in the Details tab. A user who watches "Shield" on the progress bar will see "Submitted & confirmed" in the timeline and "Shield" on the Etherscan link - the same event, named consistently.
-          </ProseBlock>
-          <UCTable
-            headers={['Operation', 'PhaseIndicatorVertical node', 'Success timeline', 'Etherscan row label']}
-            rows={[
-              ['Shield',   'Authorize',  'Authorized',            'Authorization'],
-              ['Shield',   'Shield',     'Submitted & confirmed', 'Shield'],
-              ['Shield',   'Encrypting', 'Balance encrypted',     '-'],
-              ['Unshield', 'Unshield',   'Unshield initiated',    'Unshield'],
-              ['Unshield', 'Confirming', 'Confirmed on-chain',    '-'],
-              ['Unshield', 'Releasing',  'Released to public balance', 'Release'],
-            ]}
-          />
-          <Callout tone="warning">
-            <strong style={{ color: 'var(--color-text-primary)' }}>Why not "Burn" / "Mint" as phase nodes?</strong> Technically, unshielding burns the cToken and shielding mints one. But "Burn" in a phase label triggers fund-loss anxiety even in experienced DeFi users - the word implies destruction while funds are in flight. "Mint" is an ERC-20 implementation detail that adds jargon without adding trust. Both concepts belong in the wallet confirmation body copy (WalletConfirmView InfoBox), where they have context and are surrounded by fund-safety language. They do not belong in a 4-node progress bar.
-          </Callout>
-
           <Label>StatusBadge - operation states</Label>
           <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '8px' }}>
             {(['processing', 'action-required', 'success', 'cancelled', 'failed'] as const).map(v => (
@@ -906,7 +1028,7 @@ export function UseCase() {
         <UCSection id="risks" num="07" title="Risks & Trade-offs"
           description="The design decisions that matter most are the ones that prevent real user harm - panic, abandonment, and misinterpreted fund states.">
 
-          <Label>Top confusion points - ranked by likelihood × impact</Label>
+          <Label>Top confusion points - ranked by likelihood x impact</Label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
             {[
               { risk: 'Shielded balance shows 0 after Etherscan says "Success"', mitigation: 'The finalizing state explicitly names this gap. Never say "Confirmed" until balance is updated.' },
@@ -934,7 +1056,7 @@ export function UseCase() {
               title: 'Transparency vs cognitive load',
               decision: 'Default to high-level status. Surface technical details (tx hash, block number) as optional secondary elements.',
               risk: 'Advanced users may not trust a system that hides details.',
-              mitigation: '"View on Etherscan →" always available. Never hidden - just deprioritized.',
+              mitigation: '"View on Etherscan" always available. Never hidden - just deprioritized.',
             },
             {
               title: 'Persistent banner vs clean UI',
@@ -944,7 +1066,7 @@ export function UseCase() {
             },
             {
               title: 'Time estimates vs accuracy',
-              decision: 'Show estimates with ~ prefix and ranges. If actual time exceeds estimate by 2×, update copy.',
+              decision: 'Show estimates with ~ prefix and ranges. If actual time exceeds estimate by 2x, update copy.',
               risk: 'Blockchain times are variable. A wrong estimate increases anxiety.',
               mitigation: '"Taking longer than expected - still processing. Your funds are safe." updates automatically.',
             },
@@ -1045,14 +1167,14 @@ act, or whether leaving is safe.`}
 
           <RuleCard
             num="6 - FHE-specific"
-            rule='The finalizing phase (FHE encryption after on-chain confirmation) must be communicated as distinct from "transaction confirmed." Never show "Confirmed" or "Complete" until the shielded balance is actually updated.'
-            why='Crypto users interpret "transaction confirmed" as "operation complete." In FHE-based systems, on-chain confirmation triggers an additional encryption step that takes 1–3 minutes. If the UI shows "confirmed" before the shielded balance is ready, users will try to use it, find it empty, and assume a loss.'
+            rule={'The finalizing phase (FHE encryption after on-chain confirmation) must be communicated as distinct from "transaction confirmed." Never show "Confirmed" or "Complete" until the shielded balance is actually updated.'}
+            why={'Crypto users interpret "transaction confirmed" as "operation complete." In FHE-based systems, on-chain confirmation triggers an additional encryption step that takes 1-3 minutes. If the UI shows "confirmed" before the shielded balance is ready, users will try to use it, find it empty, and assume a loss.'}
             correct={`Phase label: "Encrypting your balance"
 
 "Your transaction is confirmed on the network.
 We're now applying encryption to your shielded
 balance - ~1 minute. You can close this tab."`}
-            incorrect={`Phase label: "Confirmed ✓"
+            incorrect={`Phase label: "Confirmed"
 
 (shielded balance not yet updated)
 
@@ -1062,8 +1184,8 @@ checks shielded balance: 0. Assumes loss.`}
 
           <RuleCard
             num="Filter copy"
-            rule='Active filter states must communicate scope exclusivity - use "Only [Category]" not just "[Category]" when a view is narrowed.'
-            why='A trigger label that only reads "Shielded" is ambiguous - it looks identical to a column header or a status badge. "Only Shielded" unambiguously signals that the view is a subset, that other items exist but are hidden, and that clearing the filter restores the full list. Without "Only", users may interpret a filtered empty state as a data error rather than an intentional scope restriction.'
+            rule={'Active filter states must communicate scope exclusivity - use "Only [Category]" not just "[Category]" when a view is narrowed.'}
+            why={'A trigger label that only reads "Shielded" is ambiguous - it looks identical to a column header or a status badge. "Only Shielded" unambiguously signals that the view is a subset, that other items exist but are hidden, and that clearing the filter restores the full list. Without "Only", users may interpret a filtered empty state as a data error rather than an intentional scope restriction.'}
             correct={`Filter trigger (active): "Only Shielded"
 Filter trigger (active): "Only Unshielded"
 Filter trigger (default): icon only - no label
@@ -1079,8 +1201,8 @@ is filtered or just labeled.`}
 
           <RuleCard
             num="On-chain vocabulary"
-            rule={"Phase labels name the user's experience, not the on-chain mechanism. Never use \"Burn\" or \"Mint\" as phase labels."}
-            why='"Burn" sounds like destruction of funds. Even experienced DeFi users feel anxiety seeing it as a named phase while their transaction is in flight. "Mint" is an ERC-20 implementation detail that adds jargon without adding trust. The fact that unshielding burns the cToken and that shielding mints one is technically accurate - but it belongs in wallet confirmation prose, where it has context and is surrounded by fund-safety copy. A 4-node progress bar has neither the space nor the context to make "Burn" feel safe.'
+            rule={'Phase labels name the user\'s experience, not the on-chain mechanism. Never use "Burn" or "Mint" as phase labels.'}
+            why={'"Burn" sounds like destruction of funds. Even experienced DeFi users feel anxiety seeing it as a named phase while their transaction is in flight. "Mint" is an ERC-20 implementation detail that adds jargon without adding trust. The fact that unshielding burns the cToken and that shielding mints one is technically accurate - but it belongs in wallet confirmation prose, where it has context and is surrounded by fund-safety copy. A 4-node progress bar has neither the space nor the context to make "Burn" feel safe.'}
             correct={`PhaseIndicatorVertical: Unshield → Confirming → Releasing → Done
 
 WalletConfirmView body copy:
