@@ -7,6 +7,7 @@ import { NavigationWarning } from './NavigationWarning'
 import { LeftColumnOverlay } from './LeftColumnOverlay'
 import { useOperation } from '../hooks/useOperation'
 import { DrawerContext, useDrawerState } from '../context/DrawerContext'
+import { Footer } from './Footer'
 import type { OperationPhase } from '../types/operation'
 
 
@@ -326,6 +327,7 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
 
           <div style={{ flex: 1, position: 'relative', overflowY: 'auto' }}>
             {children}
+            <Footer />
             <LeftColumnOverlay intensity={drawerOpen ? overlayIntensity : 0} />
           </div>
         </div>

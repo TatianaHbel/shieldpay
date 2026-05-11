@@ -5,6 +5,7 @@ import { Connect } from './pages/Connect'
 import { Overview } from './pages/Overview'
 import { DesignSystem } from './pages/DesignSystem'
 import { UseCase } from './pages/UseCase'
+import { Calibrate } from './pages/Calibrate'
 
 const MOCK_PUBLIC_BALANCE = '1.24'
 const MOCK_SHIELDED_BALANCE = '0.50'
@@ -44,6 +45,14 @@ function AppWithShell({ publicBalance, shieldedBalance, onDisconnect }: { public
         element={
           <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} hideRightPanel>
             <UseCase />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/calibrate"
+        element={
+          <AppShell publicBalance={publicBalance} shieldedBalance={shieldedBalance} hideRightPanel>
+            <Calibrate />
           </AppShell>
         }
       />

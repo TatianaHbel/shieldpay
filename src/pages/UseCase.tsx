@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { User, Cpu, CheckCircle, AlertTriangle, Zap } from 'lucide-react'
 import { RightPanel } from '../components/RightPanel'
 import { InfoBar } from '../components/InfoBar'
+import { useCalibration, CalibrationHandle, CalibrationSpacer } from '../context/CalibrationContext'
 import type { OperationPhase, OperationType } from '../types/operation'
 import type { DrawerAction } from '../context/DrawerContext'
 
@@ -69,21 +70,67 @@ const ACTOR_CONFIG: Record<Actor, { label: string; Icon: React.ElementType; bg: 
 function UCSection({ id, num, title, description, children }: {
   id: string; num: string; title: string; description?: string; children: React.ReactNode
 }) {
+  const cal = useCalibration()
+  const idx = parseInt(num, 10) - 1
+
+  const header = (
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+      <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>{num}</span>
+      <h2 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+        {title}
+      </h2>
+    </div>
+  )
+
+  const SECTION_MB: Record<string, number> = {
+    '01': 120, '02': 136, '03': 140, '04': 184,
+    '05': 136, '06': 100, '07': 132, '08': 136, '09': 0,
+  }
+
+  if (!cal.active) {
+    return (
+      <section id={id} style={{ marginBottom: `${SECTION_MB[num] ?? 100}px`, scrollMarginTop: '32px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '40px' }}>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>{num}</span>
+          <h2 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+            {title}
+          </h2>
+        </div>
+        {description && (
+          <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', margin: '0 0 92px', lineHeight: 1.7 }}>
+            {description}
+          </p>
+        )}
+        {children}
+      </section>
+    )
+  }
+
   return (
-    <section id={id} style={{ marginBottom: '96px', scrollMarginTop: '32px' }}>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
-        <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>{num}</span>
-        <h2 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-          {title}
-        </h2>
-      </div>
-      {description && (
-        <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', margin: '0 0 36px', lineHeight: 1.7 }}>
-          {description}
-        </p>
+    <>
+      <section id={id} style={{ scrollMarginTop: '32px' }}>
+        {header}
+        <CalibrationHandle
+          target={{ kind: 'title' }}
+          label={description ? 'title -> desc' : 'title -> content'}
+        />
+        {description && (
+          <>
+            <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.7 }}>
+              {description}
+            </p>
+            <CalibrationHandle target={{ kind: 'desc' }} label="desc -> content" />
+          </>
+        )}
+        {children}
+      </section>
+      {idx < 8 && (
+        <CalibrationHandle
+          target={{ kind: 'section', index: idx }}
+          label={`section gap -> ${String(idx + 2).padStart(2, '0')}`}
+        />
       )}
-      {children}
-    </section>
+    </>
   )
 }
 
@@ -691,7 +738,6 @@ function DSBento() {
       background: '#F5F6FC',
       borderRadius: 12,
       overflow: 'hidden',
-      marginBottom: 40,
       width: '100%',
     }}>
 
@@ -800,7 +846,12 @@ export function UseCase() {
       {/* Hero */}
       <div style={{ padding: '88px 72px 80px', background: 'var(--color-surface-raised)', borderBottom: '1px solid var(--color-border)' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-secondary)' }}>Zama · UX Design Challenge</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-secondary)' }}>Zama · UX Design Challenge</span>
+            <span style={{ fontSize: '12px', fontWeight: 500, letterSpacing: '0.04em', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-ui)' }}>
+              Designed + Coded with ♥ by Tatiana Hern&#225;ndez
+            </span>
+          </div>
           <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 800, color: 'var(--color-text-primary)', letterSpacing: '-0.0375em', lineHeight: '44px' }}>
             Design how a human trusts a system they cannot see.
           </h1>
@@ -825,7 +876,6 @@ export function UseCase() {
             border: '1px solid var(--color-border)',
             borderRadius: '6px',
             overflow: 'hidden',
-            marginBottom: '40px',
           }}>
             <div style={{ padding: '24px', background: 'var(--color-surface-raised)', borderBottom: '1px solid var(--color-border)', borderRight: '1px solid var(--color-border)', overflow: 'hidden' }}>
               <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.277em', lineHeight: 1.18, marginBottom: '16px' }}>Who the User is</div>
@@ -851,6 +901,7 @@ export function UseCase() {
             </div>
           </div>
 
+          <CalibrationSpacer defaultPx={80} target={{ kind: 'custom', key: 's01-user-assumptions' }} label="card -> 1.1" />
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
             <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>1.1</span>
             <h3 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>User Assumptions</h3>
@@ -893,11 +944,13 @@ export function UseCase() {
           description="All financial operations live in the right panel. The left column is always the information layer. The right panel is always the action layer.">
 
           <Label>3-zone layout</Label>
-          <div style={{ background: '#FFFFFF', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '33px 28px 25px 25px', marginBottom: '28px', fontFamily: 'monospace', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.8, overflowX: 'auto' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '33px 28px 25px 25px', fontFamily: 'monospace', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.8, overflowX: 'auto' }}>
             <pre style={{ margin: 0 }}>{'┌──────────────┬──────────────────────────────────┬─────────────────────┐\n│   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Sidebar</strong>{'    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Left column</strong>{'                    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Right panel</strong>{'       │\n│   Navigation │   Wallet                         │   Transaction       │\n│              │   Balance cards                  │   widget            │\n│              │   Activity feed                  │   All ops live here │\n├──────────────┴────────────────── InfoBar ────────┴─────────────────────┤\n└─────────────────────────────────────────────────────────────────────────┘'}</pre>
           </div>
 
-          <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.327em', lineHeight: 1, marginBottom: '16px', fontFamily: 'Manrope, sans-serif' }}>InfoBar - cross-page operation visibility</div>
+          <CalibrationSpacer defaultPx={160} target={{ kind: 'custom', key: 's03-infobar' }} label="3-zone -> InfoBar" />
+          <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.327em', lineHeight: 1, fontFamily: 'Manrope, sans-serif' }}>InfoBar - cross-page operation visibility</div>
+          <CalibrationSpacer defaultPx={68} target={{ kind: 'custom', key: 's03-infobar-below' }} label="InfoBar header -> prose" />
           <ProseBlock>
             The banner persists in the layout on every route for all non-idle operation states - including in-progress, completed, failed, and cancelled. A newer operation always overrides the previous one. This means the user can initiate a transaction and walk away: when they return, the banner shows exactly what happened. Completed, failed, and cancelled states stay visible until the user explicitly dismisses them.
           </ProseBlock>
@@ -924,10 +977,9 @@ export function UseCase() {
 
           <PhaseVisualizer />
 
-          <div style={{ marginTop: '32px' }} />
-
+          <CalibrationSpacer defaultPx={116} target={{ kind: 'custom', key: 's04-happy-path' }} label="visualizer -> Happy path" />
           <Label>Happy path</Label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '28px', marginBottom: '48px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '28px' }}>
             <ScreenDemo
               op="shield" phase="awaiting_wallet_step1"
               caption="Wallet Step 1 of 2"
@@ -960,8 +1012,9 @@ export function UseCase() {
             />
           </div>
 
+          <CalibrationSpacer defaultPx={120} target={{ kind: 'custom', key: 's04-unshield' }} label="Happy path -> Unshield flow" />
           <Label>Unshield - full flow</Label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '28px', marginBottom: '48px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '28px' }}>
             <ScreenDemo
               op="unshield" phase="awaiting_wallet_step1"
               caption="Unshield - Wallet Step 1 of 2"
@@ -1004,6 +1057,7 @@ export function UseCase() {
             />
           </div>
 
+          <CalibrationSpacer defaultPx={164} target={{ kind: 'custom', key: 's04-errors' }} label="Unshield flow -> Errors" />
           <Label>Error states</Label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '28px' }}>
             <ScreenDemo
@@ -1043,7 +1097,7 @@ export function UseCase() {
           </div>
 
           <Label>Copy contrast - the Encrypting state</Label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div style={{ background: 'rgba(185,28,28,0.04)', border: '1px solid rgba(185,28,28,0.2)', borderRadius: '8px', padding: '16px' }}>
               <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-error)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>Before</div>
               <code style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.7, display: 'block' }}>
@@ -1064,6 +1118,7 @@ export function UseCase() {
             </div>
           </div>
 
+          <CalibrationSpacer defaultPx={136} target={{ kind: 'custom', key: 's05-vocabulary' }} label="contrast -> Vocabulary" />
           <Label>Vocabulary decisions</Label>
           <UCTable
             headers={['Use this', 'Not this', 'Why']}
@@ -1081,7 +1136,8 @@ export function UseCase() {
             ]}
           />
 
-          <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.327em', lineHeight: 1, marginTop: '8px', marginBottom: '16px', fontFamily: 'Manrope, sans-serif' }}>Phase label vocabulary - aligned across three surfaces</div>
+          <CalibrationSpacer defaultPx={116} target={{ kind: 'custom', key: 's05-phase-label' }} label="Vocabulary -> Phase label" />
+          <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.327em', lineHeight: 1, marginBottom: '16px', fontFamily: 'Manrope, sans-serif' }}>Phase label vocabulary - aligned across three surfaces</div>
           <ProseBlock>
             The same root word appears in the PhaseIndicatorVertical during the operation, the success timeline afterwards, and the Etherscan row labels in the Details tab. A user who watches "Shield" on the progress bar will see "Submitted & confirmed" in the timeline and "Shield" on the Etherscan link - the same event, named consistently.
           </ProseBlock>
@@ -1103,7 +1159,7 @@ export function UseCase() {
           description="3 operation types × 13 phases = 39 possible panel states. One architecture handles all of them.">
 
           <DSBento />
-
+          <CalibrationSpacer defaultPx={124} target={{ kind: 'custom', key: 's06-ds-implications' }} label="DSBento -> 6.1" />
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
             <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>6.1</span>
             <h3 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Design System Implications</h3>
