@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Button } from '../components/Button'
 import { TextField } from '../components/TextField'
-import { NotificationContainer, useNotifications } from '../components/Notification'
 import { StatusBadge } from '../components/StatusBadge'
-import { PhaseIndicator } from '../components/PhaseIndicator'
+import { PhaseIndicatorVertical } from '../components/PhaseIndicatorVertical'
 import { BalanceCard } from '../components/BalanceCard'
 import { ActivityRow } from '../components/ActivityRow'
 import { InfoBar } from '../components/InfoBar'
@@ -75,7 +74,7 @@ const SECTIONS = [
   { id: 'input',          label: 'TextField / Input',        group: 'Components' },
   { id: 'notification',   label: 'Notification',             group: 'Components' },
   { id: 'badge',          label: 'Badge / StatusBadge',      group: 'Components' },
-  { id: 'phase-indicator',label: 'PhaseIndicator',           group: 'Components' },
+  { id: 'phase-indicator',label: 'PhaseIndicatorVertical',   group: 'Components' },
   { id: 'balance-card',   label: 'BalanceCard',              group: 'Components' },
   { id: 'activity-row',   label: 'ActivityRow',              group: 'Components' },
   { id: 'status-banner',  label: 'InfoBar',  group: 'Components' },
@@ -893,7 +892,7 @@ function V1PhaseIndicatorContent() {
     <div>
       <ColLabel v="V1" sub="Non-linear system phase display · not a stepper" />
       <div style={{ marginBottom: '16px' }}>
-        <PhaseIndicator phases={[]} currentPhase={current} operation="shield" />
+        <PhaseIndicatorVertical phases={[]} currentPhase={current} operation="shield" />
       </div>
       <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
         {[0, 1, 2, 3].map(i => (

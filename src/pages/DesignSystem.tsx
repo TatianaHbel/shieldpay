@@ -98,11 +98,30 @@ const COLOR_GROUPS = [
 ]
 
 const TYPE_SCALE = [
-  { token: '--text-display', size: '32px', weight: 700, sample: 'Display', usage: 'Page headings, hero numbers' },
-  { token: '--text-heading', size: '20px', weight: 600, sample: 'Heading', usage: 'Card headings, section titles' },
-  { token: '--text-body', size: '16px', weight: 400, sample: 'Body text', usage: 'Primary copy' },
-  { token: '--text-small', size: '14px', weight: 500, sample: 'Small label', usage: 'Labels, captions' },
-  { token: '--text-mono', size: '13px', weight: 400, sample: '0x1a2b…3f9d', usage: 'Addresses, hashes', mono: true },
+  { token: '--text-display', size: '32px', weight: 700, sample: 'Display', usage: 'Page headings, hero numbers', font: 'Inter' },
+  { token: '--text-heading', size: '20px', weight: 600, sample: 'Heading', usage: 'Card headings, section titles', font: 'Inter' },
+  { token: '--text-body', size: '16px', weight: 400, sample: 'Body text', usage: 'Primary copy', font: 'Inter' },
+  { token: '--text-small', size: '14px', weight: 500, sample: 'Small label', usage: 'Labels, captions', font: 'Inter' },
+  { token: '--text-mono', size: '13px', weight: 400, sample: '0x1a2b…3f9d', usage: 'Addresses, hashes', mono: true, font: 'mono' },
+]
+
+const TYPEFACES = [
+  {
+    family: 'Inter',
+    token: '--font-body',
+    weights: [400, 500, 600, 700],
+    role: 'Body & content',
+    usage: 'All page copy, form labels, card content, data tables. The default for everything unless a component explicitly uses --font-ui.',
+    sample: 'The quick brown fox',
+  },
+  {
+    family: 'Manrope',
+    token: '--font-ui',
+    weights: [400, 500, 600, 700],
+    role: 'UI chrome',
+    usage: 'Drawer tab labels, action buttons, amount displays in the Drawer and InfoBar. Geometric sans — tighter tracking creates visual separation from body content.',
+    sample: 'The quick brown fox',
+  },
 ]
 
 const WEIGHT_SCALE = [
@@ -328,16 +347,40 @@ export function DesignSystem() {
         </Section>
 
         {/* Typography */}
-        <Section id="typography" title="Typography" description="Inter - humanist sans-serif, 4 weights. Bold display sizes signal hierarchy. Monospace stays system-level for crypto addresses. font-size ≥ 16px on inputs prevents iOS auto-zoom.">
+        <Section id="typography" title="Typography" description="Two typefaces with distinct roles. Inter for body and content — humanist sans-serif, optimised for reading. Manrope for UI chrome — geometric sans, tighter tracking, used in the Drawer and action elements. Monospace stays system-level for crypto addresses. font-size ≥ 16px on inputs prevents iOS auto-zoom.">
+          <Subsection title="Typefaces">
+            <div style={{ display: 'flex', gap: '24px' }}>
+              {TYPEFACES.map(tf => (
+                <div key={tf.family} style={{ flex: 1, border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '24px', background: 'var(--color-surface-raised)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-text-primary)' }}>{tf.family}</div>
+                      <div style={{ fontSize: '11px', fontFamily: 'monospace', color: 'var(--color-public)', marginTop: '2px' }}>{tf.token}</div>
+                    </div>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', background: 'var(--color-surface-subtle)', padding: '2px 8px', borderRadius: 'var(--radius-sm)' }}>{tf.role}</span>
+                  </div>
+                  <div style={{ fontSize: '28px', fontWeight: 600, fontFamily: tf.family === 'Manrope' ? 'Manrope, sans-serif' : undefined, color: 'var(--color-text-primary)', marginBottom: '12px', lineHeight: 1.2 }}>{tf.sample}</div>
+                  <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+                    {tf.weights.map(w => (
+                      <span key={w} style={{ fontSize: '14px', fontWeight: w, fontFamily: tf.family === 'Manrope' ? 'Manrope, sans-serif' : undefined, color: 'var(--color-text-primary)' }}>Aa</span>
+                    ))}
+                    <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', alignSelf: 'center', marginLeft: '4px' }}>400 · 500 · 600 · 700</span>
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>{tf.usage}</div>
+                </div>
+              ))}
+            </div>
+          </Subsection>
           <Subsection title="Type scale">
             <div style={{ borderTop: '1px solid var(--color-border)' }}>
               {TYPE_SCALE.map(t => (
-                <div key={t.token} style={{ display: 'grid', gridTemplateColumns: '220px 1fr', alignItems: 'baseline', gap: '32px', padding: '16px 0', borderBottom: '1px solid var(--color-border)' }}>
+                <div key={t.token} style={{ display: 'grid', gridTemplateColumns: '220px 1fr 80px', alignItems: 'baseline', gap: '32px', padding: '16px 0', borderBottom: '1px solid var(--color-border)' }}>
                   <span style={{ fontSize: t.size, fontWeight: t.weight, color: 'var(--color-text-primary)', fontFamily: t.mono ? 'monospace' : undefined, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.sample}</span>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     <span style={{ fontSize: '12px', fontFamily: 'monospace', color: 'var(--color-public)' }}>{t.token}</span>
-                    <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{t.size} · weight {t.weight} - {t.usage}</span>
+                    <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>{t.size} · weight {t.weight} · {t.usage}</span>
                   </div>
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontFamily: 'monospace' }}>{t.font}</span>
                 </div>
               ))}
             </div>
