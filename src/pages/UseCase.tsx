@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { User, Cpu, CheckCircle, AlertTriangle, Zap } from 'lucide-react'
 import { RightPanel } from '../components/RightPanel'
 import { InfoBar } from '../components/InfoBar'
-import { PhaseIndicator } from '../components/PhaseIndicator'
+import { PhaseIndicatorVertical } from '../components/PhaseIndicatorVertical'
 import { StatusBadge } from '../components/StatusBadge'
 import type { OperationPhase, OperationType } from '../types/operation'
 import type { DrawerAction } from '../context/DrawerContext'
@@ -582,34 +582,34 @@ export function UseCase() {
           <UCTable
             headers={['Component', 'Role', 'Rule']}
             rows={[
-              ['RightPanel',              'All transaction states across all ops',         'Only one instance. Maps directly to the operation state machine.'],
-              ['PhaseIndicator',          'Visual progress across named phases',            'Never numbered steps. Phases are named after what the system does.'],
-              ['InfoBar', 'Cross-page operation visibility',               'Lives in AppShell - renders on every route while an op is active.'],
-              ['NavigationWarning',       'Interrupt protection during critical phases',    'Two levels: soft (proof wait) and urgent (proof ready).'],
-              ['BalanceCard',             'Balance display',                               'Overview: both side by side. Section pages: relevant type only.'],
-              ['WalletConfirmStep',       'Wallet confirmation state in right panel',       'Always full right panel + 50% overlay. Never a toast or banner.'],
-              ['ConnectWalletCard',       'Wallet connection + EIP-712 onboarding',        '/connect route only. EIP-712 is never auto-triggered on page load.'],
+              ['Drawer',                 'All transaction states across all ops',          'Only one instance. Maps directly to the operation state machine.'],
+              ['PhaseIndicatorVertical', 'Visual progress across named phases in Drawer',  'Never numbered steps. Phases are named after what the system does.'],
+              ['InfoBar',                'Cross-page operation visibility',                'Lives in AppShell - renders on every route while an op is active.'],
+              ['NavigationWarning',      'Interrupt protection during critical phases',    'Two levels: soft (processing/finalizing) and urgent (proof ready).'],
+              ['BalanceCard',            'Balance display',                                'Overview: both side by side. Section pages: relevant type only.'],
+              ['ActivityRow',            'Transaction history list item',                  'In-progress rows always first. proof_ready rows show Complete CTA.'],
+              ['ConnectWalletCard',      'Wallet connection + EIP-712 onboarding',         '/connect route only. EIP-712 is never auto-triggered on page load.'],
             ]}
           />
 
-          <Label>PhaseIndicator - across operation types</Label>
+          <Label>PhaseIndicatorVertical - across operation types</Label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '560px', marginBottom: '24px' }}>
             {(['shield', 'send', 'unshield'] as OperationType[]).map((op, i) => (
               <div key={op}>
                 <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '8px', fontWeight: 500 }}>
                   {['Shield - step 2 of 4 (wallet step 2)', 'Send - step 3 of 4 (processing)', 'Unshield - step 4 of 4 (proof ready)'][i]}
                 </div>
-                <PhaseIndicator phases={[]} currentPhase={i + 1} operation={op} />
+                <PhaseIndicatorVertical phases={[]} currentPhase={i + 1} operation={op} />
               </div>
             ))}
           </div>
 
           <Label>Phase label vocabulary - aligned across three surfaces</Label>
           <ProseBlock>
-            The same root word appears in the PhaseIndicator during the operation, the success timeline afterwards, and the Etherscan row labels in the Details tab. A user who watches "Shield" on the progress bar will see "Submitted & confirmed" in the timeline and "Shield" on the Etherscan link - the same event, named consistently.
+            The same root word appears in the PhaseIndicatorVertical during the operation, the success timeline afterwards, and the Etherscan row labels in the Details tab. A user who watches "Shield" on the progress bar will see "Submitted & confirmed" in the timeline and "Shield" on the Etherscan link - the same event, named consistently.
           </ProseBlock>
           <UCTable
-            headers={['Operation', 'PhaseIndicator node', 'Success timeline', 'Etherscan row label']}
+            headers={['Operation', 'PhaseIndicatorVertical node', 'Success timeline', 'Etherscan row label']}
             rows={[
               ['Shield',   'Authorize',  'Authorized',            'Authorization'],
               ['Shield',   'Shield',     'Submitted & confirmed', 'Shield'],
@@ -697,7 +697,7 @@ export function UseCase() {
             headers={['Team', 'Scope', 'Consumes']}
             rows={[
               ['Wallet',      'Connect, disconnect, signature flows',       'ConnectWalletCard, WalletConfirmStep, EIP-712 onboarding'],
-              ['Transaction', 'All on-chain operations',                    'RightPanel, useOperation hook, InfoBar'],
+              ['Transaction', 'All on-chain operations',                    'Drawer, useOperation hook, InfoBar'],
               ['Balance',     'Balance display, activity history',          'BalanceCard, ActivityRow, StatusBadge'],
               ['Onboarding',  'First-time user experience',                 'ConnectWalletCard explain modes, EIP-712 setup state'],
               ['Settings',    'Notifications, preferences',                 'Operation persistence settings'],
@@ -705,13 +705,13 @@ export function UseCase() {
           />
 
           <ProseBlock>
-            With 3 operation types and 13 phases, there are theoretically 39 distinct right panel states. The wrong approach is to wireframe all 39. The right approach: define the state machine once, define the RightPanel component once, define the copy formula per phase. Any new operation type gets correct UI for free.
+            With 3 operation types and 13 phases, there are theoretically 39 distinct Drawer states. The wrong approach is to wireframe all 39. The right approach: define the state machine once, define the Drawer component once, define the copy formula per phase. Any new operation type gets correct UI for free.
           </ProseBlock>
 
           <Label>AI agent component selection logic</Label>
           <div style={{ background: 'var(--color-midnight)', borderRadius: 'var(--radius-lg)', padding: '20px 24px', marginBottom: '24px', overflowX: 'auto' }}>
             <pre style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.8, fontFamily: 'monospace' }}>{`Is there an async operation in progress?
-  YES → RightPanel renders operation phase sub-component
+  YES → Drawer renders operation phase sub-component
         Is user action required immediately?
           YES (wallet step) → WalletConfirmView (overlay 50%)
           YES (proof ready) → ProofReadyView (overlay 50%)
@@ -744,7 +744,7 @@ Is user trying to leave during Unshield?
             num="1"
             rule="Multi-step blockchain operations are single persistent objects - never a sequence of independent dialogs."
             why="Users cannot maintain mental context across fragmented interactions. Presenting 'Confirm transaction 1 of 3' as three separate modals means users lose track of their overall state, cannot assess progress, and are more likely to abandon. Partial completion can leave funds in an intermediate state with no clear path to recovery."
-            correct={`One PhaseIndicator inside RightPanel:
+            correct={`One PhaseIndicatorVertical inside Drawer:
 Auth · Confirm · Encrypt · Done
 
 User sees one operation from start to finish.
@@ -810,14 +810,14 @@ is filtered or just labeled.`}
             num="On-chain vocabulary"
             rule={"Phase labels name the user's experience, not the on-chain mechanism. Never use \"Burn\" or \"Mint\" as phase labels."}
             why='"Burn" sounds like destruction of funds. Even experienced DeFi users feel anxiety seeing it as a named phase while their transaction is in flight. "Mint" is an ERC-20 implementation detail that adds jargon without adding trust. The fact that unshielding burns the cToken and that shielding mints one is technically accurate - but it belongs in wallet confirmation prose, where it has context and is surrounded by fund-safety copy. A 4-node progress bar has neither the space nor the context to make "Burn" feel safe.'
-            correct={`PhaseIndicator: Unshield → Confirming → Releasing → Done
+            correct={`PhaseIndicatorVertical: Unshield → Confirming → Releasing → Done
 
 WalletConfirmView body copy:
 "This step removes your cETH from the shielded
 balance. Your cETH will be burned - once the
 decryption proof is ready, the equivalent ETH
 will be released to your public balance."`}
-            incorrect={`PhaseIndicator: Burn cETH → Proof → Mint ETH → Done
+            incorrect={`PhaseIndicatorVertical: Burn cETH → Proof → Mint ETH → Done
 
 User sees "Burn" as a named phase while their
 funds are in motion. "Burn" = destruction in

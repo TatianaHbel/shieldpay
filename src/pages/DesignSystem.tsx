@@ -2,9 +2,7 @@ import { useState } from 'react'
 import { ShieldCheck, ArrowRight, Search, Wallet, Eye, EyeOff } from 'lucide-react'
 import { Button } from '../components/Button'
 import { TextField } from '../components/TextField'
-import { NotificationContainer, useNotifications } from '../components/Notification'
 import { StatusBadge } from '../components/StatusBadge'
-import { PhaseIndicator } from '../components/PhaseIndicator'
 import { PhaseIndicatorVertical } from '../components/PhaseIndicatorVertical'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/Card'
 import { BalanceCard } from '../components/BalanceCard'
@@ -43,9 +41,9 @@ const COMPONENT_CATEGORIES = [
   { label: 'Buttons',        items: [{ id: 'button', label: 'Button' }, { id: 'action-button-row', label: 'ActionButtonRow' }] },
   { label: 'Inputs',         items: [{ id: 'text-field', label: 'TextField' }] },
   { label: 'Card',           items: [{ id: 'card', label: 'Card' }, { id: 'balance-card', label: 'BalanceCard' }, { id: 'connect-wallet-card', label: 'ConnectWalletCard' }] },
-  { label: 'Notifications',  items: [{ id: 'notification', label: 'Notification' }, { id: 'status-persistence-banner', label: 'InfoBar' }, { id: 'navigation-warning', label: 'NavigationWarning' }, { id: 'status-badge', label: 'StatusBadge' }] },
+  { label: 'Notifications',  items: [{ id: 'status-persistence-banner', label: 'InfoBar' }, { id: 'navigation-warning', label: 'NavigationWarning' }, { id: 'status-badge', label: 'StatusBadge' }] },
   { label: 'Table',          items: [{ id: 'table', label: 'Table' }, { id: 'activity-row', label: 'ActivityRow' }, { id: 'token-table', label: 'TokenTable' }] },
-  { label: 'Phase Indicator', items: [{ id: 'phase-indicator', label: 'PhaseIndicator' }, { id: 'phase-indicator-vertical', label: 'PhaseIndicatorVertical' }] },
+  { label: 'Phase Indicator', items: [{ id: 'phase-indicator-vertical', label: 'PhaseIndicatorVertical' }] },
   { label: 'Drawer',         items: [{ id: 'right-panel', label: 'Drawer' }, { id: 'left-column-overlay', label: 'LeftColumnOverlay' }] },
 ]
 
@@ -282,8 +280,6 @@ function DoAndDont({ dos, donts }: { dos: string[]; donts: string[] }) {
 export function DesignSystem() {
   const [shieldedHidden, setShieldedHidden] = useState(false)
   const [tfValue, setTfValue] = useState('')
-  const { items: notifications, dismiss: dismissNotification } = useNotifications()
-
   // InfoBar demo
   const [bannerPhase, setBannerPhase] = useState<OperationPhase>('processing')
 
@@ -310,8 +306,6 @@ export function DesignSystem() {
 
   return (
     <div style={{ padding: '56px 72px' }}>
-      <NotificationContainer items={notifications} onDismiss={dismissNotification} />
-
         {/* Page header */}
         <div style={{ marginBottom: '80px' }}>
           <h1 style={{ fontSize: '48px', fontWeight: 800, color: 'var(--color-text-primary)', margin: '0 0 12px', letterSpacing: '-0.03em', lineHeight: 1.1 }}>Design System</h1>
@@ -459,7 +453,7 @@ export function DesignSystem() {
             <div style={{ borderTop: '1px solid var(--color-border)' }}>
               {[
                 { tier: 'A - Primitive CSS', desc: 'Hover transitions, pulse indicators, spin. No external libraries.', examples: 'StatusBadge pulse, ActivityRow spinner, Button hover' },
-                { tier: 'B - Entrance / Exit', desc: 'Entrance and exit animations for elements appearing or disappearing. Prevents jarring visual jumps.', examples: 'LeftColumnOverlay fade, Notification entrance, Drawer slide' },
+                { tier: 'B - Entrance / Exit', desc: 'Entrance and exit animations for elements appearing or disappearing. Prevents jarring visual jumps.', examples: 'LeftColumnOverlay fade, InfoBar entrance, Drawer slide' },
                 { tier: 'C - Advanced', desc: 'SVG animations, animated logos, skeleton loaders. Brand character.', examples: 'Reserved - future loading states' },
               ].map(row => (
                 <div key={row.tier} style={{ display: 'grid', gridTemplateColumns: '180px 1fr 1fr', gap: '24px', padding: '14px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'baseline' }}>
@@ -554,8 +548,8 @@ export function DesignSystem() {
           <Subsection title="ARIA roles in ShieldPay">
             <div style={{ borderTop: '1px solid var(--color-border)' }}>
               {[
-                { role: 'role="alert"', usage: 'Urgent messages (errors, network failures)', component: 'Notification - error variant' },
-                { role: 'role="status"', usage: 'Non-urgent updates (saved, processing)', component: 'Notification - info / success / warning' },
+                { role: 'role="alert"', usage: 'Urgent messages (errors, network failures)', component: 'InfoBar - failed / action-required variant' },
+                { role: 'role="status"', usage: 'Non-urgent updates (saved, processing)', component: 'InfoBar - processing / completed variant' },
                 { role: 'aria-live="polite"', usage: 'Announce dynamic content changes', component: 'InfoBar, ActivityRow' },
                 { role: 'aria-invalid="true"', usage: 'Signal invalid field to screen readers', component: 'TextField - error state' },
                 { role: 'aria-describedby', usage: 'Link inputs to their hint or error text', component: 'TextField - hint and error labels' },
@@ -1293,72 +1287,6 @@ export function DesignSystem() {
         {/* ══ NOTIFICATIONS ═══════════════════════════════ */}
         <SectionDivider label="Notifications" />
 
-        {/* Notification */}
-        <Section id="notification" title="Notification" description="Informational messages giving feedback on action outcomes. Non-intrusive - never interrupts workflow. 4s standard, 10s actionable. Timer pauses on hover. Max 3 stacked.">
-          <Subsection title="All variants">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
-              {([
-                { variant: 'info' as const,    dot: 'var(--color-processing)', bg: 'rgba(55,72,255,0.06)',  title: 'Processing',         desc: 'Your shield operation is running',   label: 'Info' },
-                { variant: 'success' as const, dot: 'var(--color-success)',    bg: 'rgba(91,184,30,0.07)',  title: 'Shielded',           desc: '1.5 ETH added to private balance',   label: 'Success' },
-                { variant: 'warning' as const, dot: 'var(--color-warning)',    bg: 'rgba(245,207,0,0.10)',  title: 'Slow network',       desc: 'Estimated 4+ minutes',               label: 'Warning' },
-                { variant: 'error' as const,   dot: 'var(--color-error)',      bg: 'rgba(185,28,28,0.07)',  title: 'Transaction failed', desc: 'Your funds are safe',                label: 'Error' },
-              ]).map(({ dot, bg, title, desc, label }) => (
-                <div key={label} style={{
-                  display: 'flex', alignItems: 'flex-start', gap: '12px',
-                  padding: '16px 20px',
-                  background: bg,
-                }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: dot, flexShrink: 0, marginTop: '4px' }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 'var(--text-small)', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: '2px' }}>{title}</div>
-                    <div style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)' }}>{desc}</div>
-                  </div>
-                  <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-secondary)', flexShrink: 0 }}>{label}</span>
-                </div>
-              ))}
-            </div>
-          </Subsection>
-
-          <Subsection title="Timing rules">
-            <div style={{ borderTop: '1px solid var(--color-border)' }}>
-              <TokenRow token="standard" value="4 000ms" extra="Informational messages - auto-dismiss" />
-              <TokenRow token="actionable" value="10 000ms" extra="Notifications with action buttons - extra time to read and act" />
-              <TokenRow token="pause-on-hover" value="-" extra="Timer freezes when pointer enters; resumes on mouse leave" />
-              <TokenRow token="max-stack" value="3" extra="Oldest notification silently dismissed when limit is exceeded" />
-            </div>
-          </Subsection>
-
-          <Subsection title="ARIA roles">
-            <div style={{ borderTop: '1px solid var(--color-border)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '16px', padding: '12px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'baseline' }}>
-                <code style={{ fontSize: '13px', fontFamily: 'monospace', color: 'var(--color-public)' }}>role="alert"</code>
-                <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>Urgent messages requiring immediate attention (error variant). Announced assertively by screen readers.</span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '16px', padding: '12px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'baseline' }}>
-                <code style={{ fontSize: '13px', fontFamily: 'monospace', color: 'var(--color-public)' }}>role="status"</code>
-                <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>Non-urgent updates (info, success, warning). Announced politely - respects the user's current focus.</span>
-              </div>
-            </div>
-          </Subsection>
-
-          <Subsection title="Do and Don't">
-            <DoAndDont
-              dos={[
-                'Use for lightweight transient feedback: "Copied to clipboard", "Transaction submitted".',
-                'Position bottom-left - Drawer owns the right side during active operations.',
-                'Use `role="alert"` only for unexpected errors; `role="status"` for operation progress events.',
-                'Auto-dismiss informational and success notifications after 5s; never auto-dismiss actionable ones.',
-              ]}
-              donts={[
-                "Don't use Notification for operation phase changes - use InfoBar (persists across navigation) or the Drawer state (in-flow).",
-                "Don't use for inline form errors - those belong in the TextField `error` prop.",
-                "Don't show while WalletConfirmationPrompt is active - competing messages break focus.",
-                "Don't stack more than 3 - dismiss the oldest silently when exceeded.",
-              ]}
-            />
-          </Subsection>
-        </Section>
-
         <Section id="status-persistence-banner" title="InfoBar" description="Persistent strip at the top of the left column for all non-idle operation states. Never auto-dismisses. Completed, failed, and cancelled states are manually dismissable - the user always sees the outcome when they return.">
           <Subsection title="Phase variants">
             <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
@@ -1406,7 +1334,7 @@ export function DesignSystem() {
               donts={[
                 "Don't use `role=\"alert\"` - the banner is a persistent status indicator, not an urgent interruption.",
                 "Don't use processing colors for `completed` - green only after the private balance has updated.",
-                "Don't use for lightweight feedback unrelated to an active operation - use Notification instead.",
+                "Don't use for lightweight feedback unrelated to an active operation - it is scoped to active operation states only.",
                 "Don't auto-dismiss for `action-required` or `failed` - the user must acknowledge or act.",
               ]}
             />
@@ -1487,7 +1415,7 @@ export function DesignSystem() {
                 'Map badge variants directly to operation phases: `processing` → processing/finalizing; `action-required` → proof_ready/interrupted; `completed` → completed; `failed` → any failure type.',
                 'Override the label with specific phase copy: "Encrypting…" not "Processing", "Waiting for proof…" not "Action required".',
                 'Use `action-required` (pulsing) only when the user must tap to continue - proof_ready and interrupted unshield are the only such phases in the current flow.',
-                'Pair with PhaseIndicator inside the Drawer; use standalone in ActivityRow.',
+                'Pair with PhaseIndicatorVertical inside the Drawer; use standalone in ActivityRow.',
               ]}
               donts={[
                 "Don't use `action-required` during `processing` or `finalizing` - the user has nothing to do and the pulse creates false urgency.",
@@ -1720,72 +1648,6 @@ export function DesignSystem() {
 
         {/* ══ PHASE INDICATOR ═════════════════════════════ */}
         <SectionDivider label="Phase Indicator" />
-
-        {/* PhaseIndicator */}
-        <Section id="phase-indicator" title="PhaseIndicator" description="Vertical timeline for operation phases. Not a numbered stepper - users aren't doing steps; the system is. In-progress phases use purple; the completed state uses green. Labels and timestamps are always visible.">
-          <Subsection title="Variants">
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  {(['State', 'Horizontal', 'Vertical'] as const).map(col => (
-                    <th key={col} style={{
-                      padding: '10px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700,
-                      textTransform: 'uppercase', letterSpacing: '0.06em',
-                      color: 'var(--color-text-secondary)', borderBottom: '2px solid var(--color-border)',
-                      whiteSpace: 'nowrap',
-                    }}>{col}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {([
-                  { op: 'shield' as const, phase: 0, label: 'Shield · phase 0 (Auth)',      vert: { op: 'shield' as const, phase: 0 } },
-                  { op: 'shield' as const, phase: 2, label: 'Shield · phase 2 (Encrypt)',   vert: { op: 'shield' as const, phase: 2 } },
-                  { op: 'shield' as const, phase: 3, label: 'Shield · phase 3 (Done)',      vert: { op: 'shield' as const, phase: 3 } },
-                  { op: 'send' as const,   phase: 2, label: 'Send · phase 2 (Encrypt)',     vert: { op: 'send'   as const, phase: 2 } },
-                  { op: 'unshield' as const, phase: 1, label: 'Unshield · phase 1 (Wait)',  vert: { op: 'unshield' as const, phase: 1 } },
-                ]).map(({ op, phase, label, vert }, i) => (
-                  <tr key={label} style={{ background: i % 2 === 0 ? 'transparent' : 'var(--color-surface-subtle)' }}>
-                    <td style={{ padding: '20px 16px', fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', fontWeight: 500, whiteSpace: 'nowrap', borderBottom: '1px solid var(--color-border)', verticalAlign: 'middle' }}>
-                      {label}
-                    </td>
-                    <td style={{ padding: '20px 16px', borderBottom: '1px solid var(--color-border)', verticalAlign: 'middle', minWidth: '280px' }}>
-                      <PhaseIndicator phases={[]} currentPhase={phase} operation={op} />
-                    </td>
-                    <td style={{ padding: '20px 16px', borderBottom: '1px solid var(--color-border)', verticalAlign: 'middle' }}>
-                      <PhaseIndicatorVertical phases={[]} currentPhase={vert.phase} operation={vert.op} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Subsection>
-          <Subsection title="Anatomy">
-            <Anatomy parts={[
-              { name: 'connector', desc: '2px vertical line between nodes. Purple (--color-shielded) for completed segments, --color-border for upcoming. Muted green (rgba(21,128,61,0.25)) in the complete variant.' },
-              { name: 'node', desc: 'Circular dot. done: 8px filled purple. current: 12px with border + glow. upcoming: 8px grey. complete variant: 20px green circle with check icon.' },
-              { name: 'label', desc: 'Always visible next to each node. Current phase is bold. Never hidden.' },
-              { name: 'timestamp', desc: 'Appears below the label for completed steps. Formatted as "Mon DD, H:MM AM/PM".' },
-              { name: 'description', desc: 'Optional body text + note nested under the active step label. Used in ProcessingView to communicate what is happening and what the user should do.' },
-            ]} />
-          </Subsection>
-          <Subsection title="Do and Don't">
-            <DoAndDont
-              dos={[
-                'Use inside the Drawer during active shield/unshield operations - this is its only placement in the app.',
-                'Show all 4 phases even when one is near-instant - skipping phases makes users doubt whether the system is progressing.',
-                'Treat `processing` and `finalizing` as separate phases - the on-chain confirmation and FHE computation are distinct steps that must not be merged.',
-                'Use the vertical variant everywhere — it is the canonical form inside the Drawer.',
-              ]}
-              donts={[
-                "Don't use as a multi-step form wizard - it shows what the system is doing, not what the user must do.",
-                "Don't mark `finalizing` complete until the private balance has updated - the transaction confirming on-chain is not the end of the operation.",
-                "Don't hide or abbreviate phase labels - they are the primary communication mechanism during a wait.",
-                "Don't render outside the Drawer - it belongs to the in-flight operation context only.",
-              ]}
-            />
-          </Subsection>
-        </Section>
 
         {/* PhaseIndicatorVertical */}
         <Section id="phase-indicator-vertical" title="PhaseIndicatorVertical" description="Vertical timeline variant rendered inside the RightPanel drawer during active operations. Shows all phases stacked with a connecting line. The active phase can carry an optional description and note. Defaults to operation-specific phase labels when no custom phases prop is passed.">
