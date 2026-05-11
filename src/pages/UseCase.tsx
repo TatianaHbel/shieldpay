@@ -795,19 +795,24 @@ function DSBento() {
 
 export function UseCase() {
   return (
-    <div style={{ padding: '60px 72px', fontFamily: 'Manrope, sans-serif' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+    <div style={{ fontFamily: 'Manrope, sans-serif' }}>
 
-        {/* Hero */}
-        <div style={{ marginBottom: '80px' }}>
-          <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-secondary)', marginBottom: '16px' }}>Zama · UX Design Challenge</div>
-          <h1 style={{ margin: '0 0 20px', fontSize: '40px', fontWeight: 800, color: 'var(--color-text-primary)', letterSpacing: '-0.03em', lineHeight: 1.1, maxWidth: '640px' }}>
+      {/* Hero */}
+      <div style={{ padding: '88px 72px 80px', background: 'var(--color-surface-raised)', borderBottom: '1px solid var(--color-border)' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-secondary)' }}>Zama · UX Design Challenge</div>
+          <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 800, color: 'var(--color-text-primary)', letterSpacing: '-0.0375em', lineHeight: '44px' }}>
             Design how a human trusts a system they cannot see.
           </h1>
-          <p style={{ fontSize: '17px', color: 'var(--color-text-secondary)', lineHeight: 1.7, maxWidth: '580px', margin: 0 }}>
-            ShieldPay moves funds from a public on-chain balance into an FHE-encrypted shielded balance. The operation is multi-step, asynchronous, and irreversible at certain points. The design challenge is not the UI - it is trust, recovery, and communication across time.
+          <p style={{ fontSize: '17px', color: 'var(--color-text-secondary)', lineHeight: '28.9px', margin: 0 }}>
+            ShieldPay moves funds from a public on-chain balance into an FHE-encrypted shielded balance. The operation is multi-step, asynchronous, and irreversible at certain points.{' '}
+            <strong style={{ fontWeight: 700, letterSpacing: '0.07em' }}>The design challenge is not the UI - it is trust, recovery, and communication across time.</strong>
           </p>
         </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ padding: '72px 72px 60px', maxWidth: '1044px', margin: '0 auto' }}>
 
         {/* 01 - User Goal */}
         <UCSection id="user-goal" num="01" title="User Goal">
