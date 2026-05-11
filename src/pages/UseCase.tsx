@@ -299,6 +299,203 @@ function PhaseVisualizer() {
   )
 }
 
+// ── Flow map (Section 02) ────────────────────────────────────────────────────
+
+function FlowMap() {
+  const NW = 88
+  const NH = 54
+  const STEP = 102
+  const MX = 24
+
+  const SY = 68
+  const SBY = 174
+  const UY = 298
+  const UBY = 404
+
+  const SEP_Y = Math.round((SBY + NH / 2 + UY - NH / 2) / 2)
+  const CANVAS_W = MX + 7 * STEP + NW + MX
+  const CANVAS_H = UBY + NH / 2 + 52
+
+  type A = 'user' | 'system' | 'action-required' | 'done' | 'error'
+  interface FN { id: string; label: string; actor: A; x: number; y: number }
+
+  const COL: Record<A, string> = {
+    user: '#3748FF',
+    system: '#6B6C80',
+    'action-required': '#B45309',
+    done: '#5BB81E',
+    error: '#B91C1C',
+  }
+  const FMBG: Record<A, string> = {
+    user: 'rgba(55,72,255,0.08)',
+    system: 'rgba(107,108,128,0.09)',
+    'action-required': 'rgba(180,83,9,0.09)',
+    done: 'rgba(91,184,30,0.09)',
+    error: 'rgba(185,28,28,0.08)',
+  }
+  const FMAL: Record<A, string> = {
+    user: 'User',
+    system: 'System',
+    'action-required': 'Action req.',
+    done: 'Done',
+    error: 'Terminal',
+  }
+
+  const px = (i: number) => MX + i * STEP
+
+  const sMain: FN[] = [
+    { id: 'si', label: 'Form',        actor: 'user',            x: px(0), y: SY },
+    { id: 's1', label: 'Wallet 1/2',  actor: 'user',            x: px(1), y: SY },
+    { id: 's2', label: 'Wallet 2/2',  actor: 'user',            x: px(2), y: SY },
+    { id: 'ss', label: 'Submitted',   actor: 'system',          x: px(3), y: SY },
+    { id: 'sc', label: 'Confirming',  actor: 'system',          x: px(4), y: SY },
+    { id: 'se', label: 'Encrypting',  actor: 'system',          x: px(5), y: SY },
+    { id: 'sd', label: 'Done',        actor: 'done',            x: px(6), y: SY },
+  ]
+  const sBranch: FN[] = [
+    { id: 'scx', label: 'Cancelled',  actor: 'error',           x: px(1), y: SBY },
+    { id: 'sfx', label: 'Tx dropped', actor: 'error',           x: px(4), y: SBY },
+  ]
+  const uMain: FN[] = [
+    { id: 'ui', label: 'Form',        actor: 'user',            x: px(0), y: UY },
+    { id: 'u1', label: 'Wallet 1/2',  actor: 'user',            x: px(1), y: UY },
+    { id: 'us', label: 'Submitted',   actor: 'system',          x: px(2), y: UY },
+    { id: 'up', label: 'Proof wait',  actor: 'system',          x: px(3), y: UY },
+    { id: 'ur', label: 'Proof ready', actor: 'action-required', x: px(4), y: UY },
+    { id: 'u2', label: 'Wallet 2/2',  actor: 'user',            x: px(5), y: UY },
+    { id: 'uf', label: 'Releasing',   actor: 'system',          x: px(6), y: UY },
+    { id: 'ud', label: 'Done',        actor: 'done',            x: px(7), y: UY },
+  ]
+  const uBranch: FN[] = [
+    { id: 'ucx', label: 'Cancelled',   actor: 'error',           x: px(1), y: UBY },
+    { id: 'unx', label: 'Interrupted', actor: 'action-required', x: px(3), y: UBY },
+  ]
+
+  const allNodes = [...sMain, ...sBranch, ...uMain, ...uBranch]
+
+  const link = (a: FN, b: FN) => `M${a.x + NW},${a.y} L${b.x},${b.y}`
+
+  const drop = (from: FN, to: FN) => {
+    const cx = from.x + NW / 2
+    const y1 = from.y + NH / 2
+    const y2 = to.y - NH / 2
+    return `M${cx},${y1} C${cx},${y1 + 22} ${cx},${y2 - 22} ${cx},${y2}`
+  }
+
+  const intNode = uBranch[1]
+  const prdNode = uMain[4]
+  const arcPath = (() => {
+    const x1 = intNode.x + NW / 2
+    const y1 = intNode.y - NH / 2
+    const x2 = prdNode.x + NW / 2
+    const y2 = prdNode.y + NH / 2
+    return `M${x1},${y1} C${x1},${y1 - 44} ${x2},${y2 + 44} ${x2},${y2}`
+  })()
+
+  const arcLabelX = Math.round((intNode.x + NW / 2 + prdNode.x + NW / 2) / 2) + 18
+  const arcLabelY = Math.round((intNode.y - NH / 2 + prdNode.y + NH / 2) / 2)
+
+  const actorKeys: A[] = ['user', 'system', 'action-required', 'done', 'error']
+
+  return (
+    <div>
+      <div style={{ position: 'relative', width: CANVAS_W, height: CANVAS_H }}>
+
+        <div style={{
+          position: 'absolute', left: 0, right: 0, top: SEP_Y, height: 1,
+          background: 'var(--color-border)', opacity: 0.4,
+        }} />
+
+        {[
+          { label: 'Shield',   topY: SY - NH / 2 - 22, color: '#3748FF' },
+          { label: 'Unshield', topY: UY - NH / 2 - 22, color: '#B45309' },
+        ].map(({ label, topY, color }) => (
+          <div key={label} style={{
+            position: 'absolute', left: MX, top: topY,
+            fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em', color,
+            display: 'flex', alignItems: 'center', gap: '7px',
+          }}>
+            <span style={{ width: 14, height: 2, background: color, display: 'inline-block', borderRadius: 1 }} />
+            {label}
+          </div>
+        ))}
+
+        <svg
+          width={CANVAS_W} height={CANVAS_H}
+          style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', overflow: 'visible' }}
+        >
+          <defs>
+            <marker id="fm-a" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="var(--color-border)" />
+            </marker>
+            <marker id="fm-e" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#B91C1C" />
+            </marker>
+            <marker id="fm-w" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <polygon points="0 0, 8 3, 0 6" fill="#B45309" />
+            </marker>
+          </defs>
+
+          {sMain.slice(0, -1).map((n, i) => (
+            <path key={`sa${i}`} d={link(n, sMain[i + 1])} stroke="var(--color-border)" strokeWidth="1.5" fill="none" markerEnd="url(#fm-a)" />
+          ))}
+          {uMain.slice(0, -1).map((n, i) => (
+            <path key={`ua${i}`} d={link(n, uMain[i + 1])} stroke="var(--color-border)" strokeWidth="1.5" fill="none" markerEnd="url(#fm-a)" />
+          ))}
+
+          <path d={drop(sMain[1], sBranch[0])} stroke="#B91C1C" strokeWidth="1.5" fill="none" strokeDasharray="5,4" markerEnd="url(#fm-e)" />
+          <path d={drop(sMain[4], sBranch[1])} stroke="#B91C1C" strokeWidth="1.5" fill="none" strokeDasharray="5,4" markerEnd="url(#fm-e)" />
+          <path d={drop(uMain[1], uBranch[0])} stroke="#B91C1C" strokeWidth="1.5" fill="none" strokeDasharray="5,4" markerEnd="url(#fm-e)" />
+          <path d={drop(uMain[3], uBranch[1])} stroke="#B45309" strokeWidth="1.5" fill="none" strokeDasharray="5,4" markerEnd="url(#fm-w)" />
+          <path d={arcPath} stroke="#B45309" strokeWidth="1.5" fill="none" strokeDasharray="5,4" markerEnd="url(#fm-w)" />
+
+          <text x={arcLabelX} y={arcLabelY} fontSize="9" fill="#B45309" fontFamily="Manrope, sans-serif" fontWeight="700" textAnchor="middle">
+            user returns
+          </text>
+        </svg>
+
+        {allNodes.map(node => (
+          <div key={node.id} style={{
+            position: 'absolute',
+            left: node.x, top: node.y - NH / 2,
+            width: NW, height: NH,
+            background: FMBG[node.actor],
+            border: `1.5px solid ${COL[node.actor]}38`,
+            borderRadius: '8px',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: '4px', boxSizing: 'border-box',
+          }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-primary)', textAlign: 'center', lineHeight: 1.2 }}>
+              {node.label}
+            </span>
+            <span style={{ fontSize: '9px', fontWeight: 700, color: COL[node.actor], textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              {FMAL[node.actor]}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div style={{
+        display: 'flex', gap: '20px', flexWrap: 'wrap',
+        marginTop: '20px', paddingTop: '14px', borderTop: '1px solid var(--color-border)',
+      }}>
+        {actorKeys.map(actor => (
+          <div key={actor} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ width: 10, height: 10, borderRadius: '3px', background: FMBG[actor], border: `1.5px solid ${COL[actor]}38` }} />
+            <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>{FMAL[actor]}</span>
+          </div>
+        ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <svg width="20" height="12" style={{ display: 'block' }}>
+            <line x1="0" y1="6" x2="20" y2="6" stroke="var(--color-border)" strokeWidth="1.5" strokeDasharray="4,3" />
+          </svg>
+          <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Failure / branch</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Static screen demo (Section 04) ─────────────────────────────────────────
 
 function ScreenDemo({ op, phase, caption, annotation }: {
@@ -435,9 +632,9 @@ export function UseCase() {
         <UCSection id="flow-map" num="02" title="Flow Map"
           description="Each operation is a single persistent object with phases - not a sequence of dialogs. Every phase has a defined actor and a defined answer to: what's happening, what to do, and what happens if you leave.">
           <Callout tone="info">
-            <strong style={{ color: 'var(--color-text-primary)' }}>How to read this:</strong> Click any phase to see the actual panel state it produces. Blue phases require user action. Gray phases are system-driven - the user can leave. Amber phases require action but are not urgent enough to block navigation.
+            <strong style={{ color: 'var(--color-text-primary)' }}>How to read this:</strong> Primary paths run left to right. Vertical dashed branches show failures and interruptions. Blue nodes are user actions. Gray nodes are system-driven - the user can leave safely. Amber nodes require action. The dashed arc on the Unshield track shows the recoverable return path from Interrupted back to Proof ready.
           </Callout>
-          <PhaseVisualizer />
+          <FlowMap />
         </UCSection>
 
         {/* 03 - Interaction Model */}
@@ -484,6 +681,10 @@ export function UseCase() {
         {/* 04 - Key Screens */}
         <UCSection id="key-screens" num="04" title="Key Screens"
           description="All drawer states across the shield flow - from first wallet signature to completion and error recovery.">
+
+          <PhaseVisualizer />
+
+          <div style={{ marginTop: '32px' }} />
 
           <Label>Happy path</Label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '28px', marginBottom: '48px' }}>
