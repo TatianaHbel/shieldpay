@@ -2,8 +2,6 @@ import { useState, useRef, useEffect } from 'react'
 import { User, Cpu, CheckCircle, AlertTriangle, Zap } from 'lucide-react'
 import { RightPanel } from '../components/RightPanel'
 import { InfoBar } from '../components/InfoBar'
-import { PhaseIndicatorVertical } from '../components/PhaseIndicatorVertical'
-import { StatusBadge } from '../components/StatusBadge'
 import type { OperationPhase, OperationType } from '../types/operation'
 import type { DrawerAction } from '../context/DrawerContext'
 
@@ -681,6 +679,118 @@ function RuleCard({ num, rule, why, correct, incorrect }: {
   )
 }
 
+// ── Design System Bento (Section 06) ────────────────────────────────────────
+
+function DSBento() {
+  return (
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(12, 1fr)',
+      gridTemplateRows: '134px 134px 67px 67px 134px 67px 67px 128px',
+      gap: 3,
+      background: '#F5F6FC',
+      borderRadius: 12,
+      overflow: 'hidden',
+      marginBottom: 40,
+      width: '100%',
+    }}>
+
+      {/* Title - cols 1-8, row 1 */}
+      <div style={{ gridColumn: '1 / 9', gridRow: '1 / 2', borderRadius: 12, background: '#3748FF', padding: '20px 24px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: 6 }}>
+        <div style={{ fontSize: 34, fontWeight: 700, color: '#fff', letterSpacing: '-0.025em', fontFamily: 'Inter, sans-serif', lineHeight: 1 }}>ShieldPay</div>
+        <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.8)', fontFamily: 'Inter, sans-serif', fontWeight: 400 }}>Private transactions, simplified</div>
+      </div>
+
+      {/* Photo Lime 1 - cols 9-12, rows 1-2 */}
+      <div style={{ gridColumn: '9 / 13', gridRow: '1 / 3', borderRadius: 12, background: '#CEFF1C', overflow: 'hidden' }}>
+        <img src="/images/ds-section06-photo-lime-1-1c7aca.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      </div>
+
+      {/* Photo Whisper 1 - cols 1-5, rows 2-4 */}
+      <div style={{ gridColumn: '1 / 6', gridRow: '2 / 5', borderRadius: 12, background: '#ECEDF5', overflow: 'hidden' }}>
+        <img src="/images/ds-section06-photo-whisper-1-5c07b8.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      </div>
+
+      {/* Typography - cols 6-8, rows 2-3 */}
+      <div style={{ gridColumn: '6 / 9', gridRow: '2 / 4', borderRadius: 12, background: '#fff', padding: '14px 18px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 4 }}>
+        <div style={{ fontSize: 67, fontWeight: 700, color: '#14141A', lineHeight: 1, fontFamily: 'Inter, sans-serif', letterSpacing: '-0.025em' }}>Aa</div>
+        <div style={{ fontSize: 12.6, fontWeight: 500, color: 'rgba(20,20,26,0.7)', fontFamily: 'Inter, sans-serif' }}>Inter</div>
+      </div>
+
+      {/* Buttons - cols 9-12, row 3 */}
+      <div style={{ gridColumn: '9 / 13', gridRow: '3 / 4', borderRadius: 12, background: '#fff', padding: '8px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 6 }}>
+        <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+          {[
+            ['Primary',   '#3748FF',               '#fff',     ''],
+            ['Secondary', '#ECEDF5',               '#14141A',  ''],
+            ['Outline',   'rgba(226,227,238,0.3)', '#14141A',  '0.7px solid #E2E3EE'],
+            ['Ghost',     'transparent',           '#14141A',  ''],
+          ].map(([lbl, bg, clr, brd]) => (
+            <div key={lbl} style={{ padding: '3px 8px', background: bg, color: clr, border: brd || 'none', borderRadius: 7, fontSize: 9.8, fontWeight: 600, fontFamily: 'DM Sans, sans-serif', whiteSpace: 'nowrap' }}>{lbl}</div>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+          {[
+            ['Default',   '#3748FF',    '#fff',    ''],
+            ['Secondary', '#ECEDF5',    '#14141A', ''],
+            ['Outline',   'transparent','#14141A', '0.7px solid #E2E3EE'],
+            ['Alert',     '#DC2626',    '#FAFAFA', ''],
+          ].map(([lbl, bg, clr, brd]) => (
+            <div key={lbl} style={{ padding: '2px 8px', background: bg, color: clr, border: brd || 'none', borderRadius: 999, fontSize: 8.4, fontWeight: 500, fontFamily: 'DM Sans, sans-serif', whiteSpace: 'nowrap' }}>{lbl}</div>
+          ))}
+        </div>
+      </div>
+
+      {/* Brand colours - cols 6-12, row 4 */}
+      <div style={{ gridColumn: '6 / 13', gridRow: '4 / 5', borderRadius: 12, overflow: 'hidden', display: 'flex' }}>
+        {['#3748FF', '#ECEDF5', '#CEFF1C', '#DC2626', '#F5F6FC'].map((c, i) => (
+          <div key={i} style={{ flex: 1, background: c, borderRight: i < 4 ? '3px solid #F5F6FC' : undefined }} />
+        ))}
+      </div>
+
+      {/* Text dark - cols 1-3, row 5 */}
+      <div style={{ gridColumn: '1 / 4', gridRow: '5 / 6', borderRadius: 12, background: '#14141A', padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 6 }}>
+        <div style={{ fontSize: 22, fontWeight: 700, color: '#F5F6FC', letterSpacing: '-0.035em', fontFamily: 'Inter, sans-serif', lineHeight: 1.1 }}>DeFi/Crypto</div>
+        <div style={{ fontSize: 9.5, color: 'rgba(245,246,252,0.6)', lineHeight: 1.4, fontFamily: 'Inter, sans-serif' }}>Clear, confident, and reassuring. We communicate with authority while remaining approachable and human.</div>
+      </div>
+
+      {/* Photo Lime 2 - cols 4-7, rows 5-7 */}
+      <div style={{ gridColumn: '4 / 8', gridRow: '5 / 8', borderRadius: 12, background: '#CEFF1C', overflow: 'hidden' }}>
+        <img src="/images/ds-section06-photo-lime-2-7e5950.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      </div>
+
+      {/* Photo Whisper 2 - cols 8-12, rows 5-6 */}
+      <div style={{ gridColumn: '8 / 13', gridRow: '5 / 7', borderRadius: 12, background: '#ECEDF5', overflow: 'hidden' }}>
+        <img src="/images/ds-section06-photo-whisper-2-301b3f.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      </div>
+
+      {/* Values - cols 1-3, rows 6-8 */}
+      <div style={{ gridColumn: '1 / 4', gridRow: '6 / 9', borderRadius: 12, background: '#CEFF1C', padding: '12px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: 8 }}>
+        <div style={{ fontSize: 7, fontWeight: 500, color: 'rgba(20,20,26,0.6)', textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: 'DM Sans, sans-serif' }}>VALUES</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          {['Security', 'Privacy', 'Simplicity', 'Trust', 'Intelligence'].map(v => (
+            <div key={v} style={{ padding: '2px 8px', background: '#ECEDF5', borderRadius: 999, fontSize: 8.4, fontWeight: 500, fontFamily: 'DM Sans, sans-serif', color: '#14141A', whiteSpace: 'nowrap' }}>{v}</div>
+          ))}
+        </div>
+      </div>
+
+      {/* UI screenshot - cols 8-12, rows 7-8 */}
+      <div style={{ gridColumn: '8 / 13', gridRow: '7 / 9', borderRadius: 12, background: '#CEFF1C', overflow: 'hidden', position: 'relative' }}>
+        <img src="/images/ds-section06-ui-screenshot.png" alt="ShieldPay UI" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
+        <div style={{ position: 'absolute', bottom: 14, left: 14, background: 'rgba(255,255,255,0.95)', borderRadius: 6, padding: '4px 10px', boxShadow: '0 2.8px 2.8px rgba(0,0,0,0.15)' }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#14141A', fontFamily: 'Inter, sans-serif' }}>Private transactions, simplified</span>
+        </div>
+      </div>
+
+      {/* Photo White Lilac - cols 4-7, row 8 */}
+      <div style={{ gridColumn: '4 / 8', gridRow: '8 / 9', borderRadius: 12, background: '#F5F6FC', overflow: 'hidden' }}>
+        <img src="/images/ds-section06-photo-white-lilac-211b09.png" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+      </div>
+
+    </div>
+  )
+}
+
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export function UseCase() {
@@ -984,8 +1094,15 @@ export function UseCase() {
         </UCSection>
 
         {/* 06 - Design System */}
-        <UCSection id="design-system" num="06" title="Design System Implications"
-          description="3 operation types x 13 phases = 39 possible panel states. One architecture handles all of them.">
+        <UCSection id="design-system" num="06" title="Design System"
+          description="3 operation types × 13 phases = 39 possible panel states. One architecture handles all of them.">
+
+          <DSBento />
+
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>6.1</span>
+            <h3 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Design System Implications</h3>
+          </div>
 
           <Callout tone="success">
             <strong style={{ color: 'var(--color-text-primary)' }}>The scaling principle:</strong> Adding a new operation type (private swap, private staking) requires exactly two things: a new idle form and updated copy per phase. Zero new components needed.
@@ -1003,25 +1120,6 @@ export function UseCase() {
               ['ConnectWalletCard',      'Wallet connection + EIP-712 onboarding',         '/connect route only. EIP-712 is never auto-triggered on page load.'],
             ]}
           />
-
-          <Label>PhaseIndicatorVertical - across operation types</Label>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '560px', marginBottom: '24px' }}>
-            {(['shield', 'send', 'unshield'] as OperationType[]).map((op, i) => (
-              <div key={op}>
-                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '8px', fontWeight: 500 }}>
-                  {['Shield - step 2 of 4 (wallet step 2)', 'Send - step 3 of 4 (processing)', 'Unshield - step 4 of 4 (proof ready)'][i]}
-                </div>
-                <PhaseIndicatorVertical phases={[]} currentPhase={i + 1} operation={op} />
-              </div>
-            ))}
-          </div>
-
-          <Label>StatusBadge - operation states</Label>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '8px' }}>
-            {(['processing', 'action-required', 'success', 'cancelled', 'failed'] as const).map(v => (
-              <StatusBadge key={v} variant={v} />
-            ))}
-          </div>
         </UCSection>
 
         {/* 07 - Risks & Trade-offs */}
