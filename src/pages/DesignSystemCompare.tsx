@@ -6,7 +6,7 @@ import { StatusBadge } from '../components/StatusBadge'
 import { PhaseIndicator } from '../components/PhaseIndicator'
 import { BalanceCard } from '../components/BalanceCard'
 import { ActivityRow } from '../components/ActivityRow'
-import { StatusPersistenceBanner } from '../components/StatusPersistenceBanner'
+import { InfoBar } from '../components/InfoBar'
 import { NavigationWarning } from '../components/NavigationWarning'
 import { ConnectWalletCard } from '../components/ConnectWalletCard'
 import type { ConnectState } from '../components/ConnectWalletCard'
@@ -78,7 +78,7 @@ const SECTIONS = [
   { id: 'phase-indicator',label: 'PhaseIndicator',           group: 'Components' },
   { id: 'balance-card',   label: 'BalanceCard',              group: 'Components' },
   { id: 'activity-row',   label: 'ActivityRow',              group: 'Components' },
-  { id: 'status-banner',  label: 'StatusPersistenceBanner',  group: 'Components' },
+  { id: 'status-banner',  label: 'InfoBar',  group: 'Components' },
   { id: 'nav-warning',    label: 'NavigationWarning',        group: 'Components' },
   { id: 'connect-wallet', label: 'ConnectWalletCard',        group: 'Components' },
   { id: 'right-panel',    label: 'RightPanel',               group: 'Components' },
@@ -937,7 +937,7 @@ function V1StatusBannerContent() {
   return (
     <div>
       <ColLabel v="V1" sub="Persists across page navigation · layout-level component" />
-      <StatusPersistenceBanner
+      <InfoBar
         phase="processing"
         operation="shield"
         amount="1.5"

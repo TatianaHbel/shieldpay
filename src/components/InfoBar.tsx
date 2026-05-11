@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Clock, CheckCircle, AlertCircle, Zap, X } from 'lucide-react'
+import { Clock, CheckCircle, AlertCircle, TriangleAlert, ArrowRight, X } from 'lucide-react'
 import type { OperationPhase, OperationType } from '../types/operation'
 
-export interface StatusPersistenceBannerProps {
+export interface InfoBarProps {
   phase: OperationPhase
   operation: OperationType
   amount: string
@@ -51,40 +51,68 @@ const OPERATION_LABEL: Record<OperationType, string> = {
 
 const VARIANT_CONFIG = {
   processing: {
-    bg: 'rgba(3,105,161,0.06)',
-    border: 'rgba(3,105,161,0.2)',
+    bg: 'rgba(55, 72, 255, 0.07)',
+    border: 'none',
+    borderLeft: '2px solid #3748FF',
     Icon: Clock,
-    iconColor: 'var(--color-processing)',
+    iconColor: '#3748FF',
+    iconSize: 16,
+    titleColor: '#1A1F6E',
+    subtitleColor: '#5B65CC',
     dismissable: false,
     pulse: false,
+    filledCta: false,
+    ctaBg: '',
+    ctaColor: '',
   },
   'action-required': {
-    bg: 'rgba(180,83,9,0.06)',
-    border: 'rgba(180,83,9,0.25)',
-    Icon: Zap,
-    iconColor: '#78350F',
+    bg: 'rgba(255, 235, 105, 0.3)',
+    border: 'none',
+    borderLeft: '2px solid #FFB74D',
+    Icon: TriangleAlert,
+    iconColor: '#FFB74D',
+    iconSize: 18,
+    titleColor: '#3A341C',
+    subtitleColor: '#D1AC45',
     dismissable: false,
     pulse: true,
+    filledCta: true,
+    ctaBg: '#EBBB00',
+    ctaColor: '#FFF9D2',
   },
   completed: {
-    bg: 'rgba(21,128,61,0.06)',
-    border: 'rgba(21,128,61,0.2)',
+    bg: 'rgba(91, 184, 30, 0.08)',
+    border: 'none',
+    borderLeft: '2px solid #5BB81E',
     Icon: CheckCircle,
-    iconColor: 'var(--color-success)',
+    iconColor: '#5BB81E',
+    iconSize: 16,
+    titleColor: '#1C4A08',
+    subtitleColor: '#4A8C16',
     dismissable: true,
     pulse: false,
+    filledCta: false,
+    ctaBg: '',
+    ctaColor: '',
   },
   failed: {
-    bg: 'rgba(185,28,28,0.06)',
-    border: 'rgba(185,28,28,0.2)',
+    bg: 'rgba(185, 28, 28, 0.07)',
+    border: 'none',
+    borderLeft: '2px solid #B91C1C',
     Icon: AlertCircle,
-    iconColor: 'var(--color-error)',
+    iconColor: '#B91C1C',
+    iconSize: 16,
+    titleColor: '#7F1212',
+    subtitleColor: '#C53030',
     dismissable: true,
     pulse: false,
+    filledCta: false,
+    ctaBg: '',
+    ctaColor: '',
   },
 }
 
-export function StatusPersistenceBanner({
+export function InfoBar({
   phase,
   operation,
   amount,
@@ -92,7 +120,7 @@ export function StatusPersistenceBanner({
   startedAt,
   onView,
   onDismiss,
-}: StatusPersistenceBannerProps) {
+}: InfoBarProps) {
   const [elapsed, setElapsed] = useState(() => Date.now() - startedAt)
   const variant = getBannerVariant(phase)
 
@@ -139,12 +167,13 @@ export function StatusPersistenceBanner({
         gap: '12px',
         padding: '12px 16px',
         background: cfg.bg,
-        border: `1px solid ${cfg.border}`,
+        border: cfg.border,
+        borderLeft: cfg.borderLeft,
         animation: 'fade-in var(--duration-normal) var(--ease-out)',
       }}
     >
       <Icon
-        size={16}
+        size={cfg.iconSize}
         style={{
           color: cfg.iconColor,
           flexShrink: 0,
@@ -154,34 +183,62 @@ export function StatusPersistenceBanner({
       />
 
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 'var(--text-small)', fontWeight: 600, color: 'var(--color-text-primary)', lineHeight: 1.4 }}>
+        <div style={{ fontSize: 'var(--text-small)', fontWeight: 700, color: cfg.titleColor, lineHeight: 1.4 }}>
           {title}
         </div>
-        <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
+        <div style={{ fontSize: '12px', color: cfg.subtitleColor, marginTop: '2px' }}>
           Started {formatElapsed(elapsed)}
         </div>
       </div>
 
-      <button
-        onClick={onView}
-        style={{
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          fontSize: 'var(--text-small)',
-          fontWeight: 700,
-          color: cfg.iconColor,
-          padding: '4px 8px',
-          borderRadius: 'var(--radius-sm)',
-          flexShrink: 0,
-          fontFamily: 'Manrope, sans-serif',
-          transition: 'opacity var(--duration-fast) var(--ease-out)',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
-        onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-      >
-        {ctaLabel}
-      </button>
+      {cfg.filledCta ? (
+        <button
+          onClick={onView}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            background: cfg.ctaBg,
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: 500,
+            color: cfg.ctaColor,
+            padding: '8px 10px',
+            borderRadius: '4px',
+            height: '28px',
+            flexShrink: 0,
+            fontFamily: 'Manrope, sans-serif',
+            transition: 'opacity var(--duration-fast) var(--ease-out)',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+          onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+        >
+          Complete
+          <ArrowRight size={12} />
+        </button>
+      ) : (
+        <button
+          onClick={onView}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 'var(--text-small)',
+            fontWeight: 700,
+            color: cfg.iconColor,
+            padding: '4px 8px',
+            borderRadius: 'var(--radius-sm)',
+            flexShrink: 0,
+            fontFamily: 'Manrope, sans-serif',
+            transition: 'opacity var(--duration-fast) var(--ease-out)',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
+          onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+        >
+          {ctaLabel}
+        </button>
+      )}
 
       {cfg.dismissable && onDismiss && (
         <button

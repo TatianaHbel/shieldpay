@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { User, Cpu, CheckCircle, AlertTriangle, Zap } from 'lucide-react'
 import { RightPanel } from '../components/RightPanel'
-import { StatusPersistenceBanner } from '../components/StatusPersistenceBanner'
+import { InfoBar } from '../components/InfoBar'
 import { PhaseIndicator } from '../components/PhaseIndicator'
 import { StatusBadge } from '../components/StatusBadge'
 import type { OperationPhase, OperationType } from '../types/operation'
@@ -446,7 +446,7 @@ export function UseCase() {
 
           <Label>3-zone layout</Label>
           <div style={{ background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '24px', marginBottom: '28px', fontFamily: 'monospace', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.8, overflowX: 'auto' }}>
-            <pre style={{ margin: 0 }}>{'┌──────────────┬──────────────────────────────────┬─────────────────────┐\n│   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Sidebar</strong>{'    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Left column</strong>{'                    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Right panel</strong>{'       │\n│   Navigation │   Balance cards                  │   Transaction       │\n│              │   Wallet                         │   widget            │\n│              │   Activity feed                  │   All ops live here │\n│              │   ← StatusPersistenceBanner       │                     │\n└──────────────┴──────────────────────────────────┴─────────────────────┘'}</pre>
+            <pre style={{ margin: 0 }}>{'┌──────────────┬──────────────────────────────────┬─────────────────────┐\n│   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Sidebar</strong>{'    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Left column</strong>{'                    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Right panel</strong>{'       │\n│   Navigation │   Balance cards                  │   Transaction       │\n│              │   Wallet                         │   widget            │\n│              │   Activity feed                  │   All ops live here │\n│              │   ← InfoBar       │                     │\n└──────────────┴──────────────────────────────────┴─────────────────────┘'}</pre>
           </div>
 
           <Label>Left column overlay - communicates urgency</Label>
@@ -460,7 +460,7 @@ export function UseCase() {
             ]}
           />
 
-          <Label>StatusPersistenceBanner - cross-page operation visibility</Label>
+          <Label>InfoBar - cross-page operation visibility</Label>
           <ProseBlock>
             The banner persists in the layout on every route for all non-idle operation states - including in-progress, completed, failed, and cancelled. A newer operation always overrides the previous one. This means the user can initiate a transaction and walk away: when they return, the banner shows exactly what happened. Completed, failed, and cancelled states stay visible until the user explicitly dismisses them.
           </ProseBlock>
@@ -475,7 +475,7 @@ export function UseCase() {
             ]).map(({ phase, op, label }) => (
               <div key={label}>
                 <div style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginBottom: '4px' }}>{label}</div>
-                <StatusPersistenceBanner phase={phase} operation={op} amount="0.50" startedAt={MOCK_START} onView={NOOP} onDismiss={NOOP} />
+                <InfoBar phase={phase} operation={op} amount="0.50" startedAt={MOCK_START} onView={NOOP} onDismiss={NOOP} />
               </div>
             ))}
           </div>
@@ -498,7 +498,7 @@ export function UseCase() {
             <ScreenDemo
               op="unshield" phase="proof_ready"
               caption="Unshield - Proof ready (action required)"
-              annotation='Amber urgency. Shielded tokens already burned - funds are "secured" but not yet released. The only CTA is "Complete unshield →". StatusPersistenceBanner on all routes drives return.'
+              annotation='Amber urgency. Shielded tokens already burned - funds are "secured" but not yet released. The only CTA is "Complete unshield →". InfoBar on all routes drives return.'
             />
             <ScreenDemo
               op="shield" phase="failed_dropped"
@@ -584,7 +584,7 @@ export function UseCase() {
             rows={[
               ['RightPanel',              'All transaction states across all ops',         'Only one instance. Maps directly to the operation state machine.'],
               ['PhaseIndicator',          'Visual progress across named phases',            'Never numbered steps. Phases are named after what the system does.'],
-              ['StatusPersistenceBanner', 'Cross-page operation visibility',               'Lives in AppShell - renders on every route while an op is active.'],
+              ['InfoBar', 'Cross-page operation visibility',               'Lives in AppShell - renders on every route while an op is active.'],
               ['NavigationWarning',       'Interrupt protection during critical phases',    'Two levels: soft (proof wait) and urgent (proof ready).'],
               ['BalanceCard',             'Balance display',                               'Overview: both side by side. Section pages: relevant type only.'],
               ['WalletConfirmStep',       'Wallet confirmation state in right panel',       'Always full right panel + 50% overlay. Never a toast or banner.'],
@@ -639,7 +639,7 @@ export function UseCase() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
             {[
               { risk: 'Shielded balance shows 0 after Etherscan says "Success"', mitigation: 'The finalizing state explicitly names this gap. Never say "Confirmed" until balance is updated.' },
-              { risk: 'User closed the tab - did the operation go through?', mitigation: 'StatusPersistenceBanner on every route. Right panel restores from localStorage on next load.' },
+              { risk: 'User closed the tab - did the operation go through?', mitigation: 'InfoBar on every route. Right panel restores from localStorage on next load.' },
               { risk: 'Shielded balance decreased but public balance unchanged (Unshield)', mitigation: '"Funds not released yet" note inline. "Your funds are secured" - never "safe" in this state.' },
               { risk: 'User abandons Unshield at proof_ready - funds stay locked', mitigation: 'Urgent NavigationWarning + amber banner on all routes + ActivityRow CTA. Three entry points.' },
               { risk: 'Second wallet popup appears with no context', mitigation: 'Step counter declared before Step 1. After Step 1 is approved, the Step 2 confirm screen appears immediately - user approves again.' },
@@ -697,7 +697,7 @@ export function UseCase() {
             headers={['Team', 'Scope', 'Consumes']}
             rows={[
               ['Wallet',      'Connect, disconnect, signature flows',       'ConnectWalletCard, WalletConfirmStep, EIP-712 onboarding'],
-              ['Transaction', 'All on-chain operations',                    'RightPanel, useOperation hook, StatusPersistenceBanner'],
+              ['Transaction', 'All on-chain operations',                    'RightPanel, useOperation hook, InfoBar'],
               ['Balance',     'Balance display, activity history',          'BalanceCard, ActivityRow, StatusBadge'],
               ['Onboarding',  'First-time user experience',                 'ConnectWalletCard explain modes, EIP-712 setup state'],
               ['Settings',    'Notifications, preferences',                 'Operation persistence settings'],
@@ -723,7 +723,7 @@ Is the operation complete or failed?
   CANCELLED → CancelledView (neutral - not an error)
 
 Is an operation active while user navigates?
-  YES → StatusPersistenceBanner in AppShell
+  YES → InfoBar in AppShell
         ActivityRow in-progress entry at top of feed
 
 Is user trying to leave during Unshield?

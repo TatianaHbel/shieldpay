@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ExternalLink, Zap, CheckCircle, AlertCircle, AlertTriangle, X, QrCode, ArrowLeft, ArrowDown, ChevronDown, Check, ShieldCheck, Copy } from 'lucide-react'
-import { PhaseIndicator } from './PhaseIndicator'
+import { PhaseIndicatorVertical } from './PhaseIndicatorVertical'
 import { Button } from './Button'
 import { TextField } from './TextField'
 import type { OperationPhase, OperationType } from '../types/operation'
@@ -395,11 +395,23 @@ function TokenPicker({
 
 // ── Phase header ───────────────────────────────────────────────────────────
 
-function PhaseHeader({ op, amount, phase, token = 'ETH' }: { op: OperationType; amount: string; phase: OperationPhase; token?: string }) {
+function PhaseHeader({ op, amount, phase, token = 'ETH', description, note, startedAt }: {
+  op: OperationType; amount: string; phase: OperationPhase; token?: string
+  description?: string; note?: string; startedAt?: number
+}) {
   const tokenData = getToken(token)
   const pairedSymbol = tokenData.pairedSymbol
   const pairedTokenData = pairedSymbol ? getToken(pairedSymbol) : null
   const verb = { shield: 'Shielding', send: 'Sending', unshield: 'Unshielding' }[op]
+
+  const currentIndex = getPhaseIndex(phase, op)
+  const t = startedAt ?? Date.now()
+  const rawTs = [t + 2_000, t + 5_000, t + 10_000, t + 14_000]
+  const fmtTime = (ms: number) =>
+    new Date(ms).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+  const timestamps = startedAt
+    ? rawTs.map((ms, i) => (i < currentIndex ? fmtTime(ms) : undefined))
+    : undefined
 
   // Source (token) always behind, destination (paired) always in front.
   // Shield: badge on front token. Unshield: badge on back token at its corner -
@@ -450,7 +462,14 @@ function PhaseHeader({ op, amount, phase, token = 'ETH' }: { op: OperationType; 
           </div>
         )}
       </div>
-      <PhaseIndicator phases={[]} currentPhase={getPhaseIndex(phase, op)} operation={op} />
+      <PhaseIndicatorVertical
+        phases={[]}
+        currentPhase={currentIndex}
+        operation={op}
+        timestamps={timestamps}
+        currentDescription={description}
+        currentNote={note}
+      />
     </div>
   )
 }
@@ -928,12 +947,6 @@ function ProcessingView({ op, amount, phase, startedAt, txHashStep1, txHashStep2
   const isUnshield = op === 'unshield'
   const isSend = op === 'send'
 
-  const heading = (() => {
-    if (isFinalizing && !isUnshield) return isSend ? 'Encrypting transfer' : 'Encrypting your balance'
-    if (isFinalizing && isUnshield) return 'Releasing to public balance'
-    return isUnshield ? 'Preparing release' : 'Moving your funds'
-  })()
-
   const body = (() => {
     if (isFinalizing && !isUnshield && !isSend)
       return 'Your transaction is confirmed. We\'re now encrypting your shielded balance - ~1 min. Your funds are safe. They will appear in your shielded balance once encryption completes.'
@@ -954,16 +967,12 @@ function ProcessingView({ op, amount, phase, startedAt, txHashStep1, txHashStep2
 
   return (
     <div>
-      <PhaseHeader op={op} amount={amount} phase={phase} token={token} />
-      <h3 style={{ margin: '0 0 12px', fontSize: 'var(--text-small)', fontWeight: 700, color: 'var(--color-text-primary)' }}>
-        {heading}
-      </h3>
-      <p style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: '0 0 12px' }}>
-        {body}
-      </p>
-      <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: '0 0 16px' }}>
-        {note}
-      </p>
+      <PhaseHeader
+        op={op} amount={amount} phase={phase} token={token}
+        description={body}
+        note={note}
+        startedAt={startedAt}
+      />
       {startedAt && (
         <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', margin: '0 0 16px' }}>
           Started {elapsed(startedAt)}
@@ -986,7 +995,7 @@ function ProofReadyView({ amount, onComplete, token = 'ETH' }: PhaseViewProps) {
           Action required
         </h3>
       </div>
-      <PhaseIndicator phases={[]} currentPhase={2} operation="unshield" />
+      <PhaseIndicatorVertical phases={[]} currentPhase={2} operation="unshield" />
       <div style={{ height: '20px' }} />
       <p style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', lineHeight: 1.65, margin: '0 0 8px' }}>
         Your <strong style={{ color: 'var(--color-text-primary)' }}>{amount} {token}</strong> {plural} ready to be released to your public balance. One more wallet confirmation will complete this.

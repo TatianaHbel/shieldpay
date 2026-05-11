@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import { LayoutDashboard, Shield, PanelLeft, Layers, FileText } from 'lucide-react'
 import { RightPanel } from './RightPanel'
-import { StatusPersistenceBanner } from './StatusPersistenceBanner'
+import { InfoBar } from './InfoBar'
 import { NavigationWarning } from './NavigationWarning'
 import { LeftColumnOverlay } from './LeftColumnOverlay'
 import { useOperation } from '../hooks/useOperation'
@@ -33,24 +33,15 @@ const DS_FOUNDATION = [
   { id: 'accessibility', label: 'Accessibility' },
 ]
 
-const DS_COMPONENTS = [
-  { id: 'button',                    label: 'Button' },
-  { id: 'text-field',                label: 'TextField' },
-  { id: 'notification',              label: 'Notification' },
-  { id: 'status-badge',              label: 'StatusBadge' },
-  { id: 'phase-indicator',           label: 'PhaseIndicator' },
-  { id: 'card',                      label: 'Card' },
-  { id: 'switch',                    label: 'Switch' },
-  { id: 'progress-bar',              label: 'ProgressBar' },
-  { id: 'balance-card',              label: 'BalanceCard' },
-  { id: 'activity-row',              label: 'ActivityRow' },
-  { id: 'status-persistence-banner', label: 'StatusPersistenceBanner' },
-  { id: 'navigation-warning',        label: 'NavigationWarning' },
-  { id: 'connect-wallet-card',       label: 'ConnectWalletCard' },
-  { id: 'right-panel',               label: 'RightPanel' },
-  { id: 'left-column-overlay',       label: 'LeftColumnOverlay' },
-  { id: 'table',                     label: 'Table' },
-  { id: 'token-table',               label: 'TokenTable' },
+const DS_CATEGORIES = [
+  { label: 'Avatar',         items: [{ id: 'blockie', label: 'Blockie' }, { id: 'token-avatar', label: 'TokenAvatar' }] },
+  { label: 'Buttons',        items: [{ id: 'button', label: 'Button' }, { id: 'action-button-row', label: 'ActionButtonRow' }] },
+  { label: 'Inputs',         items: [{ id: 'text-field', label: 'TextField' }] },
+  { label: 'Card',           items: [{ id: 'card', label: 'Card' }, { id: 'balance-card', label: 'BalanceCard' }, { id: 'connect-wallet-card', label: 'ConnectWalletCard' }] },
+  { label: 'Notifications',  items: [{ id: 'notification', label: 'Notification' }, { id: 'status-persistence-banner', label: 'InfoBar' }, { id: 'navigation-warning', label: 'NavigationWarning' }, { id: 'status-badge', label: 'StatusBadge' }] },
+  { label: 'Table',          items: [{ id: 'table', label: 'Table' }, { id: 'activity-row', label: 'ActivityRow' }, { id: 'token-table', label: 'TokenTable' }] },
+  { label: 'Phase Indicator', items: [{ id: 'phase-indicator', label: 'PhaseIndicator' }, { id: 'phase-indicator-vertical', label: 'PhaseIndicatorVertical' }] },
+  { label: 'Drawer',         items: [{ id: 'right-panel', label: 'Drawer' }, { id: 'left-column-overlay', label: 'LeftColumnOverlay' }] },
 ]
 
 const NAV_ITEMS = [
@@ -291,22 +282,26 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
                     </button>
                   ))}
                   <div style={{ height: '1px', background: 'var(--color-border)', margin: '4px 0' }} />
-                  <div style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-border)', padding: '2px 8px 3px' }}>Components</div>
-                  {DS_COMPONENTS.map(s => (
-                    <button
-                      key={s.id}
-                      onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                      style={{
-                        display: 'flex', width: '100%', padding: '4px 8px',
-                        background: 'none', border: 'none', cursor: 'pointer',
-                        textAlign: 'left', borderRadius: '6px', fontFamily: 'inherit',
-                        transition: 'background 100ms ease',
-                      }}
-                      onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-border)')}
-                      onMouseLeave={e => (e.currentTarget.style.background = 'none')}
-                    >
-                      <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>{s.label}</span>
-                    </button>
+                  {DS_CATEGORIES.map(cat => (
+                    <div key={cat.label}>
+                      <div style={{ fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-border)', padding: '6px 8px 3px' }}>{cat.label}</div>
+                      {cat.items.map(s => (
+                        <button
+                          key={s.id}
+                          onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                          style={{
+                            display: 'flex', width: '100%', padding: '4px 8px',
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            textAlign: 'left', borderRadius: '6px', fontFamily: 'inherit',
+                            transition: 'background 100ms ease',
+                          }}
+                          onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-border)')}
+                          onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                        >
+                          <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>{s.label}</span>
+                        </button>
+                      ))}
+                    </div>
                   ))}
                 </div>
               )}
@@ -318,7 +313,7 @@ export function AppShell({ children, publicBalance, shieldedBalance, hideRightPa
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, position: 'relative' }}>
 
 {showBanner && (
-            <StatusPersistenceBanner
+            <InfoBar
               phase={op.phase}
               operation={op.operationType}
               amount={op.amount}

@@ -7,11 +7,11 @@ import { StatusBadge } from '../components/StatusBadge'
 import { PhaseIndicator } from '../components/PhaseIndicator'
 import { PhaseIndicatorVertical } from '../components/PhaseIndicatorVertical'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../components/Card'
-import { Switch } from '../components/Switch'
-import { ProgressBar } from '../components/ProgressBar'
 import { BalanceCard } from '../components/BalanceCard'
 import { ActivityRow } from '../components/ActivityRow'
-import { StatusPersistenceBanner } from '../components/StatusPersistenceBanner'
+import { ActionButtonRow } from '../components/ActionButtonRow'
+import { Blockie } from '../components/Blockie'
+import { InfoBar } from '../components/InfoBar'
 import { NavigationWarning } from '../components/NavigationWarning'
 import { ConnectWalletCard } from '../components/ConnectWalletCard'
 import type { ConnectState } from '../components/ConnectWalletCard'
@@ -19,6 +19,8 @@ import { LeftColumnOverlay } from '../components/LeftColumnOverlay'
 import { RightPanel } from '../components/RightPanel'
 import { Table, TableHeader, TableBody, TableRow, TableCell } from '../components/Table'
 import { TokenTable } from '../components/TokenTable'
+import { TokenAvatar } from '../components/TokenAvatar'
+import type { TokenAvatarVariant } from '../components/TokenAvatar'
 import type { OperationPhase, OperationType } from '../types/operation'
 
 // ────────────────────────────────────────────────────────
@@ -36,24 +38,15 @@ const FOUNDATION_ITEMS = [
   { id: 'accessibility', label: 'Accessibility' },
 ]
 
-const COMPONENT_ITEMS = [
-  { id: 'button', label: 'Button', done: true },
-  { id: 'text-field', label: 'TextField', done: true },
-  { id: 'notification', label: 'Notification', done: true },
-  { id: 'status-badge', label: 'StatusBadge', done: true },
-  { id: 'phase-indicator', label: 'PhaseIndicator', done: true },
-  { id: 'card', label: 'Card', done: true },
-  { id: 'switch', label: 'Switch', done: true },
-  { id: 'progress-bar', label: 'ProgressBar', done: true },
-  { id: 'balance-card', label: 'BalanceCard', done: true },
-  { id: 'activity-row', label: 'ActivityRow', done: true },
-  { id: 'status-persistence-banner', label: 'StatusPersistenceBanner', done: true },
-  { id: 'navigation-warning', label: 'NavigationWarning', done: true },
-  { id: 'connect-wallet-card', label: 'ConnectWalletCard', done: true },
-  { id: 'right-panel', label: 'Right Panel (Drawer)', done: true },
-  { id: 'left-column-overlay', label: 'LeftColumnOverlay', done: true },
-  { id: 'table', label: 'Table', done: true },
-  { id: 'token-table', label: 'TokenTable', done: true },
+const COMPONENT_CATEGORIES = [
+  { label: 'Avatar',         items: [{ id: 'blockie', label: 'Blockie' }, { id: 'token-avatar', label: 'TokenAvatar' }] },
+  { label: 'Buttons',        items: [{ id: 'button', label: 'Button' }, { id: 'action-button-row', label: 'ActionButtonRow' }] },
+  { label: 'Inputs',         items: [{ id: 'text-field', label: 'TextField' }] },
+  { label: 'Card',           items: [{ id: 'card', label: 'Card' }, { id: 'balance-card', label: 'BalanceCard' }, { id: 'connect-wallet-card', label: 'ConnectWalletCard' }] },
+  { label: 'Notifications',  items: [{ id: 'notification', label: 'Notification' }, { id: 'status-persistence-banner', label: 'InfoBar' }, { id: 'navigation-warning', label: 'NavigationWarning' }, { id: 'status-badge', label: 'StatusBadge' }] },
+  { label: 'Table',          items: [{ id: 'table', label: 'Table' }, { id: 'activity-row', label: 'ActivityRow' }, { id: 'token-table', label: 'TokenTable' }] },
+  { label: 'Phase Indicator', items: [{ id: 'phase-indicator', label: 'PhaseIndicator' }, { id: 'phase-indicator-vertical', label: 'PhaseIndicatorVertical' }] },
+  { label: 'Drawer',         items: [{ id: 'right-panel', label: 'Drawer' }, { id: 'left-column-overlay', label: 'LeftColumnOverlay' }] },
 ]
 
 // ────────────────────────────────────────────────────────
@@ -291,7 +284,7 @@ export function DesignSystem() {
   const [tfValue, setTfValue] = useState('')
   const { items: notifications, dismiss: dismissNotification } = useNotifications()
 
-  // StatusPersistenceBanner demo
+  // InfoBar demo
   const [bannerPhase, setBannerPhase] = useState<OperationPhase>('processing')
 
   // NavigationWarning demo - shown inline, no modal overlay needed
@@ -300,17 +293,15 @@ export function DesignSystem() {
   const [connectState, setConnectState] = useState<ConnectState>('landing')
   const [connectWallet, setConnectWallet] = useState<'MetaMask' | 'Rabby' | 'WalletConnect' | undefined>()
 
-  // Switch demo
-  const [switchOn, setSwitchOn] = useState(false)
-
-  // ProgressBar demo
-  const [progressValue, setProgressValue] = useState(65)
-
   // LeftColumnOverlay demo
   const [overlayDemo, setOverlayDemo] = useState<0 | 30 | 50>(0)
 
   // TokenTable demo
   const [tokenTableHidden, setTokenTableHidden] = useState(false)
+
+  // TokenAvatar demo
+  const [taVariant, setTaVariant] = useState<TokenAvatarVariant>('default')
+  const [taSize, setTaSize] = useState<'sm' | 'md'>('md')
 
   // Drawer (Right Panel) demo
   const [panelPhase, setPanelPhase] = useState<OperationPhase>('idle')
@@ -434,7 +425,7 @@ export function DesignSystem() {
               {[
                 { layer: 'Page surface', token: 'none', desc: 'Background, page fills' },
                 { layer: 'Cards', token: '--shadow-md', desc: 'BalanceCard, ActivityRow container' },
-                { layer: 'Floating panels', token: '--shadow-lg', desc: 'Dropdowns, StatusPersistenceBanner' },
+                { layer: 'Floating panels', token: '--shadow-lg', desc: 'Dropdowns, InfoBar' },
                 { layer: 'Right panel', token: '--shadow-xl', desc: 'Drawer - always top of hierarchy' },
               ].map(row => (
                 <div key={row.layer} style={{ display: 'grid', gridTemplateColumns: '160px 200px 1fr', gap: '24px', padding: '13px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'center' }}>
@@ -565,7 +556,7 @@ export function DesignSystem() {
               {[
                 { role: 'role="alert"', usage: 'Urgent messages (errors, network failures)', component: 'Notification - error variant' },
                 { role: 'role="status"', usage: 'Non-urgent updates (saved, processing)', component: 'Notification - info / success / warning' },
-                { role: 'aria-live="polite"', usage: 'Announce dynamic content changes', component: 'StatusPersistenceBanner, ActivityRow' },
+                { role: 'aria-live="polite"', usage: 'Announce dynamic content changes', component: 'InfoBar, ActivityRow' },
                 { role: 'aria-invalid="true"', usage: 'Signal invalid field to screen readers', component: 'TextField - error state' },
                 { role: 'aria-describedby', usage: 'Link inputs to their hint or error text', component: 'TextField - hint and error labels' },
                 { role: 'aria-label', usage: 'Label icon-only controls without visible text', component: 'Button icon-only, BalanceCard eye toggle' },
@@ -633,8 +624,200 @@ export function DesignSystem() {
           </Subsection>
         </Section>
 
-        {/* ═══ COMPONENTS ═════════════════════════════ */}
-        <SectionDivider label="Components" />
+
+        {/* ══ AVATAR ══════════════════════════════════════ */}
+        <SectionDivider label="Avatar" />
+
+        {/* Blockie */}
+        <Section id="blockie" title="Blockie" description="Deterministic pixel avatar generated from a wallet address. Renders to a circular canvas. Used in the Overview header to identify the connected account at a glance. Color and pattern are seeded by the address so the same address always produces the same image.">
+          <Subsection title="Sizes">
+            <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-end' }}>
+              {([
+                { size: 5, scale: 4, label: 'xs - 20px' },
+                { size: 8, scale: 4, label: 'sm - 32px (default)' },
+                { size: 8, scale: 5, label: 'md - 40px' },
+                { size: 8, scale: 6, label: 'lg - 48px' },
+                { size: 8, scale: 8, label: 'xl - 64px' },
+              ]).map(({ size, scale, label }) => (
+                <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <Blockie address="0x71C7656EC7ab88b098defB751B7401B5f6d8976F" size={size} scale={scale} />
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', textAlign: 'center' }}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </Subsection>
+          <Subsection title="Address seeding">
+            <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-end' }}>
+              {([
+                '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+                '0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe',
+                '0xCA35b7d915458EF540aDe6068dFe2F44E8fa733c',
+                '0x4B0897b0513fdC7C541B6d9D7E929C4e5364D2dB',
+              ]).map((addr) => (
+                <div key={addr} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <Blockie address={addr} size={8} scale={5} />
+                  <span style={{ fontSize: '10px', color: 'var(--color-text-secondary)', fontFamily: 'monospace' }}>{addr.slice(0, 6)}...{addr.slice(-4)}</span>
+                </div>
+              ))}
+            </div>
+          </Subsection>
+          <Subsection title="Props">
+            <Anatomy parts={[
+              { name: 'address', desc: 'string. Wallet address used to seed the pixel pattern and colors. Case-insensitive - normalized to lowercase internally.' },
+              { name: 'size', desc: 'number (default 8). Grid dimension in pixels before scaling. Higher values increase pixel count and detail.' },
+              { name: 'scale', desc: 'number (default 4). Pixel scale multiplier. Canvas width = size × scale. Default renders a 32px canvas.' },
+              { name: 'style', desc: 'Optional CSSProperties. Passed to the canvas element. Do not override border-radius or display - these are set internally.' },
+            ]} />
+          </Subsection>
+          <Subsection title="Do and Don't">
+            <DoAndDont
+              dos={[
+                'Always pass the real connected wallet address - the avatar is the visual fingerprint of that account.',
+                'Use size=8 scale=5 (40px) in the Overview header for readable detail without taking too much space.',
+                'Treat the output as a trust signal - users compare the avatar to recognize their account quickly.',
+              ]}
+              donts={[
+                "Don't pass a truncated address - the full address is needed to produce a stable, unique pattern.",
+                "Don't use as a generic placeholder avatar for non-wallet entities.",
+                "Don't override border-radius inline - the circular clip is part of the component contract.",
+              ]}
+            />
+          </Subsection>
+        </Section>
+
+        <Section
+          id="token-avatar"
+          title="TokenAvatar"
+          description="Circular token identity badge with a context-specific overlay badge at bottom-right. Covers all transaction states: default chain, shielded, unshielded, in-progress, warning, success, add-funds, send-in-progress, send-success, failed, and pair (two overlapping tokens for swap/shielding preview)."
+        >
+          <Subsection title="All variants">
+            {(() => {
+              const VARIANTS: { variant: TokenAvatarVariant; label: string; symbol: string; chain?: string; pairSymbol?: string }[] = [
+                { variant: 'default',          label: 'Default',           symbol: 'ETH',  chain: 'avax' },
+                { variant: 'shielded',         label: 'Shielded',          symbol: 'ETH' },
+                { variant: 'unshielded',       label: 'Unshielded',        symbol: 'ETH' },
+                { variant: 'in-progress',      label: 'In Progress',       symbol: 'ETH' },
+                { variant: 'warning',          label: 'Warning',           symbol: 'ETH' },
+                { variant: 'send-in-progress', label: 'Send in Progress',  symbol: 'USDC' },
+                { variant: 'send-success',     label: 'Send Success',      symbol: 'USDC' },
+                { variant: 'success',          label: 'Success',           symbol: 'USDC' },
+                { variant: 'add-funds',        label: 'Add Funds',         symbol: 'USDC' },
+                { variant: 'failed',           label: 'Failed',            symbol: 'ETH' },
+                { variant: 'pair',             label: 'Pair',              symbol: 'ETH',  pairSymbol: 'USDC' },
+              ]
+              return (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '32px', alignItems: 'flex-end' }}>
+                  {VARIANTS.map(({ variant, label, symbol, chain, pairSymbol }) => (
+                    <div key={variant} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                      <TokenAvatar
+                        symbol={symbol}
+                        variant={variant}
+                        chain={chain}
+                        pairSymbol={pairSymbol}
+                        size="md"
+                      />
+                      <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>{label}</span>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+          </Subsection>
+
+          <Subsection title="Size comparison">
+            <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-end' }}>
+              {(['sm', 'md'] as const).map(s => (
+                <div key={s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                  <TokenAvatar symbol="ETH" variant="shielded" size={s} />
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+                    size="{s}" ({s === 'sm' ? '32px' : '48px'})
+                  </span>
+                </div>
+              ))}
+            </div>
+          </Subsection>
+
+          <Subsection title="Interactive demo">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {(['default', 'shielded', 'unshielded', 'in-progress', 'warning', 'send-in-progress', 'send-success', 'success', 'add-funds', 'failed', 'pair'] as TokenAvatarVariant[]).map(v => (
+                  <button
+                    key={v}
+                    onClick={() => setTaVariant(v)}
+                    style={{
+                      padding: '5px 12px',
+                      borderRadius: 'var(--radius-full)',
+                      border: taVariant === v ? '1px solid var(--color-blue)' : '1px solid var(--color-border)',
+                      background: taVariant === v ? 'rgba(55,72,255,0.08)' : 'transparent',
+                      color: taVariant === v ? 'var(--color-blue)' : 'var(--color-text-secondary)',
+                      fontSize: '12px',
+                      fontWeight: taVariant === v ? 600 : 400,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {(['sm', 'md'] as const).map(s => (
+                  <button
+                    key={s}
+                    onClick={() => setTaSize(s)}
+                    style={{
+                      padding: '5px 12px',
+                      borderRadius: 'var(--radius-full)',
+                      border: taSize === s ? '1px solid var(--color-blue)' : '1px solid var(--color-border)',
+                      background: taSize === s ? 'rgba(55,72,255,0.08)' : 'transparent',
+                      color: taSize === s ? 'var(--color-blue)' : 'var(--color-text-secondary)',
+                      fontSize: '12px',
+                      fontWeight: taSize === s ? 600 : 400,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '24px', padding: '24px', background: 'var(--color-surface-subtle)', borderRadius: 'var(--radius-lg)' }}>
+                <TokenAvatar symbol="ETH"  variant={taVariant} chain="avax" pairSymbol="USDC" size={taSize} />
+                <TokenAvatar symbol="USDC" variant={taVariant} chain="eth"  pairSymbol="ETH"  size={taSize} />
+                <TokenAvatar symbol="AVAX" variant={taVariant} chain="eth"  pairSymbol="DAI"  size={taSize} />
+              </div>
+            </div>
+          </Subsection>
+
+          <Subsection title="Anatomy">
+            <Anatomy parts={[
+              { name: 'TokenCircle', desc: 'Main 48px (md) or 32px (sm) circle. Uses the cryptocurrency-icons CDN for the token image, falling back to the token brand color on load error.' },
+              { name: 'BadgeShell', desc: 'The 20px (md) or 14px (sm) overlay circle, absolutely positioned at bottom-right with a white separation ring via box-shadow.' },
+              { name: 'variant', desc: 'Controls the badge fill and icon. Blue (#3748FF): shielded (ShieldCheck), unshielded (ShieldOff), in-progress (Zap), send-in-progress (ArrowRight), add-funds (Plus). Green (#5FC578): send-success (ArrowRight), success (Check). Amber (#FFB74D): warning (ShieldAlert). Grey (#A8AFB7): failed (Ban).' },
+              { name: 'chain', desc: 'Required when variant="default". Accepts a token symbol (e.g. "ETH", "AVAX") and fetches the logo from the same CDN as the main token image.' },
+              { name: 'pair', desc: 'Two overlapping TokenCircles. Provide pairSymbol for the second token. Used for swap and shielding-preview states.' },
+            ]} />
+          </Subsection>
+
+          <Subsection title="Do and Don't">
+            <DoAndDont
+              dos={[
+                'Use variant="shielded" for any token that is in the private balance - it communicates the privacy state at a glance.',
+                'Always pass chain when using variant="default" - without it, no badge renders and the state is ambiguous.',
+                'Use size="sm" in compact contexts (activity rows, balance chips) and size="md" in table cells and detail views.',
+                'Use variant="pair" for shield and swap operations to show both the source and destination tokens together.',
+              ]}
+              donts={[
+                "Don't hardcode token image URLs in page files - pass symbol and let the component resolve the CDN path.",
+                "Don't mix sizes in the same table column - pick one and keep all rows consistent.",
+                "Don't add extra borders or shadows to the wrapper div - the white box-shadow separator on the badge already handles visual separation.",
+                "Don't use variant=\"shielded\" for tokens still processing - use in-progress until the operation is fully confirmed.",
+              ]}
+            />
+          </Subsection>
+        </Section>
+
+
+        {/* ══ BUTTONS ═════════════════════════════════════ */}
+        <SectionDivider label="Buttons" />
 
         {/* Button */}
         <Section id="button" title="Button" description="Interactive element for triggering actions. Always uses native <button>. Never a <div>. Six variants - one primary CTA per view.">
@@ -709,11 +892,44 @@ export function DesignSystem() {
                 "Don't use more than one `primary` button in the same view section.",
                 "Don't disable while async work is pending - show `loading` instead; disabling traps users.",
                 "Don't keep `loading` state after the operation moves to `awaiting_wallet_confirmation` - WalletConfirmationPrompt takes over focus.",
-                "Don't use a button for state toggles (use Switch) or navigation labels (use links).",
+                "Don't use a button for navigation labels - use anchor elements or NavLink instead.",
               ]}
             />
           </Subsection>
         </Section>
+
+        {/* ActionButtonRow */}
+        <Section id="action-button-row" title="ActionButtonRow" description="Fixed row of four quick-action buttons rendered in the Overview below the balance cards. Each button triggers a drawer action. On hover the button surface lifts and the icon and label shift to brand blue.">
+          <Subsection title="Demo">
+            <ActionButtonRow onAction={(action) => console.log('action:', action)} />
+          </Subsection>
+          <Subsection title="Anatomy">
+            <Anatomy parts={[
+              { name: 'container', desc: 'flex row, gap 8px. Contains exactly four ActionButton children: Send, Receive, Shield, Unshield.' },
+              { name: 'ActionButton', desc: '40px height pill. background: --color-surface-subtle (rest) / --color-surface-raised (hover). border: transparent (rest) / --color-blue (hover). Transition on --duration-fast.' },
+              { name: 'icon', desc: '16px Lucide icon. color: --color-text-primary (rest) / --color-blue (hover).' },
+              { name: 'label', desc: '13px / weight 600. Same color transition as icon. white-space: nowrap.' },
+            ]} />
+          </Subsection>
+          <Subsection title="Do and Don't">
+            <DoAndDont
+              dos={[
+                'Render once in the Overview, directly below BalanceCard. This is its only placement.',
+                'Pass the drawer onAction callback - each button opens the corresponding RightPanel tab.',
+                'Keep all four buttons visible at all times - do not conditionally hide Shield or Unshield based on balance.',
+              ]}
+              donts={[
+                "Don't add a fifth action - the four verbs (Send, Receive, Shield, Unshield) cover the full operation set.",
+                "Don't use ActionButton as a standalone component outside ActionButtonRow - it has no exported API.",
+                "Don't replace with Button variant='secondary' - the surface and border-on-hover behavior is specific to this component.",
+              ]}
+            />
+          </Subsection>
+        </Section>
+
+
+        {/* ══ INPUTS ══════════════════════════════════════ */}
+        <SectionDivider label="Inputs" />
 
         {/* TextField */}
         <Section id="text-field" title="TextField" description="Input field for user-entered data. Label always visible above. Hint and error occupy the same slot below - error wins. Font-size ≥ 16px to prevent iOS auto-zoom.">
@@ -788,180 +1004,9 @@ export function DesignSystem() {
           </Subsection>
         </Section>
 
-        {/* Notification */}
-        <Section id="notification" title="Notification" description="Informational messages giving feedback on action outcomes. Non-intrusive - never interrupts workflow. 4s standard, 10s actionable. Timer pauses on hover. Max 3 stacked.">
-          <Subsection title="All variants">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
-              {([
-                { variant: 'info' as const,    dot: 'var(--color-processing)', bg: 'rgba(55,72,255,0.06)',  title: 'Processing',         desc: 'Your shield operation is running',   label: 'Info' },
-                { variant: 'success' as const, dot: 'var(--color-success)',    bg: 'rgba(91,184,30,0.07)',  title: 'Shielded',           desc: '1.5 ETH added to private balance',   label: 'Success' },
-                { variant: 'warning' as const, dot: 'var(--color-warning)',    bg: 'rgba(245,207,0,0.10)',  title: 'Slow network',       desc: 'Estimated 4+ minutes',               label: 'Warning' },
-                { variant: 'error' as const,   dot: 'var(--color-error)',      bg: 'rgba(185,28,28,0.07)',  title: 'Transaction failed', desc: 'Your funds are safe',                label: 'Error' },
-              ]).map(({ dot, bg, title, desc, label }) => (
-                <div key={label} style={{
-                  display: 'flex', alignItems: 'flex-start', gap: '12px',
-                  padding: '16px 20px',
-                  background: bg,
-                }}>
-                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: dot, flexShrink: 0, marginTop: '4px' }} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 'var(--text-small)', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: '2px' }}>{title}</div>
-                    <div style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)' }}>{desc}</div>
-                  </div>
-                  <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-secondary)', flexShrink: 0 }}>{label}</span>
-                </div>
-              ))}
-            </div>
-          </Subsection>
 
-          <Subsection title="Timing rules">
-            <div style={{ borderTop: '1px solid var(--color-border)' }}>
-              <TokenRow token="standard" value="4 000ms" extra="Informational messages - auto-dismiss" />
-              <TokenRow token="actionable" value="10 000ms" extra="Notifications with action buttons - extra time to read and act" />
-              <TokenRow token="pause-on-hover" value="-" extra="Timer freezes when pointer enters; resumes on mouse leave" />
-              <TokenRow token="max-stack" value="3" extra="Oldest notification silently dismissed when limit is exceeded" />
-            </div>
-          </Subsection>
-
-          <Subsection title="ARIA roles">
-            <div style={{ borderTop: '1px solid var(--color-border)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '16px', padding: '12px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'baseline' }}>
-                <code style={{ fontSize: '13px', fontFamily: 'monospace', color: 'var(--color-public)' }}>role="alert"</code>
-                <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>Urgent messages requiring immediate attention (error variant). Announced assertively by screen readers.</span>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '16px', padding: '12px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'baseline' }}>
-                <code style={{ fontSize: '13px', fontFamily: 'monospace', color: 'var(--color-public)' }}>role="status"</code>
-                <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>Non-urgent updates (info, success, warning). Announced politely - respects the user's current focus.</span>
-              </div>
-            </div>
-          </Subsection>
-
-          <Subsection title="Do and Don't">
-            <DoAndDont
-              dos={[
-                'Use for lightweight transient feedback: "Copied to clipboard", "Transaction submitted".',
-                'Position bottom-left - Drawer owns the right side during active operations.',
-                'Use `role="alert"` only for unexpected errors; `role="status"` for operation progress events.',
-                'Auto-dismiss informational and success notifications after 5s; never auto-dismiss actionable ones.',
-              ]}
-              donts={[
-                "Don't use Notification for operation phase changes - use StatusPersistenceBanner (persists across navigation) or the Drawer state (in-flow).",
-                "Don't use for inline form errors - those belong in the TextField `error` prop.",
-                "Don't show while WalletConfirmationPrompt is active - competing messages break focus.",
-                "Don't stack more than 3 - dismiss the oldest silently when exceeded.",
-              ]}
-            />
-          </Subsection>
-        </Section>
-
-        {/* StatusBadge */}
-        <Section id="status-badge" title="StatusBadge" description="Inline badge for operation status. Eight variants covering the full lifecycle. action-required pulses to signal urgency - it is the only animated badge variant.">
-          <Subsection title="All variants">
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <StatusBadge variant="processing" />
-              <StatusBadge variant="success" />
-              <StatusBadge variant="failed" />
-              <StatusBadge variant="cancelled" />
-              <StatusBadge variant="pending" />
-              <StatusBadge variant="action-required" />
-              <StatusBadge variant="destructive" />
-              <StatusBadge variant="outline" />
-            </div>
-          </Subsection>
-          <Subsection title="Custom labels">
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-              <StatusBadge variant="processing" label="Encrypting…" />
-              <StatusBadge variant="processing" label="Waiting for proof…" />
-              <StatusBadge variant="action-required" label="Complete required" />
-            </div>
-          </Subsection>
-          <Subsection title="Anatomy">
-            <Anatomy parts={[
-              { name: 'dot', desc: '6px circle. Color matches text token. Pulses only on action-required.' },
-              { name: 'label', desc: 'Default label derived from variant. Overridable. Never truncated.' },
-              { name: 'container', desc: 'Pill shape (border-radius: full). Background is 15% opacity of the dot color.' },
-            ]} />
-          </Subsection>
-          <Subsection title="Do and Don't">
-            <DoAndDont
-              dos={[
-                'Map badge variants directly to operation phases: `processing` → processing/finalizing; `action-required` → proof_ready/interrupted; `completed` → completed; `failed` → any failure type.',
-                'Override the label with specific phase copy: "Encrypting…" not "Processing", "Waiting for proof…" not "Action required".',
-                'Use `action-required` (pulsing) only when the user must tap to continue - proof_ready and interrupted unshield are the only such phases in the current flow.',
-                'Pair with PhaseIndicator inside the Drawer; use standalone in ActivityRow.',
-              ]}
-              donts={[
-                "Don't use `action-required` during `processing` or `finalizing` - the user has nothing to do and the pulse creates false urgency.",
-                "Don't use `completed` during the `finalizing` phase - Etherscan shows 'Success' but the private balance is still computing.",
-                "Don't show more than one badge per ActivityRow.",
-              ]}
-            />
-          </Subsection>
-        </Section>
-
-        {/* PhaseIndicator */}
-        <Section id="phase-indicator" title="PhaseIndicator" description="Horizontal progress track for operation phases. Not a numbered stepper - users aren't doing steps; the system is. Labels are always visible, never hover-only.">
-          <Subsection title="Variants">
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  {(['State', 'Horizontal', 'Vertical'] as const).map(col => (
-                    <th key={col} style={{
-                      padding: '10px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700,
-                      textTransform: 'uppercase', letterSpacing: '0.06em',
-                      color: 'var(--color-text-secondary)', borderBottom: '2px solid var(--color-border)',
-                      whiteSpace: 'nowrap',
-                    }}>{col}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {([
-                  { op: 'shield' as const, phase: 0, label: 'Shield · phase 0 (Auth)',      vert: { op: 'shield' as const, phase: 0 } },
-                  { op: 'shield' as const, phase: 2, label: 'Shield · phase 2 (Encrypt)',   vert: { op: 'shield' as const, phase: 2 } },
-                  { op: 'shield' as const, phase: 3, label: 'Shield · phase 3 (Done)',      vert: { op: 'shield' as const, phase: 3 } },
-                  { op: 'send' as const,   phase: 2, label: 'Send · phase 2 (Encrypt)',     vert: { op: 'send'   as const, phase: 2 } },
-                  { op: 'unshield' as const, phase: 1, label: 'Unshield · phase 1 (Wait)',  vert: { op: 'unshield' as const, phase: 1 } },
-                ]).map(({ op, phase, label, vert }, i) => (
-                  <tr key={label} style={{ background: i % 2 === 0 ? 'transparent' : 'var(--color-surface-subtle)' }}>
-                    <td style={{ padding: '20px 16px', fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', fontWeight: 500, whiteSpace: 'nowrap', borderBottom: '1px solid var(--color-border)', verticalAlign: 'middle' }}>
-                      {label}
-                    </td>
-                    <td style={{ padding: '20px 16px', borderBottom: '1px solid var(--color-border)', verticalAlign: 'middle', minWidth: '280px' }}>
-                      <PhaseIndicator phases={[]} currentPhase={phase} operation={op} />
-                    </td>
-                    <td style={{ padding: '20px 16px', borderBottom: '1px solid var(--color-border)', verticalAlign: 'middle' }}>
-                      <PhaseIndicatorVertical phases={[]} currentPhase={vert.phase} operation={vert.op} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Subsection>
-          <Subsection title="Anatomy">
-            <Anatomy parts={[
-              { name: 'track', desc: '2px horizontal line between nodes. Filled (--color-shielded) for completed segments, --color-border for upcoming.' },
-              { name: 'node', desc: 'Circular dot. done: 8px filled. current: 12px with 2px border + glow. upcoming: 8px border only.' },
-              { name: 'label', desc: 'Always visible below each node. Current phase is bold. Never hidden behind hover.' },
-            ]} />
-          </Subsection>
-          <Subsection title="Do and Don't">
-            <DoAndDont
-              dos={[
-                'Use inside the Drawer during active shield/unshield operations - this is its only placement in the app.',
-                'Show all 4 phases even when one is near-instant - skipping phases makes users doubt whether the system is progressing.',
-                'Treat `processing` and `finalizing` as separate phases - the on-chain confirmation and FHE computation are distinct steps that must not be merged.',
-                'Use the vertical variant inside the Drawer; horizontal only in wider standalone contexts.',
-              ]}
-              donts={[
-                "Don't use as a multi-step form wizard - it shows what the system is doing, not what the user must do.",
-                "Don't mark `finalizing` complete until the private balance has updated - the transaction confirming on-chain is not the end of the operation.",
-                "Don't hide or abbreviate phase labels - they are the primary communication mechanism during a wait.",
-                "Don't render outside the Drawer - it belongs to the in-flight operation context only.",
-              ]}
-            />
-          </Subsection>
-        </Section>
+        {/* ══ CARD ════════════════════════════════════════ */}
+        <SectionDivider label="Card" />
 
         {/* Card */}
         <Section id="card" title="Card" description="General-purpose surface container with sub-components for structured content. Uses --radius-lg and --shadow-sm. Cards group related content and actions into a single coherent unit.">
@@ -1141,70 +1186,6 @@ export function DesignSystem() {
           </Subsection>
         </Section>
 
-        {/* Switch */}
-        <Section id="switch" title="Switch" description="Binary toggle for on/off settings. Uses role=switch and aria-checked for accessibility. Never use for actions - only persistent settings.">
-          <Subsection title="States">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <Switch checked={switchOn} onChange={setSwitchOn} label={switchOn ? 'Shielded mode on' : 'Shielded mode off'} />
-              <Switch checked={true} onChange={() => {}} label="Always on (disabled)" disabled />
-              <Switch checked={false} onChange={() => {}} label="Always off (disabled)" disabled />
-            </div>
-          </Subsection>
-          <Subsection title="Anatomy">
-            <Anatomy parts={[
-              { name: 'track', desc: '44×24px pill. Background: --color-blue (on) or --color-border (off). Transitions on background change.' },
-              { name: 'thumb', desc: '20×20px white circle with --shadow-sm. Translates 20px on checked state.' },
-              { name: 'label', desc: 'Optional. Renders as <label> with htmlFor wiring. Click toggles the switch.' },
-            ]} />
-          </Subsection>
-          <Subsection title="Do and Don't">
-            <DoAndDont
-              dos={[
-                'Use for persistent binary settings that apply immediately: balance visibility, notification preferences.',
-                'Always pair with a visible label - the track alone is ambiguous without context.',
-                'Apply the change on toggle - no Save step.',
-              ]}
-              donts={[
-                "Don't use for initiating operations - use Button for shield, unshield, send actions.",
-                "Don't place inside forms that require explicit submission - Switch state is live, not staged.",
-                "Don't rely on color alone to convey state - thumb position is the primary indicator.",
-              ]}
-            />
-          </Subsection>
-        </Section>
-
-        {/* ProgressBar */}
-        <Section id="progress-bar" title="ProgressBar" description="Determinate progress indicator for operations with a known completion state. Always use ARIA attributes for accessibility.">
-          <Subsection title="Variants">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', maxWidth: '480px' }}>
-              <ProgressBar value={progressValue} label="Encrypting balance" showValue />
-              <ProgressBar value={progressValue} variant="success" label="Shielded" showValue />
-              <ProgressBar value={progressValue} variant="warning" label="Network congestion" showValue />
-              <ProgressBar value={progressValue} variant="destructive" label="Failed" showValue />
-            </div>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '16px', alignItems: 'center' }}>
-              <Button size="sm" variant="secondary" onClick={() => setProgressValue(v => Math.max(0, v - 10))}>−10</Button>
-              <Button size="sm" variant="secondary" onClick={() => setProgressValue(v => Math.min(100, v + 10))}>+10</Button>
-              <span style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)' }}>{progressValue}%</span>
-            </div>
-          </Subsection>
-          <Subsection title="Sizes">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '480px' }}>
-              <ProgressBar value={65} size="sm" label="sm · 4px" />
-              <ProgressBar value={65} size="md" label="md · 8px" />
-              <ProgressBar value={65} size="lg" label="lg · 12px" />
-            </div>
-          </Subsection>
-          <Subsection title="Anatomy">
-            <Anatomy parts={[
-              { name: 'track', desc: 'Full-width background bar. --color-surface-subtle. border-radius: full.' },
-              { name: 'fill', desc: 'Colored inner bar. Width = (value / max) × 100%. Transitions on --duration-slow.' },
-              { name: 'label', desc: 'Optional text above the bar. Left-aligned.' },
-              { name: 'value', desc: 'Optional percentage display. Right-aligned next to label.' },
-            ]} />
-          </Subsection>
-        </Section>
-
         {/* BalanceCard */}
         <Section id="balance-card" title="BalanceCard" description="Paired balance display used in the Overview. Both cards render side by side with dollar totals and stacked token avatars. A single page-level eye toggle controls the hidden state on both simultaneously.">
           <Subsection title="Overview layout - side by side">
@@ -1245,6 +1226,338 @@ export function DesignSystem() {
                 "Don't add a per-card onToggleHidden - one toggle controls both cards, not each independently.",
                 "Don't reveal balances by default - hidden=true is the safe starting state.",
                 "Don't hardcode the accent color - always derive it from the type prop via semantic tokens.",
+              ]}
+            />
+          </Subsection>
+        </Section>
+
+        <Section id="connect-wallet-card" title="ConnectWalletCard" description="Entry screen for /connect. 6-state machine: landing → wallet-selector → connecting → eip712-setup → eip712-active → dashboard. EIP-712 setup explains the free signature before the wallet popup opens - preventing confusion with a paid transaction.">
+          <Subsection title="State machine - live demo">
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+              {([
+                { state: 'landing' as const, label: 'Landing' },
+                { state: 'wallet-selector' as const, label: 'Wallet selector' },
+                { state: 'connecting' as const, label: 'Connecting' },
+                { state: 'eip712-setup' as const, label: 'EIP-712 setup' },
+                { state: 'eip712-active' as const, label: 'EIP-712 active' },
+                { state: 'error' as const, label: 'Error' },
+              ]).map(({ state, label }) => (
+                <Button key={state} size="sm" variant={connectState === state ? 'primary' : 'secondary'}
+                  onClick={() => setConnectState(state)}>
+                  {label}
+                </Button>
+              ))}
+            </div>
+            <ConnectWalletCard
+              state={connectState}
+              selectedWallet={connectWallet}
+              error={connectState === 'error' ? 'rejected' : undefined}
+              onConnect={(w) => { setConnectWallet(w); setConnectState('connecting') }}
+              onBack={() => setConnectState('landing')}
+              onCancel={() => setConnectState('landing')}
+              onEnableShielded={() => setConnectState('eip712-active')}
+              onSkipShielded={() => {}}
+              onDashboard={() => {}}
+              onRetry={() => setConnectState('wallet-selector')}
+            />
+          </Subsection>
+          <Subsection title="Anatomy">
+            <Anatomy parts={[
+              { name: 'landing', desc: 'Shield icon + headline + single CTA. No wallet options shown upfront - reduces decision paralysis.' },
+              { name: 'wallet-selector', desc: 'Inline expansion, no modal. Three wallet options with icon + name. Back link.' },
+              { name: 'connecting', desc: 'Spinner + "Check your browser extension" copy. "Open manually" escape hatch. Cancel button.' },
+              { name: 'eip712-setup', desc: '"✓ Wallet connected" confirmation first, then the EIP-712 ask. Explains free + once. Skip option defers to Shielded section.' },
+              { name: 'eip712-active', desc: 'Purple spinner (shielded color) + "Check your wallet for a signature request." Same escape hatch pattern as connecting.' },
+              { name: 'error', desc: 'Error icon + specific title + recovery copy per error type. Back available. CTA varies: retry, switch network, dashboard.' },
+            ]} />
+          </Subsection>
+          <Subsection title="Do and Don't">
+            <DoAndDont
+              dos={[
+                'Render as the entire `/connect` page - full screen, no AppShell, no Drawer. This is the only full-page takeover in the app.',
+                'Show EIP-712 setup as a subsequent state within the card after wallet connects - never as a surprise second popup.',
+                'Confirm the wallet connection visually before asking for the EIP-712 signature.',
+                'Explain that EIP-712 is one-time and free before the wallet popup opens.',
+              ]}
+              donts={[
+                "Don't open wallet selection in a modal - expand inline within the card.",
+                "Don't auto-trigger the EIP-712 popup - show the setup state inside the card first.",
+                "Don't remove 'Skip for now' - forcing EIP-712 on first connect creates friction that breaks the onboarding funnel.",
+                "Don't use generic error copy - each error type (rejected, timeout, already-connected) needs its own recovery instruction.",
+              ]}
+            />
+          </Subsection>
+        </Section>
+
+
+        {/* ══ NOTIFICATIONS ═══════════════════════════════ */}
+        <SectionDivider label="Notifications" />
+
+        {/* Notification */}
+        <Section id="notification" title="Notification" description="Informational messages giving feedback on action outcomes. Non-intrusive - never interrupts workflow. 4s standard, 10s actionable. Timer pauses on hover. Max 3 stacked.">
+          <Subsection title="All variants">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--color-border)' }}>
+              {([
+                { variant: 'info' as const,    dot: 'var(--color-processing)', bg: 'rgba(55,72,255,0.06)',  title: 'Processing',         desc: 'Your shield operation is running',   label: 'Info' },
+                { variant: 'success' as const, dot: 'var(--color-success)',    bg: 'rgba(91,184,30,0.07)',  title: 'Shielded',           desc: '1.5 ETH added to private balance',   label: 'Success' },
+                { variant: 'warning' as const, dot: 'var(--color-warning)',    bg: 'rgba(245,207,0,0.10)',  title: 'Slow network',       desc: 'Estimated 4+ minutes',               label: 'Warning' },
+                { variant: 'error' as const,   dot: 'var(--color-error)',      bg: 'rgba(185,28,28,0.07)',  title: 'Transaction failed', desc: 'Your funds are safe',                label: 'Error' },
+              ]).map(({ dot, bg, title, desc, label }) => (
+                <div key={label} style={{
+                  display: 'flex', alignItems: 'flex-start', gap: '12px',
+                  padding: '16px 20px',
+                  background: bg,
+                }}>
+                  <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: dot, flexShrink: 0, marginTop: '4px' }} />
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 'var(--text-small)', fontWeight: 700, color: 'var(--color-text-primary)', marginBottom: '2px' }}>{title}</div>
+                    <div style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)' }}>{desc}</div>
+                  </div>
+                  <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--color-text-secondary)', flexShrink: 0 }}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </Subsection>
+
+          <Subsection title="Timing rules">
+            <div style={{ borderTop: '1px solid var(--color-border)' }}>
+              <TokenRow token="standard" value="4 000ms" extra="Informational messages - auto-dismiss" />
+              <TokenRow token="actionable" value="10 000ms" extra="Notifications with action buttons - extra time to read and act" />
+              <TokenRow token="pause-on-hover" value="-" extra="Timer freezes when pointer enters; resumes on mouse leave" />
+              <TokenRow token="max-stack" value="3" extra="Oldest notification silently dismissed when limit is exceeded" />
+            </div>
+          </Subsection>
+
+          <Subsection title="ARIA roles">
+            <div style={{ borderTop: '1px solid var(--color-border)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '16px', padding: '12px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'baseline' }}>
+                <code style={{ fontSize: '13px', fontFamily: 'monospace', color: 'var(--color-public)' }}>role="alert"</code>
+                <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>Urgent messages requiring immediate attention (error variant). Announced assertively by screen readers.</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '16px', padding: '12px 0', borderBottom: '1px solid var(--color-border)', alignItems: 'baseline' }}>
+                <code style={{ fontSize: '13px', fontFamily: 'monospace', color: 'var(--color-public)' }}>role="status"</code>
+                <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)' }}>Non-urgent updates (info, success, warning). Announced politely - respects the user's current focus.</span>
+              </div>
+            </div>
+          </Subsection>
+
+          <Subsection title="Do and Don't">
+            <DoAndDont
+              dos={[
+                'Use for lightweight transient feedback: "Copied to clipboard", "Transaction submitted".',
+                'Position bottom-left - Drawer owns the right side during active operations.',
+                'Use `role="alert"` only for unexpected errors; `role="status"` for operation progress events.',
+                'Auto-dismiss informational and success notifications after 5s; never auto-dismiss actionable ones.',
+              ]}
+              donts={[
+                "Don't use Notification for operation phase changes - use InfoBar (persists across navigation) or the Drawer state (in-flow).",
+                "Don't use for inline form errors - those belong in the TextField `error` prop.",
+                "Don't show while WalletConfirmationPrompt is active - competing messages break focus.",
+                "Don't stack more than 3 - dismiss the oldest silently when exceeded.",
+              ]}
+            />
+          </Subsection>
+        </Section>
+
+        <Section id="status-persistence-banner" title="InfoBar" description="Persistent strip at the top of the left column for all non-idle operation states. Never auto-dismisses. Completed, failed, and cancelled states are manually dismissable - the user always sees the outcome when they return.">
+          <Subsection title="Phase variants">
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+              {([
+                { phase: 'processing' as const, label: 'Processing' },
+                { phase: 'proof_ready' as const, label: 'Action required' },
+                { phase: 'completed' as const, label: 'Completed' },
+                { phase: 'failed_submission' as const, label: 'Failed' },
+                { phase: 'cancelled' as const, label: 'Cancelled' },
+              ]).map(({ phase, label }) => (
+                <Button key={phase} size="sm" variant={bannerPhase === phase ? 'primary' : 'secondary'}
+                  onClick={() => setBannerPhase(phase)}>
+                  {label}
+                </Button>
+              ))}
+            </div>
+            <InfoBar
+              phase={bannerPhase}
+              operation="shield"
+              amount="0.50"
+              startedAt={Date.now() - 240000}
+              onView={() => {}}
+              onDismiss={(['completed', 'failed_submission', 'cancelled'] as OperationPhase[]).includes(bannerPhase) ? () => setBannerPhase('idle' as OperationPhase) : undefined}
+            />
+          </Subsection>
+          <Subsection title="Anatomy">
+            <Anatomy parts={[
+              { name: 'icon', desc: 'Variant-colored icon. Pulses (pulse-badge) on action-required. Clock for processing, Zap for action-required, CheckCircle for completed, AlertCircle for failed.' },
+              { name: 'title', desc: 'Operation + outcome. Copy follows fund-safety rules: "safe" before Step 1 confirms, "secured" in unshield intermediate state.' },
+              { name: 'subtitle', desc: 'Relative timestamp ("Started 4 minutes ago"). Updates every 30s.' },
+              { name: 'cta', desc: '"View →" for most states. "Complete →" for action-required. Both open the right panel at the active operation.' },
+              { name: 'dismiss', desc: 'X button on completed, failed, and cancelled states. Hidden for processing and action-required (user must act, not dismiss).' },
+            ]} />
+          </Subsection>
+          <Subsection title="Do and Don't">
+            <DoAndDont
+              dos={[
+                'Mount in the AppShell layout - always rendered globally, never inside a page component.',
+                'Show for all active phases including `completed` - the banner is the user\'s persistent view into operation state while they browse the app.',
+                'Treat the banner as the re-entry point to the Drawer: every variant shows a "View →" CTA that reopens the Drawer at the current phase. It is a shortcut, not a notification.',
+                'Show a green `completed` banner when the operation finishes - it persists until the user explicitly dismisses it so they see the result even after navigating away.',
+                'Make completed, failed, and cancelled states manually dismissable with the X button.',
+                'Keep visible and non-dismissable for processing and `action-required` states - the user must either wait or act.',
+              ]}
+              donts={[
+                "Don't use `role=\"alert\"` - the banner is a persistent status indicator, not an urgent interruption.",
+                "Don't use processing colors for `completed` - green only after the private balance has updated.",
+                "Don't use for lightweight feedback unrelated to an active operation - use Notification instead.",
+                "Don't auto-dismiss for `action-required` or `failed` - the user must acknowledge or act.",
+              ]}
+            />
+          </Subsection>
+        </Section>
+
+        <Section id="navigation-warning" title="NavigationWarning" description="Inline dialog shown when the user attempts to navigate away during an active Unshield. Two urgency levels - soft (processing) and urgent (proof_ready). Never a browser confirm() dialog.">
+          <Subsection title="Urgency variants">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div>
+                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '12px', fontWeight: 500 }}>Soft - still processing</div>
+                <NavigationWarning urgency="soft" onStay={() => {}} onLeave={() => {}} />
+              </div>
+              <div>
+                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '12px', fontWeight: 500 }}>Urgent - proof ready</div>
+                <NavigationWarning urgency="urgent" onStay={() => {}} onLeave={() => {}} />
+              </div>
+            </div>
+          </Subsection>
+          <Subsection title="Anatomy">
+            <Anatomy parts={[
+              { name: 'icon', desc: 'Zap icon only on urgent variant. aria-hidden - urgency conveyed via title color and copy.' },
+              { name: 'title', desc: 'Urgent: colored amber (--color-warning). Soft: text-primary. Max one line.' },
+              { name: 'body', desc: 'Explains consequence of leaving. Must answer: what happens to my funds if I leave? Always use "secured" for unshield intermediate state.' },
+              { name: 'primary-cta', desc: '"Complete now" (urgent, primary) or "Stay" (soft, secondary). Closes the dialog, keeps user on page.' },
+              { name: 'secondary-cta', desc: '"Leave anyway" (ghost). Allows navigation even with risk acknowledged. Always present.' },
+            ]} />
+          </Subsection>
+          <Subsection title="Do and Don't">
+            <DoAndDont
+              dos={[
+                'Show only during `proof_ready` unshield - this is the only phase where funds are in an intermediate contract and leaving has a meaningful consequence.',
+                'Intercept navigation with this dialog instead of browser `confirm()` - it allows custom copy and accessible focus management.',
+                'Always make "Leave anyway" available - never trap the user; inform, do not block.',
+                'Auto-focus the "Stay" CTA on open so keyboard users land on the safer default.',
+              ]}
+              donts={[
+                "Don't show during `processing` or `finalizing` shield phases - users can safely navigate away; the operation continues server-side.",
+                "Don't show for Send operations.",
+                "Don't delay rendering - show the dialog immediately on navigation intercept, not after a timeout.",
+                "Don't use `role=\"alertdialog\"` with `aria-required` - users have the right to leave.",
+              ]}
+            />
+          </Subsection>
+        </Section>
+
+        {/* StatusBadge */}
+        <Section id="status-badge" title="StatusBadge" description="Inline badge for operation status. Eight variants covering the full lifecycle. action-required pulses to signal urgency - it is the only animated badge variant.">
+          <Subsection title="All variants">
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <StatusBadge variant="processing" />
+              <StatusBadge variant="success" />
+              <StatusBadge variant="failed" />
+              <StatusBadge variant="cancelled" />
+              <StatusBadge variant="pending" />
+              <StatusBadge variant="action-required" />
+              <StatusBadge variant="destructive" />
+              <StatusBadge variant="outline" />
+            </div>
+          </Subsection>
+          <Subsection title="Custom labels">
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <StatusBadge variant="processing" label="Encrypting…" />
+              <StatusBadge variant="processing" label="Waiting for proof…" />
+              <StatusBadge variant="action-required" label="Complete required" />
+            </div>
+          </Subsection>
+          <Subsection title="Anatomy">
+            <Anatomy parts={[
+              { name: 'dot', desc: '6px circle. Color matches text token. Pulses only on action-required.' },
+              { name: 'label', desc: 'Default label derived from variant. Overridable. Never truncated.' },
+              { name: 'container', desc: 'Pill shape (border-radius: full). Background is 15% opacity of the dot color.' },
+            ]} />
+          </Subsection>
+          <Subsection title="Do and Don't">
+            <DoAndDont
+              dos={[
+                'Map badge variants directly to operation phases: `processing` → processing/finalizing; `action-required` → proof_ready/interrupted; `completed` → completed; `failed` → any failure type.',
+                'Override the label with specific phase copy: "Encrypting…" not "Processing", "Waiting for proof…" not "Action required".',
+                'Use `action-required` (pulsing) only when the user must tap to continue - proof_ready and interrupted unshield are the only such phases in the current flow.',
+                'Pair with PhaseIndicator inside the Drawer; use standalone in ActivityRow.',
+              ]}
+              donts={[
+                "Don't use `action-required` during `processing` or `finalizing` - the user has nothing to do and the pulse creates false urgency.",
+                "Don't use `completed` during the `finalizing` phase - Etherscan shows 'Success' but the private balance is still computing.",
+                "Don't show more than one badge per ActivityRow.",
+              ]}
+            />
+          </Subsection>
+        </Section>
+
+
+        {/* ══ TABLE ═══════════════════════════════════════ */}
+        <SectionDivider label="Table" />
+
+        <Section
+          id="table"
+          title="Table"
+          description="Generic table primitives for structured data layouts. Compose Table, TableHeader, TableBody, TableFooter, TableRow, and TableCell to build any tabular view."
+        >
+          <Subsection title="Example - generic ruled table">
+            <Table bordered accessibilityLabel="Example table">
+              <TableHeader>
+                <TableRow>
+                  <TableCell asHeader title="Name" width="40%" />
+                  <TableCell asHeader title="Value" width="35%" />
+                  <TableCell asHeader title="Status" width="25%" direction="row" justifyContent="flex-end" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[
+                  { name: '--color-blue', value: '#3748FF', status: 'Active' },
+                  { name: '--color-shielded', value: '#6D28D9', status: 'Active' },
+                  { name: '--color-lime', value: '#CEFF1C', status: 'Active' },
+                ].map(row => (
+                  <TableRow key={row.name}>
+                    <TableCell title={row.name} />
+                    <TableCell title={row.value} />
+                    <TableCell direction="row" justifyContent="flex-end">
+                      <span style={{ fontSize: '12px', color: 'var(--color-success)', fontWeight: 500 }}>
+                        {row.status}
+                      </span>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Subsection>
+          <Subsection title="Anatomy">
+            <Anatomy parts={[
+              { name: 'Table', desc: 'Root wrapper. Handles overflow scroll on narrow viewports. bordered prop adds a 1px border and border-radius.' },
+              { name: 'TableHeader', desc: 'Maps to <thead>. Contains exactly one TableRow with TableCell asHeader cells.' },
+              { name: 'TableBody', desc: 'Maps to <tbody>. Contains one TableRow per data record.' },
+              { name: 'TableFooter', desc: 'Maps to <tfoot>. Optional - use for pagination or summary rows.' },
+              { name: 'TableRow', desc: 'Maps to <tr>. hoverable prop enables mouse-over highlight.' },
+              { name: 'TableCell', desc: 'Maps to <td> or <th> (asHeader). Accepts title/subtitle/start shorthand for common layouts, or children with direction/justifyContent for custom content.' },
+            ]} />
+          </Subsection>
+          <Subsection title="Do and Don't">
+            <DoAndDont
+              dos={[
+                'Use as the primitive for any structured data list - TokenTable is built on top of it.',
+                'Use `title + subtitle + start` shorthand for asset rows (symbol + name + icon) - it handles layout automatically.',
+                'Use `direction="row" justifyContent="flex-end"` for right-aligned balance or value cells.',
+                'Always set `accessibilityLabel` on the Table root for screen reader region labelling.',
+              ]}
+              donts={[
+                "Don't mix `asHeader` cells into TableBody rows - header styling belongs only inside TableHeader.",
+                "Don't hardcode padding or border-bottom inside TableCell children - the cell provides them.",
+                "Don't skip TableHeader - always include column labels even when they seem obvious.",
+                "Don't use Table for single-item displays - use Card or a plain layout instead.",
               ]}
             />
           </Subsection>
@@ -1356,168 +1669,177 @@ export function DesignSystem() {
               donts={[
                 "Don't render completed rows before in-progress ones, even if more recently dated.",
                 "Don't show the Complete CTA on any status other than `proof_ready` and `interrupted` unshield - no other phase requires user action to release funds.",
-                "Don't make rows tappable to expand - no token or transaction detail pages exist yet.",
                 "Don't add more than one trailing action per row.",
               ]}
             />
           </Subsection>
         </Section>
 
-        {/* ── Planned components ── */}
+        <Section
+          id="token-table"
+          title="TokenTable"
+          description="Assembled token balance table for wallet views. Shows asset avatar, symbol and full name, privacy state badge, and balance with USD equivalent. A single hidden prop masks all balances simultaneously."
+        >
+          <Subsection title="Interactive demo">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '12px', gap: '10px' }}>
+              <Button size="sm" variant="secondary" onClick={() => setTokenTableHidden(h => !h)}>
+                {tokenTableHidden ? <Eye size={14} /> : <EyeOff size={14} />}
+                {tokenTableHidden ? 'Show balances' : 'Hide balances'}
+              </Button>
+              <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
+                (demo only - in the app, hidden is driven by the page-level eye toggle)
+              </span>
+            </div>
+            <TokenTable hidden={tokenTableHidden} />
+          </Subsection>
+          <Subsection title="Anatomy">
+            <Anatomy parts={[
+              { name: 'TokenAvatar', desc: 'Circular colored badge showing the token abbreviation. Shielded variant: scaled inner circle + --color-shielded border ring + ShieldCheck badge at bottom-right.' },
+              { name: 'PrivacyBadge', desc: 'Pill showing Shielded (purple tint, ShieldCheck icon) or Unshielded (outlined, ShieldOff icon).' },
+              { name: 'balance cell', desc: 'Right-aligned column. Primary line: token amount + unit. Secondary line: USD equivalent. Both lines are replaced with ●●● when hidden=true.' },
+              { name: 'hidden prop', desc: 'Boolean controlled by the parent. Masks all balance rows simultaneously - partial masking is not supported by design.' },
+            ]} />
+          </Subsection>
+          <Subsection title="Do and Don't">
+            <DoAndDont
+              dos={[
+                'Drive `hidden` from the same page-level toggle that controls BalanceCard - the visibility state is shared across the entire Overview.',
+                'Treat cETH, cUSDC, cDAI as separate token entries from their unshielded counterparts - they have distinct balances and identities.',
+                'Use `--color-shielded` for all shielded treatments: avatar ring, badge background, PrivacyBadge tint - never substitute another color.',
+                'Mask both token amount and USD value when hidden - revealing either one exposes balance information.',
+              ]}
+              donts={[
+                "Don't add per-row privacy toggles - the table masks and reveals as a whole.",
+                "Don't make rows tappable - no token detail pages are defined; clickable rows with no destination break user trust.",
+                "Don't use any color other than `--color-shielded` for the shielded avatar ring.",
+              ]}
+            />
+          </Subsection>
+        </Section>
 
-        <Section id="status-persistence-banner" title="StatusPersistenceBanner" description="Persistent strip at the top of the left column for all non-idle operation states. Never auto-dismisses. Completed, failed, and cancelled states are manually dismissable - the user always sees the outcome when they return.">
-          <Subsection title="Phase variants">
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+
+        {/* ══ PHASE INDICATOR ═════════════════════════════ */}
+        <SectionDivider label="Phase Indicator" />
+
+        {/* PhaseIndicator */}
+        <Section id="phase-indicator" title="PhaseIndicator" description="Vertical timeline for operation phases. Not a numbered stepper - users aren't doing steps; the system is. In-progress phases use purple; the completed state uses green. Labels and timestamps are always visible.">
+          <Subsection title="Variants">
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr>
+                  {(['State', 'Horizontal', 'Vertical'] as const).map(col => (
+                    <th key={col} style={{
+                      padding: '10px 16px', textAlign: 'left', fontSize: '11px', fontWeight: 700,
+                      textTransform: 'uppercase', letterSpacing: '0.06em',
+                      color: 'var(--color-text-secondary)', borderBottom: '2px solid var(--color-border)',
+                      whiteSpace: 'nowrap',
+                    }}>{col}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {([
+                  { op: 'shield' as const, phase: 0, label: 'Shield · phase 0 (Auth)',      vert: { op: 'shield' as const, phase: 0 } },
+                  { op: 'shield' as const, phase: 2, label: 'Shield · phase 2 (Encrypt)',   vert: { op: 'shield' as const, phase: 2 } },
+                  { op: 'shield' as const, phase: 3, label: 'Shield · phase 3 (Done)',      vert: { op: 'shield' as const, phase: 3 } },
+                  { op: 'send' as const,   phase: 2, label: 'Send · phase 2 (Encrypt)',     vert: { op: 'send'   as const, phase: 2 } },
+                  { op: 'unshield' as const, phase: 1, label: 'Unshield · phase 1 (Wait)',  vert: { op: 'unshield' as const, phase: 1 } },
+                ]).map(({ op, phase, label, vert }, i) => (
+                  <tr key={label} style={{ background: i % 2 === 0 ? 'transparent' : 'var(--color-surface-subtle)' }}>
+                    <td style={{ padding: '20px 16px', fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', fontWeight: 500, whiteSpace: 'nowrap', borderBottom: '1px solid var(--color-border)', verticalAlign: 'middle' }}>
+                      {label}
+                    </td>
+                    <td style={{ padding: '20px 16px', borderBottom: '1px solid var(--color-border)', verticalAlign: 'middle', minWidth: '280px' }}>
+                      <PhaseIndicator phases={[]} currentPhase={phase} operation={op} />
+                    </td>
+                    <td style={{ padding: '20px 16px', borderBottom: '1px solid var(--color-border)', verticalAlign: 'middle' }}>
+                      <PhaseIndicatorVertical phases={[]} currentPhase={vert.phase} operation={vert.op} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Subsection>
+          <Subsection title="Anatomy">
+            <Anatomy parts={[
+              { name: 'connector', desc: '2px vertical line between nodes. Purple (--color-shielded) for completed segments, --color-border for upcoming. Muted green (rgba(21,128,61,0.25)) in the complete variant.' },
+              { name: 'node', desc: 'Circular dot. done: 8px filled purple. current: 12px with border + glow. upcoming: 8px grey. complete variant: 20px green circle with check icon.' },
+              { name: 'label', desc: 'Always visible next to each node. Current phase is bold. Never hidden.' },
+              { name: 'timestamp', desc: 'Appears below the label for completed steps. Formatted as "Mon DD, H:MM AM/PM".' },
+              { name: 'description', desc: 'Optional body text + note nested under the active step label. Used in ProcessingView to communicate what is happening and what the user should do.' },
+            ]} />
+          </Subsection>
+          <Subsection title="Do and Don't">
+            <DoAndDont
+              dos={[
+                'Use inside the Drawer during active shield/unshield operations - this is its only placement in the app.',
+                'Show all 4 phases even when one is near-instant - skipping phases makes users doubt whether the system is progressing.',
+                'Treat `processing` and `finalizing` as separate phases - the on-chain confirmation and FHE computation are distinct steps that must not be merged.',
+                'Use the vertical variant everywhere — it is the canonical form inside the Drawer.',
+              ]}
+              donts={[
+                "Don't use as a multi-step form wizard - it shows what the system is doing, not what the user must do.",
+                "Don't mark `finalizing` complete until the private balance has updated - the transaction confirming on-chain is not the end of the operation.",
+                "Don't hide or abbreviate phase labels - they are the primary communication mechanism during a wait.",
+                "Don't render outside the Drawer - it belongs to the in-flight operation context only.",
+              ]}
+            />
+          </Subsection>
+        </Section>
+
+        {/* PhaseIndicatorVertical */}
+        <Section id="phase-indicator-vertical" title="PhaseIndicatorVertical" description="Vertical timeline variant rendered inside the RightPanel drawer during active operations. Shows all phases stacked with a connecting line. The active phase can carry an optional description and note. Defaults to operation-specific phase labels when no custom phases prop is passed.">
+          <Subsection title="Variants">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
               {([
-                { phase: 'processing' as const, label: 'Processing' },
-                { phase: 'proof_ready' as const, label: 'Action required' },
-                { phase: 'completed' as const, label: 'Completed' },
-                { phase: 'failed_submission' as const, label: 'Failed' },
-                { phase: 'cancelled' as const, label: 'Cancelled' },
-              ]).map(({ phase, label }) => (
-                <Button key={phase} size="sm" variant={bannerPhase === phase ? 'primary' : 'secondary'}
-                  onClick={() => setBannerPhase(phase)}>
-                  {label}
-                </Button>
+                { op: 'shield' as const,   phase: 1, label: 'Shield in progress' },
+                { op: 'unshield' as const, phase: 2, label: 'Unshield finalizing' },
+                { op: 'shield' as const,   phase: 3, label: 'Complete variant' },
+              ]).map(({ op, phase, label }) => (
+                <div key={label}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--color-text-secondary)', marginBottom: '16px' }}>{label}</div>
+                  <PhaseIndicatorVertical
+                    phases={[]}
+                    currentPhase={phase}
+                    operation={op}
+                    variant={phase === 3 ? 'complete' : 'progress'}
+                    timestamps={phase === 3 ? ['May 11, 2:04 PM', 'May 11, 2:04 PM', 'May 11, 2:05 PM', 'May 11, 2:07 PM'] : undefined}
+                    currentDescription={phase !== 3 ? 'Your transaction is confirmed on the network. Encrypting your private balance now.' : undefined}
+                    currentNote={phase !== 3 ? 'This takes about 1 minute. You can leave this page.' : undefined}
+                  />
+                </div>
               ))}
             </div>
-            <StatusPersistenceBanner
-              phase={bannerPhase}
-              operation="shield"
-              amount="0.50"
-              startedAt={Date.now() - 240000}
-              onView={() => {}}
-              onDismiss={(['completed', 'failed_submission', 'cancelled'] as OperationPhase[]).includes(bannerPhase) ? () => setBannerPhase('idle' as OperationPhase) : undefined}
-            />
           </Subsection>
-          <Subsection title="Anatomy">
+          <Subsection title="Props">
             <Anatomy parts={[
-              { name: 'icon', desc: 'Variant-colored icon. Pulses (pulse-badge) on action-required. Clock for processing, Zap for action-required, CheckCircle for completed, AlertCircle for failed.' },
-              { name: 'title', desc: 'Operation + outcome. Copy follows fund-safety rules: "safe" before Step 1 confirms, "secured" in unshield intermediate state.' },
-              { name: 'subtitle', desc: 'Relative timestamp ("Started 4 minutes ago"). Updates every 30s.' },
-              { name: 'cta', desc: '"View →" for most states. "Complete →" for action-required. Both open the right panel at the active operation.' },
-              { name: 'dismiss', desc: 'X button on completed, failed, and cancelled states. Hidden for processing and action-required (user must act, not dismiss).' },
+              { name: 'phases', desc: 'string[]. Custom phase labels. Pass [] to use the built-in OPERATION_PHASES for the given operation type.' },
+              { name: 'currentPhase', desc: 'number. Index of the active phase. Phases before this index render as completed (filled purple dot).' },
+              { name: 'operation', desc: "'shield' | 'send' | 'unshield'. Selects the default label set when phases is empty." },
+              { name: 'variant', desc: "'progress' (default) | 'complete'. Complete renders every dot as a green circle with a check and mutes the connectors." },
+              { name: 'timestamps', desc: 'Optional (string | null | undefined)[]. Timestamp shown below each completed phase label. Index-aligned with phases.' },
+              { name: 'currentDescription', desc: 'Optional string. Body text rendered under the active phase label. Use to explain what is happening.' },
+              { name: 'currentNote', desc: 'Optional string. Secondary note under currentDescription. Use for leave-page permission.' },
             ]} />
           </Subsection>
           <Subsection title="Do and Don't">
             <DoAndDont
               dos={[
-                'Mount in the AppShell layout - always rendered globally, never inside a page component.',
-                'Show for all active phases including `completed` - the banner is the user\'s persistent view into operation state while they browse the app.',
-                'Treat the banner as the re-entry point to the Drawer: every variant shows a "View →" CTA that reopens the Drawer at the current phase. It is a shortcut, not a notification.',
-                'Show a green `completed` banner when the operation finishes - it persists until the user explicitly dismisses it so they see the result even after navigating away.',
-                'Make completed, failed, and cancelled states manually dismissable with the X button.',
-                'Keep visible and non-dismissable for processing and `action-required` states - the user must either wait or act.',
+                'Pass currentDescription to answer "what is happening" and currentNote to answer "what should I do / can I leave".',
+                'Switch to variant="complete" only after the private balance has been updated - not when the transaction confirms on-chain.',
               ]}
               donts={[
-                "Don't use `role=\"alert\"` - the banner is a persistent status indicator, not an urgent interruption.",
-                "Don't use processing colors for `completed` - green only after the private balance has updated.",
-                "Don't use for lightweight feedback unrelated to an active operation - use Notification instead.",
-                "Don't auto-dismiss for `action-required` or `failed` - the user must acknowledge or act.",
+                "Don't omit currentDescription during long waits - users need to know what the system is doing.",
               ]}
             />
           </Subsection>
         </Section>
 
-        <Section id="navigation-warning" title="NavigationWarning" description="Inline dialog shown when the user attempts to navigate away during an active Unshield. Two urgency levels - soft (processing) and urgent (proof_ready). Never a browser confirm() dialog.">
-          <Subsection title="Urgency variants">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              <div>
-                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '12px', fontWeight: 500 }}>Soft - still processing</div>
-                <NavigationWarning urgency="soft" onStay={() => {}} onLeave={() => {}} />
-              </div>
-              <div>
-                <div style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginBottom: '12px', fontWeight: 500 }}>Urgent - proof ready</div>
-                <NavigationWarning urgency="urgent" onStay={() => {}} onLeave={() => {}} />
-              </div>
-            </div>
-          </Subsection>
-          <Subsection title="Anatomy">
-            <Anatomy parts={[
-              { name: 'icon', desc: 'Zap icon only on urgent variant. aria-hidden - urgency conveyed via title color and copy.' },
-              { name: 'title', desc: 'Urgent: colored amber (--color-warning). Soft: text-primary. Max one line.' },
-              { name: 'body', desc: 'Explains consequence of leaving. Must answer: what happens to my funds if I leave? Always use "secured" for unshield intermediate state.' },
-              { name: 'primary-cta', desc: '"Complete now" (urgent, primary) or "Stay" (soft, secondary). Closes the dialog, keeps user on page.' },
-              { name: 'secondary-cta', desc: '"Leave anyway" (ghost). Allows navigation even with risk acknowledged. Always present.' },
-            ]} />
-          </Subsection>
-          <Subsection title="Do and Don't">
-            <DoAndDont
-              dos={[
-                'Show only during `proof_ready` unshield - this is the only phase where funds are in an intermediate contract and leaving has a meaningful consequence.',
-                'Intercept navigation with this dialog instead of browser `confirm()` - it allows custom copy and accessible focus management.',
-                'Always make "Leave anyway" available - never trap the user; inform, do not block.',
-                'Auto-focus the "Stay" CTA on open so keyboard users land on the safer default.',
-              ]}
-              donts={[
-                "Don't show during `processing` or `finalizing` shield phases - users can safely navigate away; the operation continues server-side.",
-                "Don't show for Send operations.",
-                "Don't delay rendering - show the dialog immediately on navigation intercept, not after a timeout.",
-                "Don't use `role=\"alertdialog\"` with `aria-required` - users have the right to leave.",
-              ]}
-            />
-          </Subsection>
-        </Section>
 
-        <Section id="connect-wallet-card" title="ConnectWalletCard" description="Entry screen for /connect. 6-state machine: landing → wallet-selector → connecting → eip712-setup → eip712-active → dashboard. EIP-712 setup explains the free signature before the wallet popup opens - preventing confusion with a paid transaction.">
-          <Subsection title="State machine - live demo">
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-              {([
-                { state: 'landing' as const, label: 'Landing' },
-                { state: 'wallet-selector' as const, label: 'Wallet selector' },
-                { state: 'connecting' as const, label: 'Connecting' },
-                { state: 'eip712-setup' as const, label: 'EIP-712 setup' },
-                { state: 'eip712-active' as const, label: 'EIP-712 active' },
-                { state: 'error' as const, label: 'Error' },
-              ]).map(({ state, label }) => (
-                <Button key={state} size="sm" variant={connectState === state ? 'primary' : 'secondary'}
-                  onClick={() => setConnectState(state)}>
-                  {label}
-                </Button>
-              ))}
-            </div>
-            <ConnectWalletCard
-              state={connectState}
-              selectedWallet={connectWallet}
-              error={connectState === 'error' ? 'rejected' : undefined}
-              onConnect={(w) => { setConnectWallet(w); setConnectState('connecting') }}
-              onBack={() => setConnectState('landing')}
-              onCancel={() => setConnectState('landing')}
-              onEnableShielded={() => setConnectState('eip712-active')}
-              onSkipShielded={() => {}}
-              onDashboard={() => {}}
-              onRetry={() => setConnectState('wallet-selector')}
-            />
-          </Subsection>
-          <Subsection title="Anatomy">
-            <Anatomy parts={[
-              { name: 'landing', desc: 'Shield icon + headline + single CTA. No wallet options shown upfront - reduces decision paralysis.' },
-              { name: 'wallet-selector', desc: 'Inline expansion, no modal. Three wallet options with icon + name. Back link.' },
-              { name: 'connecting', desc: 'Spinner + "Check your browser extension" copy. "Open manually" escape hatch. Cancel button.' },
-              { name: 'eip712-setup', desc: '"✓ Wallet connected" confirmation first, then the EIP-712 ask. Explains free + once. Skip option defers to Shielded section.' },
-              { name: 'eip712-active', desc: 'Purple spinner (shielded color) + "Check your wallet for a signature request." Same escape hatch pattern as connecting.' },
-              { name: 'error', desc: 'Error icon + specific title + recovery copy per error type. Back available. CTA varies: retry, switch network, dashboard.' },
-            ]} />
-          </Subsection>
-          <Subsection title="Do and Don't">
-            <DoAndDont
-              dos={[
-                'Render as the entire `/connect` page - full screen, no AppShell, no Drawer. This is the only full-page takeover in the app.',
-                'Show EIP-712 setup as a subsequent state within the card after wallet connects - never as a surprise second popup.',
-                'Confirm the wallet connection visually before asking for the EIP-712 signature.',
-                'Explain that EIP-712 is one-time and free before the wallet popup opens.',
-              ]}
-              donts={[
-                "Don't open wallet selection in a modal - expand inline within the card.",
-                "Don't auto-trigger the EIP-712 popup - show the setup state inside the card first.",
-                "Don't remove 'Skip for now' - forcing EIP-712 on first connect creates friction that breaks the onboarding funnel.",
-                "Don't use generic error copy - each error type (rejected, timeout, already-connected) needs its own recovery instruction.",
-              ]}
-            />
-          </Subsection>
-        </Section>
+        {/* ══ DRAWER ══════════════════════════════════════ */}
+        <SectionDivider label="Drawer" />
 
-        <Section id="right-panel" title="Right Panel (Drawer)" description="Persistent 380px transaction drawer, always mounted. Never unmounts on route change. Tab bar hidden during any active operation phase. Every phase answers three questions: what is happening, what the user should do, and what happens if they leave.">
+        <Section id="right-panel" title="Drawer" description="Persistent 380px transaction drawer, always mounted. Never unmounts on route change. Tab bar hidden during any active operation phase. Every phase answers three questions: what is happening, what the user should do, and what happens if they leave.">
           <Subsection title="State machine - live demo">
             {/* Controls: Operation (parent) → Phase (child), aligned labels, no extra toggle button */}
             <div style={{ marginBottom: '16px', padding: '16px 20px', background: 'var(--color-surface-raised)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -1643,7 +1965,7 @@ export function DesignSystem() {
                 'Replace the form with phase content during an active operation - the two states are mutually exclusive.',
                 'Answer all three questions in every phase copy: what is happening, what the user should do (or "nothing - you can leave"), and what happens if they leave.',
                 'Hide the tab bar during active operations - prevent starting a second operation mid-flow.',
-                'Treat the StatusPersistenceBanner as the re-entry point: it reminds the user an operation is active or needs attention, and tapping it reopens the Drawer at the current phase. It is not a notification - it is a persistent shortcut back to the operation.',
+                'Treat the InfoBar as the re-entry point: it reminds the user an operation is active or needs attention, and tapping it reopens the Drawer at the current phase. It is not a notification - it is a persistent shortcut back to the operation.',
                 'Clicking an in-progress or completed ActivityRow entry for shield, unshield, or send should reopen the Drawer showing the final state of that operation (the last phase screen reached).',
                 'Pair with LeftColumnOverlay: intensity 50 for `awaiting_wallet_confirmation`, intensity 30 for `processing` and `finalizing`.',
               ]}
@@ -1711,114 +2033,6 @@ export function DesignSystem() {
           </Subsection>
         </Section>
 
-        <SectionDivider label="Data" />
-
-        <Section
-          id="table"
-          title="Table"
-          description="Generic table primitives for structured data layouts. Compose Table, TableHeader, TableBody, TableFooter, TableRow, and TableCell to build any tabular view."
-        >
-          <Subsection title="Example - generic ruled table">
-            <Table bordered accessibilityLabel="Example table">
-              <TableHeader>
-                <TableRow>
-                  <TableCell asHeader title="Name" width="40%" />
-                  <TableCell asHeader title="Value" width="35%" />
-                  <TableCell asHeader title="Status" width="25%" direction="row" justifyContent="flex-end" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {[
-                  { name: '--color-blue', value: '#3748FF', status: 'Active' },
-                  { name: '--color-shielded', value: '#6D28D9', status: 'Active' },
-                  { name: '--color-lime', value: '#CEFF1C', status: 'Active' },
-                ].map(row => (
-                  <TableRow key={row.name}>
-                    <TableCell title={row.name} />
-                    <TableCell title={row.value} />
-                    <TableCell direction="row" justifyContent="flex-end">
-                      <span style={{ fontSize: '12px', color: 'var(--color-success)', fontWeight: 500 }}>
-                        {row.status}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Subsection>
-          <Subsection title="Anatomy">
-            <Anatomy parts={[
-              { name: 'Table', desc: 'Root wrapper. Handles overflow scroll on narrow viewports. bordered prop adds a 1px border and border-radius.' },
-              { name: 'TableHeader', desc: 'Maps to <thead>. Contains exactly one TableRow with TableCell asHeader cells.' },
-              { name: 'TableBody', desc: 'Maps to <tbody>. Contains one TableRow per data record.' },
-              { name: 'TableFooter', desc: 'Maps to <tfoot>. Optional - use for pagination or summary rows.' },
-              { name: 'TableRow', desc: 'Maps to <tr>. hoverable prop enables mouse-over highlight.' },
-              { name: 'TableCell', desc: 'Maps to <td> or <th> (asHeader). Accepts title/subtitle/start shorthand for common layouts, or children with direction/justifyContent for custom content.' },
-            ]} />
-          </Subsection>
-          <Subsection title="Do and Don't">
-            <DoAndDont
-              dos={[
-                'Use as the primitive for any structured data list - TokenTable is built on top of it.',
-                'Use `title + subtitle + start` shorthand for asset rows (symbol + name + icon) - it handles layout automatically.',
-                'Use `direction="row" justifyContent="flex-end"` for right-aligned balance or value cells.',
-                'Always set `accessibilityLabel` on the Table root for screen reader region labelling.',
-              ]}
-              donts={[
-                "Don't mix `asHeader` cells into TableBody rows - header styling belongs only inside TableHeader.",
-                "Don't hardcode padding or border-bottom inside TableCell children - the cell provides them.",
-                "Don't skip TableHeader - always include column labels even when they seem obvious.",
-                "Don't use Table for single-item displays - use Card or a plain layout instead.",
-              ]}
-            />
-          </Subsection>
-        </Section>
-
-        <Section
-          id="token-table"
-          title="TokenTable"
-          description="Assembled token balance table for wallet views. Shows asset avatar, symbol and full name, privacy state badge, and balance with USD equivalent. A single hidden prop masks all balances simultaneously."
-        >
-          <Subsection title="Interactive demo">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginBottom: '12px', gap: '10px' }}>
-              <span style={{ fontSize: 'var(--text-small)', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
-                Hide balances
-              </span>
-              <Switch
-                checked={tokenTableHidden}
-                onChange={setTokenTableHidden}
-                id="token-table-hidden"
-              />
-              <span style={{ fontSize: '11px', color: 'var(--color-text-secondary)', fontStyle: 'italic' }}>
-                (demo only - in the app, hidden is driven by the page-level eye toggle)
-              </span>
-            </div>
-            <TokenTable hidden={tokenTableHidden} />
-          </Subsection>
-          <Subsection title="Anatomy">
-            <Anatomy parts={[
-              { name: 'TokenAvatar', desc: 'Circular colored badge showing the token abbreviation. Shielded variant: scaled inner circle + --color-shielded border ring + ShieldCheck badge at bottom-right.' },
-              { name: 'PrivacyBadge', desc: 'Pill showing Shielded (purple tint, ShieldCheck icon) or Unshielded (outlined, ShieldOff icon).' },
-              { name: 'balance cell', desc: 'Right-aligned column. Primary line: token amount + unit. Secondary line: USD equivalent. Both lines are replaced with ●●● when hidden=true.' },
-              { name: 'hidden prop', desc: 'Boolean controlled by the parent. Masks all balance rows simultaneously - partial masking is not supported by design.' },
-            ]} />
-          </Subsection>
-          <Subsection title="Do and Don't">
-            <DoAndDont
-              dos={[
-                'Drive `hidden` from the same page-level toggle that controls BalanceCard - the visibility state is shared across the entire Overview.',
-                'Treat cETH, cUSDC, cDAI as separate token entries from their unshielded counterparts - they have distinct balances and identities.',
-                'Use `--color-shielded` for all shielded treatments: avatar ring, badge background, PrivacyBadge tint - never substitute another color.',
-                'Mask both token amount and USD value when hidden - revealing either one exposes balance information.',
-              ]}
-              donts={[
-                "Don't add per-row privacy toggles - the table masks and reveals as a whole.",
-                "Don't make rows tappable - no token detail pages are defined; clickable rows with no destination break user trust.",
-                "Don't use any color other than `--color-shielded` for the shielded avatar ring.",
-              ]}
-            />
-          </Subsection>
-        </Section>
 
     </div>
   )
