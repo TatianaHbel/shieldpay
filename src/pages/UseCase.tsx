@@ -371,7 +371,7 @@ function RuleCard({ num, rule, why, correct, incorrect }: {
 export function UseCase() {
   return (
     <div style={{ padding: '60px 72px', fontFamily: 'Manrope, sans-serif' }}>
-      <div style={{ maxWidth: '900px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
         {/* Hero */}
         <div style={{ marginBottom: '80px' }}>
@@ -483,27 +483,97 @@ export function UseCase() {
 
         {/* 04 - Key Screens */}
         <UCSection id="key-screens" num="04" title="Key Screens"
-          description="These four states represent the highest-stakes moments in the flow - the ones most likely to cause confusion, anxiety, or fund loss if handled poorly.">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+          description="All drawer states across the shield flow - from first wallet signature to completion and error recovery.">
+
+          <Label>Happy path</Label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '28px', marginBottom: '48px' }}>
             <ScreenDemo
               op="shield" phase="awaiting_wallet_step1"
-              caption="Shield - Wallet Step 1 of 2"
+              caption="Wallet Step 1 of 2"
               annotation="Pre-declares what will be approved before the wallet popup appears. Step counter sets expectations: 2 confirmations, this is the first. Left column overlaid at 50% - user must act now."
             />
             <ScreenDemo
+              op="shield" phase="awaiting_wallet_step2"
+              caption="Wallet Step 2 of 2"
+              annotation="Second wallet signature executes the shield transfer. Step counter confirms progress. Same full-focus treatment - left column stays overlaid until user signs or cancels."
+            />
+            <ScreenDemo
+              op="shield" phase="submitted"
+              caption="Submitted"
+              annotation="Transaction broadcast. Left column overlay lifts to 30%. Explicit permission to leave: the operation continues server-side. No action required from the user."
+            />
+            <ScreenDemo
+              op="shield" phase="processing"
+              caption="Processing - On-chain confirmation"
+              annotation="Waiting for block confirmation (~12-36s). System is running, user is a passenger. Copy names the phase and gives an ETA. Overlay stays at 30%."
+            />
+            <ScreenDemo
               op="shield" phase="finalizing"
-              caption="Shield - Encrypting balance (critical)"
+              caption="Encrypting balance (critical)"
               annotation='The trickiest state. Etherscan shows "Success" here, but the shielded balance is not ready. Copy explicitly bridges this gap. Never says "Confirmed" or "Complete" until balance is updated.'
+            />
+            <ScreenDemo
+              op="shield" phase="completed"
+              caption="Completed"
+              annotation="Both balances updated. Timeline shows all four steps with timestamps. No further action needed - Done button dismisses the drawer and the InfoBar clears."
+            />
+          </div>
+
+          <Label>Unshield - full flow</Label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '28px', marginBottom: '48px' }}>
+            <ScreenDemo
+              op="unshield" phase="awaiting_wallet_step1"
+              caption="Unshield - Wallet Step 1 of 2"
+              annotation="User signs to remove tokens from the shielded balance. Shielded tokens burn from this point - copy must be honest about that without triggering loss anxiety."
+            />
+            <ScreenDemo
+              op="unshield" phase="submitted"
+              caption="Unshield - Submitted"
+              annotation="Transaction broadcast. User can safely leave - the proof generation runs server-side. Explicit permission to close the tab."
+            />
+            <ScreenDemo
+              op="unshield" phase="processing"
+              caption="Unshield - Generating proof"
+              annotation="System generates the decryption proof (~1-2 min). Shielded tokens already burned. Copy confirms funds are secured and user can close the tab without consequence."
             />
             <ScreenDemo
               op="unshield" phase="proof_ready"
               caption="Unshield - Proof ready (action required)"
-              annotation='Amber urgency. Shielded tokens already burned - funds are "secured" but not yet released. The only CTA is "Complete unshield →". InfoBar on all routes drives return.'
+              annotation='Amber urgency. Funds are secured in an intermediate contract but not yet released. The only CTA is "Complete unshield". InfoBar on all routes drives the user back.'
             />
             <ScreenDemo
+              op="unshield" phase="interrupted"
+              caption="Unshield - Interrupted (returned)"
+              annotation="User left during proof wait and came back. App checks proof status on load - if proof is ready, restores to this state. Recoverable, not terminal. Same amber urgency as proof_ready."
+            />
+            <ScreenDemo
+              op="unshield" phase="awaiting_wallet_step2"
+              caption="Unshield - Wallet Step 2 of 2"
+              annotation="User signs to release funds to the public balance. Final wallet action. Left column overlaid at 50% - full focus until signed."
+            />
+            <ScreenDemo
+              op="unshield" phase="finalizing"
+              caption="Unshield - Releasing"
+              annotation="ERC-20 transfer to public balance in progress (~30s). System running, user is a passenger. Explicit permission to leave - operation completes regardless."
+            />
+            <ScreenDemo
+              op="unshield" phase="completed"
+              caption="Unshield - Completed"
+              annotation="Both balances updated. Public balance increased. Timeline shows all steps with timestamps. Done button dismisses the drawer and clears the InfoBar."
+            />
+          </div>
+
+          <Label>Error states</Label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '28px' }}>
+            <ScreenDemo
               op="shield" phase="failed_dropped"
-              caption="Failed - Fund safety leads"
-              annotation='"Your funds are safe" is the first line of every error state where funds are genuinely untouched. Error explanation and retry come after. No red heading for cancellations.'
+              caption="Failed - dropped"
+              annotation='"Your funds are safe" is the first line of every error state where funds are genuinely untouched. Error explanation and retry come after.'
+            />
+            <ScreenDemo
+              op="shield" phase="cancelled"
+              caption="Cancelled"
+              annotation="Neutral tone - not an error. User chose to dismiss the wallet prompt. No funds moved, no anxiety needed. Retry CTA available without pressure."
             />
           </div>
         </UCSection>

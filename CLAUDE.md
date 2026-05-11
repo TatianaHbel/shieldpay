@@ -24,14 +24,40 @@ All processed design decisions live in `/docs`. Read the relevant file before ma
 
 ## State system
 
-The shield operation has exactly these states — use these names exactly, everywhere:
+All three operation types share this phase vocabulary. Use these names exactly, everywhere:
 
 ```
-not_started → awaiting_wallet_confirmation → submitted → processing → finalizing → completed
-                                                                                  → failed (types: failed_submission, failed_dropped, failed_finalization)
-                                                                                  → cancelled
-                                                                                  → timed_out
+idle → preparing → awaiting_wallet_step1 → awaiting_wallet_step2 → submitted → processing → finalizing → completed
+                                                                                           → failed_submission
+                                                                                           → failed_dropped
+                                                                                           → failed_finalization
+                                         → cancelled
+                                         → timed_out
+
+// Unshield only — additional phases after processing:
+processing → proof_ready → awaiting_wallet_step2 → finalizing → completed
+           → interrupted  (user left during proof wait; recoverable on return)
 ```
+
+Operation types: `shield` | `send` | `unshield`
+
+## Architecture
+
+The shield/send/unshield flow is **drawer-based**, not route-based. All transaction states render inside `RightPanel` (the 380px drawer), which is always mounted in `AppShell`. Routes never change during an active operation.
+
+- `useOperation` hook — manages phase state machine + `localStorage` persistence
+- `RightPanel` — renders the correct sub-view for each phase
+- `InfoBar` — persistent strip in the layout shell; shows operation status on every route while active
+- `LeftColumnOverlay` — dims the left column at 30% (system running) or 50% (action required)
+
+## Active routes
+
+| Route | Page | Notes |
+|-------|------|-------|
+| `/connect` | `Connect` | Wallet connection + EIP-712 onboarding via `ConnectWalletCard` |
+| `/` | `Overview` | Dashboard — `BalanceCard` (both) + `ActionButtonRow` + activity tabs |
+| `/design-system` | `DesignSystem` | Full component library with live demos |
+| `/use-case` | `UseCase` | Technical challenge write-up for Zama submission |
 
 ## How to handle UX/UI change requests
 
@@ -43,25 +69,38 @@ All changes happen at the component level. The `/design-system` route imports co
 
 ## Component rules (non-negotiable)
 
-1. **Every design change is made at the component level** — never hardcode copy or styles into screen files. If `TransactionStateCard` needs updated copy, change the component. All screens update automatically.
+1. **Every design change is made at the component level** — never hardcode copy or styles into screen files.
 
-2. **`BalanceDisplay` always shows both balances** — public and private together, never one without the other.
+2. **`BalanceCard` always shows both cards together** — public and private side by side in Overview, never one without the other.
 
-3. **`StatusPersistenceBanner` lives in the layout shell**, not in routes. It renders on every page while an operation is active.
+3. **`InfoBar` lives in the layout shell** (`AppShell`), not in routes. It renders on every page while an operation is active.
 
-4. **`WalletConfirmationPrompt` is always full-page** — never a toast or inline notification.
+4. **Wallet confirmation views are always full-focus** — the left column overlays at 50% opacity; the drawer is the only interactive surface.
 
-5. **`RecoveryCard` always leads with fund safety** — "Your funds are safe" is the first line of every error state, when true.
+5. **Error views always lead with fund safety** — "Your funds are safe" is the first line of every error state where funds are genuinely untouched.
 
-6. **No numbered steps for system phases** — the PhaseIndicator is not a stepper. Users aren't doing steps; the system is.
+6. **No numbered steps for system phases** — `PhaseIndicatorVertical` is not a stepper. Users aren't doing steps; the system is.
+
+## Component map
+
+| Concept | Actual component / location |
+|---------|---------------------------|
+| Balance display | `BalanceCard` (`components/BalanceCard.tsx`) |
+| Persistent operation banner | `InfoBar` (`components/InfoBar.tsx`) |
+| Shield / Send / Unshield form | `ShieldForm` / `SendForm` / `UnshieldForm` — sub-functions inside `RightPanel.tsx` |
+| Wallet confirmation view | `WalletConfirmView` — sub-function inside `RightPanel.tsx` |
+| Processing / Finalizing / Completed view | `ProgressView` / `FinalizeView` / `CompletedView` — sub-functions inside `RightPanel.tsx` |
+| Error / cancelled view | `FailedView` / `CancelledView` — sub-functions inside `RightPanel.tsx` |
+| Phase progress timeline | `PhaseIndicatorVertical` (`components/PhaseIndicatorVertical.tsx`) |
+| Left column dimming | `LeftColumnOverlay` (`components/LeftColumnOverlay.tsx`) |
 
 ## Copy rules
 
 - Never write "Transaction pending" alone — always add timeline and permission to leave
-- Never write "Confirmed" when the private balance isn't updated yet — use "Encrypting your balance"
-- Never use jargon: gas→"network fee", FHE→omit, TFHE→omit, mempool→omit, nonce→omit
+- Never write "Confirmed" when the private balance is not updated yet — use "Encrypting your balance"
+- Never use jargon: gas → "network fee", FHE → omit, TFHE → omit, mempool → omit, nonce → omit
 - Always include: what is happening, what the user should do (or "nothing — you can leave"), what happens if they leave
-- Use "Shield" / "Unshield" as operation verbs. "Public balance" / "Private balance" as nouns. Never "encrypt", "lock", "hide".
+- Use "Shield" / "Unshield" as operation verbs. "Public balance" / "Shielded balance" as nouns. Never "encrypt", "lock", "hide"
 
 ## Critical technical detail (fhEVM-specific)
 
@@ -73,29 +112,16 @@ Etherscan shows "Success" while the private balance is still being computed. The
 
 Never equate "transaction confirmed" with "operation complete."
 
-## Simulation approach
+## Simulation
 
-Use `localStorage` + `setTimeout` to simulate the blockchain. Operation state must survive page refresh.
+`useOperation` hook uses `localStorage` + `setTimeout` to simulate the blockchain. State survives page refresh.
 
 ```typescript
-// Phase simulation (useShieldOperation hook)
-awaiting_wallet_confirmation → (2s) → submitted → (3s) → processing → (5s) → finalizing → (4s) → completed
-// Add ~20% random failure injection at failed_dropped for demo purposes
+// Shield happy path timings
+preparing (600ms) → awaiting_wallet_step1 → awaiting_wallet_step2
+  → submitted (3s) → [20% chance: failed_dropped]
+  → processing (5s) → finalizing (4s) → completed
 ```
-
-Persist operation state to `localStorage` so the return-state flow (`StatusPersistenceBanner`) works after reload.
-
-## Screens to build (7 total)
-
-| Route | Screen | Key components |
-|-------|--------|----------------|
-| `/connect` | Wallet not connected | `ConnectWalletCard` |
-| `/` | Dashboard | `BalanceDisplay` + `StatusPersistenceBanner` (if active) |
-| `/shield` | Shield form | `ShieldForm` + `BalanceDisplay` |
-| `/shield/confirm` | Awaiting wallet | `WalletConfirmationPrompt` |
-| `/shield/processing` | Processing + Finalizing | `TransactionStateCard` + `StatusPersistenceBanner` |
-| `/shield/success` | Complete | `TransactionStateCard(completed)` + `BalanceDisplay` |
-| `/shield/failed` | Failed | `RecoveryCard` |
 
 ## Delivery artifacts
 

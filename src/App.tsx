@@ -4,7 +4,6 @@ import { AppShell } from './components/AppShell'
 import { Connect } from './pages/Connect'
 import { Overview } from './pages/Overview'
 import { DesignSystem } from './pages/DesignSystem'
-import { DesignSystemCompare } from './pages/DesignSystemCompare'
 import { UseCase } from './pages/UseCase'
 
 const MOCK_PUBLIC_BALANCE = '1.24'
@@ -40,7 +39,6 @@ function AppWithShell({ publicBalance, shieldedBalance, onDisconnect }: { public
           </AppShell>
         }
       />
-      <Route path="/design-system-compare" element={<DesignSystemCompare />} />
       <Route
         path="/use-case"
         element={
