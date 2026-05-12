@@ -21,6 +21,7 @@ const UC_SECTIONS = [
   { id: 'risks',             num: '07', label: 'Risks & Trade-offs' },
   { id: 'collaboration',     num: '08', label: 'Collaboration' },
   { id: 'ux-rules',          num: '09', label: 'UX Rules' },
+  { id: 'how-i-did-it',     num: '10', label: 'How I did it' },
 ]
 
 const DS_FOUNDATION = [

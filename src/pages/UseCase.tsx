@@ -843,6 +843,95 @@ function DSBento() {
   )
 }
 
+// ── Process Flow Map (Section 10) ────────────────────────────────────────────
+
+type ProcessStep = {
+  num: string; tag: string; tagColor: string; tagBg: string; accent: string
+  title: string; desc: string
+}
+
+const PROCESS_STEPS: ProcessStep[] = [
+  {
+    num: '01', tag: 'Designer', tagColor: '#3748FF', tagBg: 'rgba(55,72,255,0.08)', accent: '#3748FF',
+    title: 'Brief',
+    desc: 'Read the Zama challenge. The hard problem was not UI. It was invisible async state and the trust it breaks. That framing changed every decision that followed.',
+  },
+  {
+    num: '02', tag: 'Designer + Claude Code', tagColor: '#3748FF', tagBg: 'rgba(55,72,255,0.08)', accent: '#3748FF',
+    title: 'Spec writing',
+    desc: '12 files in /docs before a single component existed. State machine, copy rules, interaction model, component spec, UX rules, flow maps. All written first. If the mental model is wrong, no amount of visual polish repairs it.',
+  },
+  {
+    num: '03', tag: 'Designer + Figma', tagColor: '#9747FF', tagBg: 'rgba(151,71,255,0.08)', accent: '#9747FF',
+    title: 'Component design in Figma',
+    desc: 'Key components designed in Figma before code: the InfoBar, token avatars, and core layout decisions. Real design intent in a real tool, not approximations or wireframes.',
+  },
+  {
+    num: '04', tag: 'Figma MCP', tagColor: '#96C129', tagBg: 'rgba(150,193,41,0.10)', accent: '#96C129',
+    title: 'Figma MCP extraction',
+    desc: 'Figma MCP pulled design elements directly into the codebase. Design system components, layout, visual assets. Extracted from source, not redrawn from memory. The source of truth stayed in Figma; MCP made it deployable.',
+  },
+  {
+    num: '05', tag: 'Claude Code', tagColor: '#3748FF', tagBg: 'rgba(55,72,255,0.08)', accent: '#3748FF',
+    title: 'Build',
+    desc: 'State machine, RightPanel, all 39 operation states, localStorage persistence, simulation timings, error recovery, InfoBar, navigation warnings. Built from specs. CLAUDE.md as the constraint engine throughout.',
+  },
+  {
+    num: '06', tag: 'Designer + Claude Code', tagColor: '#6B6C80', tagBg: 'rgba(107,108,128,0.08)', accent: '#6B6C80',
+    title: 'Iterate',
+    desc: 'Review. Adjust copy. Fix edge cases. Rebuild. The flow between spec and code was not one-directional. Some decisions only became clear when the prototype was running in the browser.',
+  },
+  {
+    num: '07', tag: 'Done', tagColor: '#5BB81E', tagBg: 'rgba(91,184,30,0.10)', accent: '#5BB81E',
+    title: 'Ship',
+    desc: 'Today. Deadline day.',
+  },
+]
+
+function ProcessFlowMap() {
+  return (
+    <div style={{ position: 'relative', padding: '4px 0' }}>
+      {PROCESS_STEPS.map((step, i) => (
+        <div key={step.num} style={{ display: 'grid', gridTemplateColumns: '48px 1fr', alignItems: 'stretch' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: '50%',
+              background: step.accent,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '11px', fontWeight: 700, color: '#fff',
+              flexShrink: 0, position: 'relative', zIndex: 1,
+            }}>{step.num}</div>
+            {i < PROCESS_STEPS.length - 1 && (
+              <div style={{ width: 2, flex: 1, minHeight: 24, background: 'var(--color-border)', margin: '4px 0' }} />
+            )}
+          </div>
+          <div style={{
+            marginLeft: 16,
+            marginBottom: i < PROCESS_STEPS.length - 1 ? 12 : 0,
+            border: '1px solid var(--color-border)',
+            borderLeft: `3px solid ${step.accent}`,
+            borderRadius: '0 8px 8px 0',
+            padding: '16px 20px',
+            background: 'var(--color-surface)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, gap: 12 }}>
+              <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.01em' }}>{step.title}</span>
+              <span style={{
+                fontSize: '11px', fontWeight: 600,
+                color: step.tagColor, background: step.tagBg,
+                border: `1px solid ${step.tagColor}26`,
+                borderRadius: '100px', padding: '3px 10px',
+                whiteSpace: 'nowrap', flexShrink: 0,
+              }}>{step.tag}</span>
+            </div>
+            <p style={{ margin: 0, fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.65 }}>{step.desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export function UseCase() {
@@ -1785,6 +1874,28 @@ cannot be repaired by surrounding copy.`}
           <Callout tone="info">
             {'A human designer sees a processing state and intuitively knows the visual treatment. An AI agent does not - it needs explicit decision rules to produce correct UI without design intuition. CLAUDE.md encodes those rules so any agent, at any point, builds the same product a human designer would.'}
           </Callout>
+        </UCSection>
+
+        {/* 10 - How I did it */}
+        <UCSection id="how-i-did-it" num="10" title="How I did it"
+          description="A sprint, 12 spec files, two AI tools, and one deadline. The honest account of how this was built.">
+
+          <ProseBlock>
+            No design started in Figma. Twelve spec files in /docs came first. State machine, copy rules, interaction model, component spec, UX rules, flow maps. All written before a single component existed. The premise: if the mental model is wrong, no amount of visual polish repairs it.
+          </ProseBlock>
+          <ProseBlock>
+            Claude Code was the primary build engine throughout. CLAUDE.md, referenced in section 09, is not only documentation. It is a real constraint system checked into the repo. Every coding session reads it before touching the codebase. That is what kept nine sections, 39 operation states, and multiple iteration cycles building the same product without design drift.
+          </ProseBlock>
+          <ProseBlock>
+            Figma was not a mockup tool in this process. Key components including the InfoBar, token avatars, and layout decisions were designed in Figma first, then extracted directly into the codebase using Figma MCP. Not redrawn from memory, not approximated from a screenshot. The source of truth stayed in Figma; MCP made it deployable.
+          </ProseBlock>
+          <ProseBlock>
+            The flow below shows what made sense in hindsight. The actual process had more cycles.
+          </ProseBlock>
+
+          <Label>The process</Label>
+          <ProcessFlowMap />
+
         </UCSection>
 
       </div>
