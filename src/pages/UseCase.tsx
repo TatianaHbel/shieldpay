@@ -863,7 +863,7 @@ export function UseCase() {
           </h1>
           <p style={{ fontSize: '17px', color: 'var(--color-text-secondary)', lineHeight: '28.9px', margin: 0 }}>
             ShieldPay moves funds from a public on-chain balance into an FHE-encrypted shielded balance. The operation is multi-step, asynchronous, and irreversible at certain points.{' '}
-            <strong style={{ fontWeight: 700, letterSpacing: '0.07em' }}>The design challenge is not the UI - it is trust, recovery, and communication across time.</strong>
+            <strong style={{ fontWeight: 700, letterSpacing: '0.07em' }}>The design challenge is not the UI. It is trust, recovery, and communication across time.</strong>
           </p>
         </div>
       </div>
@@ -888,8 +888,8 @@ export function UseCase() {
               <ul style={{ margin: 0, padding: '0 0 0 16px', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.8 }}>
                 <li>Crypto-native, basic-to-intermediate DeFi experience</li>
                 <li>Understands wallets, gas fees, and transaction states</li>
-                <li>Privacy-motivated - made a deliberate choice to shield</li>
-                <li>Risk-sensitive - first time in a new financial system</li>
+                <li>Privacy-motivated, made a deliberate choice to shield</li>
+                <li>Risk-sensitive, first time in a new financial system</li>
               </ul>
             </div>
             <div style={{ gridRow: '1 / 3', borderLeft: '1px solid var(--color-border)', overflow: 'hidden' }}>
@@ -898,7 +898,7 @@ export function UseCase() {
             <div style={{ padding: '24px', background: 'var(--color-surface-raised)', borderTop: '1px solid var(--color-border)', overflow: 'hidden' }}>
               <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.277em', lineHeight: 1.18, marginBottom: '8px' }}>Primary goal</div>
               <p style={{ margin: '0 0 15px', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
-                Move a specific amount from their public balance into a shielded balance - then use that shielded balance for a subsequent action.
+                Move a specific amount from their public balance into a shielded balance, then use that shielded balance for a subsequent action.
               </p>
               <div style={{ fontSize: '14px', fontWeight: 700, color: '#C3B827', textTransform: 'uppercase', letterSpacing: '0.277em', lineHeight: 1.18, marginBottom: '8px' }}>Implicit goal</div>
               <p style={{ margin: 0, fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.7 }}>
@@ -938,7 +938,7 @@ export function UseCase() {
 
         {/* 02 - Flow Map */}
         <UCSection id="flow-map" num="02" title="Flow Map"
-          description="Each operation is a single persistent object with phases - not a sequence of dialogs. Every phase has a defined actor and a defined answer to: what's happening, what to do, and what happens if you leave.">
+          description="Each operation is a single persistent object with phases, not a sequence of dialogs. Every phase has a defined actor and a defined answer to three questions: what is happening, what to do, and what happens if you leave.">
           <Callout tone="info">
             <strong style={{ color: 'var(--color-text-primary)' }}>How to read this:</strong> Primary paths run left to right. Vertical dashed branches show failures and interruptions. Blue nodes are user actions. Gray nodes are system-driven - the user can leave safely. Amber nodes require action. The dashed arc on the Unshield track shows the recoverable return path from Interrupted back to Proof ready.
           </Callout>
@@ -956,7 +956,7 @@ export function UseCase() {
           </div>
           <CalibrationSpacer defaultPx={32} target={{ kind: 'custom', key: 's03-31-below' }} label="3.1 title -> prose" />
           <ProseBlock>
-            All financial operations live in a persistent right-panel drawer - always mounted at the right edge of the layout regardless of which section the user is navigating. The layout has two layers that never trade roles: the left column is the information layer (balances, activity history) and the right panel is the action layer (initiate, confirm, monitor, recover).
+            All financial operations live in a persistent right-panel drawer, always mounted at the right edge regardless of where the user navigates. The layout has two fixed layers: the left column is for information (balances, history) and the right panel is for action (initiate, confirm, monitor, recover). They never trade roles.
           </ProseBlock>
 
           <Label>3-zone layout</Label>
@@ -965,10 +965,10 @@ export function UseCase() {
           </div>
 
           <ProseBlock>
-            A full-page navigation model breaks context at the worst moment - the user loses sight of their balances mid-operation, exactly when that reference matters most. A modal risks accidental dismissal; for a multi-step flow that can leave funds in an intermediate state if abandoned, that is not an acceptable risk. The drawer stays mounted across all routes, so an active operation is never hidden when the user navigates away.
+            A full-page navigation model breaks context at the worst moment. The user loses sight of their balances mid-operation, exactly when that reference matters most. A modal risks accidental dismissal, which is not acceptable in a multi-step flow that can leave funds in an intermediate state. The drawer stays mounted across all routes, so an active operation is never hidden when the user navigates away.
           </ProseBlock>
           <ProseBlock>
-            When wallet confirmation is required, the left column dims to 50% opacity. The drawer becomes the sole interactive surface without any navigation change - the user does not go somewhere to confirm, they stay in context and the visual weight shifts to where the action is. When the system is processing without requiring user action, the overlay drops to 30% - a passive signal that work is in progress, without demanding attention or blocking the user from reading their balance.
+            When wallet confirmation is required, the left column dims to 50% opacity. The drawer becomes the sole interactive surface without any navigation change. The user does not go somewhere to confirm; they stay in context while the visual weight shifts to where the action is. When the system is processing without requiring action, the overlay drops to 30%: a passive signal that work is in progress, without demanding attention or blocking the user from reading their balance.
           </ProseBlock>
 
           {/* 3.2 — Where details appear */}
@@ -979,14 +979,14 @@ export function UseCase() {
           </div>
           <CalibrationSpacer defaultPx={32} target={{ kind: 'custom', key: 's03-32-below' }} label="3.2 title -> prose" />
           <ProseBlock>
-            Details appear at the point of decision - not front-loaded before the user has committed, and not disclosed only after. Every active state in the right panel answers three questions: what is happening, what the user should do (or that they can do nothing), and what happens if they leave.
+            Details appear at the point of decision. Not front-loaded before the user has committed, and not disclosed only after. Every active state in the right panel answers three questions: what is happening, what the user should do (or that they can do nothing), and what happens if they leave.
           </ProseBlock>
           <ProseBlock>
-            Before each wallet prompt, the right panel declares the type of interaction, what is being approved, the cost, and which step of how many. The wallet popup never arrives without prior context in the panel. There are three meaningfully different wallet interactions in this system - an on-chain token approval, an on-chain transfer, and a free EIP-712 session signature - and they look identical in the wallet UI. Without prior context from the panel, users cannot distinguish a gas-costing irreversible transaction from a free authorization and will reject the unexpected one out of caution.
+            Before each wallet prompt, the right panel declares the type of interaction, what is being approved, the cost, and which step of how many. The wallet popup never arrives without prior context. There are three meaningfully different wallet interactions in this system: an on-chain token approval, an on-chain transfer, and a free EIP-712 session signature. They look identical in the wallet UI. Without prior context from the panel, users cannot distinguish a gas-costing irreversible transaction from a free authorization and will reject the unexpected one out of caution.
           </ProseBlock>
 
           <Callout tone="warning">
-            <strong style={{ color: 'var(--color-text-primary)' }}>The finalizing gap:</strong>{' '}When a Shield or Send operation completes on-chain, Etherscan shows Success - but the shielded balance is still being computed by the FHE coprocessor. Users with crypto experience interpret confirmed as done. The UI explicitly names this gap: your transaction is confirmed on the network, we are now encrypting your shielded balance - about 1 minute. The completion state is not shown until the balance is actually updated. Equating on-chain confirmation with operation completion causes users to find their shielded balance empty and interpret that as a loss.
+            <strong style={{ color: 'var(--color-text-primary)' }}>The finalizing gap:</strong>{' '}When a Shield or Send operation completes on-chain, Etherscan shows Success. But the shielded balance is still being computed. Users with crypto experience interpret confirmed as done. The UI explicitly names this gap: your transaction is confirmed on the network, we are now encrypting your shielded balance, about 1 minute. The completion state is not shown until the balance is actually updated. Equating on-chain confirmation with operation completion causes users to find their shielded balance empty and interpret that as a loss.
           </Callout>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', border: '1px solid var(--color-border)', borderRadius: '6px', overflow: 'hidden' }}>
@@ -1001,13 +1001,13 @@ export function UseCase() {
                 op: 'shield' as OperationType,
                 phase: 'awaiting_wallet_step2' as OperationPhase,
                 caption: 'Wallet step 2 of 2 - pre-declaration',
-                annotation: 'The second confirmation shows the actual transfer details. Step counter confirms progress - the user already committed at step 1, so step 2 auto-triggers without a button click.',
+                annotation: 'The second confirmation shows the actual transfer details. Step counter confirms progress. The user already committed at step 1, so step 2 auto-triggers without a button click.',
               },
               {
                 op: 'shield' as OperationType,
                 phase: 'finalizing' as OperationPhase,
                 caption: 'Finalizing - the gap named explicitly',
-                annotation: 'Details appear at exactly the moment they matter. The copy bridges confirmed on-chain and balance not yet updated - the one gap where silence causes users to assume a loss.',
+                annotation: 'Details appear at exactly the moment they matter. The copy bridges confirmed on-chain and balance not yet updated. That is the one gap where silence causes users to assume a loss.',
               },
             ] as { op: OperationType; phase: OperationPhase; caption: string; annotation: string }[]).map(({ op, phase, caption, annotation }, i) => (
               <div key={caption} style={{ borderRight: i < 2 ? '1px solid var(--color-border)' : 'none', display: 'flex', flexDirection: 'column' }}>
@@ -1052,10 +1052,10 @@ export function UseCase() {
           </div>
           <CalibrationSpacer defaultPx={32} target={{ kind: 'custom', key: 's03-33-below' }} label="3.3 title -> prose" />
           <ProseBlock>
-            Progress is shown via a named phase indicator - a linear track of system state labels, always visible inline, never numbered. Phases are named after what the system is doing, not what the user is doing.
+            Progress is shown via a named phase indicator: a linear track of system state labels, always visible inline, never numbered. Phases are named after what the system is doing, not what the user is doing.
           </ProseBlock>
           <ProseBlock>
-            Numbered steps imply the user is performing actions in sequence. In a multi-phase async blockchain operation, the user is not executing steps - the system is. Labelling system phases as steps creates false agency and anxiety when nothing changes after a step marker completes. A spinner with no label communicates nothing: in the finalizing phase (30 to 90 seconds of FHE coprocessor computation after on-chain confirmation), users without context will interpret silence as failure. Named system phases give users a mental model of where the operation is without requiring any understanding of gas mechanics or encryption. Labels are visible at all times - not on hover - because stressed users do not discover affordances.
+            Numbered steps imply the user is performing actions in sequence. In a multi-phase async blockchain operation, the user is not executing steps. The system is. Labelling system phases as steps creates false agency and anxiety when nothing changes after a step marker completes. A spinner with no label communicates nothing. In the finalizing phase (30 to 90 seconds of computation after on-chain confirmation), silence reads as failure. Named system phases give users a mental model of where the operation is, without requiring any understanding of gas mechanics or encryption. Labels are always visible, not revealed on hover, because stressed users do not discover affordances.
           </ProseBlock>
 
           <Label>Phase labels per operation</Label>
@@ -1065,19 +1065,19 @@ export function UseCase() {
                 op: 'shield' as OperationType,
                 phase: 'processing' as OperationPhase,
                 caption: 'Confirming on-chain',
-                annotation: 'The phase indicator names what the system is doing - not what the user is doing. No action required; explicit permission to leave. ETA sets expectations without false precision.',
+                annotation: 'The phase indicator names what the system is doing, not what the user is doing. No action required. Explicit permission to leave. ETA sets expectations without false precision.',
               },
               {
                 op: 'shield' as OperationType,
                 phase: 'finalizing' as OperationPhase,
                 caption: 'Encrypting balance',
-                annotation: 'The hardest state to communicate. Etherscan shows Success here - but the balance is not ready. The named phase and explicit copy bridge that gap without alarming the user.',
+                annotation: 'The hardest state to communicate. Etherscan shows Success here, but the balance is not ready. The named phase and explicit copy bridge that gap without alarming the user.',
               },
               {
                 op: 'shield' as OperationType,
                 phase: 'completed' as OperationPhase,
                 caption: 'Done',
-                annotation: 'All phases filled. Both balance deltas visible. No ambiguity about whether the operation is truly complete - the shielded balance is updated before this state is shown.',
+                annotation: 'All phases filled. Both balance deltas visible. No ambiguity about whether the operation is truly complete. The shielded balance is updated before this state is shown.',
               },
             ] as { op: OperationType; phase: OperationPhase; caption: string; annotation: string }[]).map(({ op, phase, caption, annotation }, i) => (
               <div key={caption} style={{ borderRight: i < 2 ? '1px solid var(--color-border)' : 'none', display: 'flex', flexDirection: 'column' }}>
@@ -1122,13 +1122,13 @@ export function UseCase() {
           </div>
           <CalibrationSpacer defaultPx={32} target={{ kind: 'custom', key: 's03-34-below' }} label="3.4 title -> prose" />
           <ProseBlock>
-            Recovery is a first-class flow for every failure type and every exit point. Every failure state leads with fund status before explaining the cause. Wallet cancellation is never treated as an error - it is a deliberate choice that gets neutral tone, no red styling, and an immediate path to restart.
+            Recovery is a first-class flow for every failure type and every exit point. Every failure state leads with fund status before explaining the cause. Wallet cancellation is never treated as an error. It is a deliberate choice that gets neutral tone, no red styling, and an immediate path to restart.
           </ProseBlock>
           <ProseBlock>
-            The distinction between safe and secured is not cosmetic. Your funds are safe means genuinely untouched - the operation failed before any funds moved. Your funds are secured means funds are in the intermediate Unshield state: shielded tokens have been burned, the public ERC-20 has not yet been released. The user must complete Step 2 or contact support. Conflating these two states with the same reassurance would be misleading - one requires no action, the other requires completion.
+            The distinction between safe and secured is not cosmetic. {"'Your funds are safe'"} means genuinely untouched. The operation failed before any funds moved. {"'Your funds are secured'"} means funds are in the intermediate Unshield state: shielded tokens have been burned, the public ERC-20 has not yet been released. The user must complete Step 2 or contact support. Conflating these two states with the same reassurance would be misleading. One requires no action. The other requires completion.
           </ProseBlock>
           <ProseBlock>
-            Operation state persists across page reloads. If the user closes the tab during any active phase and returns, the right panel restores to the exact current state. The Unshield flow escalates navigation warnings proportional to consequence: leaving during proof generation shows a soft informational warning; leaving while Step 2 is ready shows an urgent block, because at that point the user must return to release their funds.
+            Operation state persists across page reloads. If the user closes the tab during any active phase and returns, the right panel restores to the exact current state. The Unshield flow escalates navigation warnings proportional to consequence. Leaving during proof generation shows a soft informational warning. Leaving while Step 2 is ready shows an urgent block, because at that point the user must return to release their funds.
           </ProseBlock>
 
           <Label>Recovery states</Label>
@@ -1138,7 +1138,7 @@ export function UseCase() {
                 op: 'shield' as OperationType,
                 phase: 'failed_dropped' as OperationPhase,
                 caption: 'Failed - fund safety first',
-                annotation: 'The first line answers the question the user is actually asking: are my funds gone? Explanation and retry follow - never the other way around.',
+                annotation: 'The first line answers the question the user is actually asking: are my funds gone? Explanation and retry follow. Never the other way around.',
               },
               {
                 op: 'shield' as OperationType,
@@ -1191,7 +1191,7 @@ export function UseCase() {
           <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.327em', lineHeight: 1, fontFamily: 'Manrope, sans-serif' }}>InfoBar - cross-page operation visibility</div>
           <CalibrationSpacer defaultPx={68} target={{ kind: 'custom', key: 's03-infobar-below' }} label="InfoBar header -> prose" />
           <ProseBlock>
-            The banner persists in the layout on every route for all non-idle operation states - including in-progress, completed, failed, and cancelled. A newer operation always overrides the previous one. This means the user can initiate a transaction and walk away: when they return, the banner shows exactly what happened. Completed, failed, and cancelled states stay visible until the user explicitly dismisses them.
+            The banner persists in the layout on every route for all non-idle operation states, including in-progress, completed, failed, and cancelled. A newer operation always overrides the previous one. The user can initiate a transaction and walk away. When they return, the banner shows exactly what happened. Completed, failed, and cancelled states stay visible until the user explicitly dismisses them.
           </ProseBlock>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -1222,12 +1222,12 @@ export function UseCase() {
             <ScreenDemo
               op="shield" phase="awaiting_wallet_step1"
               caption="Wallet Step 1 of 2"
-              annotation="Pre-declares what will be approved before the wallet popup appears. Step counter sets expectations: 2 confirmations, this is the first. Left column overlaid at 50% - user must act now."
+              annotation="Pre-declares what will be approved before the wallet popup appears. Step counter sets expectations: 2 confirmations, this is the first. Left column overlaid at 50%. User must act now."
             />
             <ScreenDemo
               op="shield" phase="awaiting_wallet_step2"
               caption="Wallet Step 2 of 2"
-              annotation="Second wallet signature executes the shield transfer. Step counter confirms progress. Same full-focus treatment - left column stays overlaid until user signs or cancels."
+              annotation="Second wallet signature executes the shield transfer. Step counter confirms progress. Same full-focus treatment. Left column stays overlaid until user signs or cancels."
             />
             <ScreenDemo
               op="shield" phase="submitted"
@@ -1247,7 +1247,7 @@ export function UseCase() {
             <ScreenDemo
               op="shield" phase="completed"
               caption="Completed"
-              annotation="Both balances updated. Timeline shows all four steps with timestamps. No further action needed - Done button dismisses the drawer and the InfoBar clears."
+              annotation="Both balances updated. Timeline shows all four steps with timestamps. No further action needed. Done button dismisses the drawer and the InfoBar clears."
             />
           </div>
 
@@ -1257,12 +1257,12 @@ export function UseCase() {
             <ScreenDemo
               op="unshield" phase="awaiting_wallet_step1"
               caption="Unshield - Wallet Step 1 of 2"
-              annotation="User signs to remove tokens from the shielded balance. Shielded tokens burn from this point - copy must be honest about that without triggering loss anxiety."
+              annotation="User signs to remove tokens from the shielded balance. Shielded tokens burn from this point. Copy must be honest about that without triggering loss anxiety."
             />
             <ScreenDemo
               op="unshield" phase="submitted"
               caption="Unshield - Submitted"
-              annotation="Transaction broadcast. User can safely leave - the proof generation runs server-side. Explicit permission to close the tab."
+              annotation="Transaction broadcast. User can safely leave. The proof generation runs server-side. Explicit permission to close the tab."
             />
             <ScreenDemo
               op="unshield" phase="processing"
@@ -1277,17 +1277,17 @@ export function UseCase() {
             <ScreenDemo
               op="unshield" phase="interrupted"
               caption="Unshield - Interrupted (returned)"
-              annotation="User left during proof wait and came back. App checks proof status on load - if proof is ready, restores to this state. Recoverable, not terminal. Same amber urgency as proof_ready."
+              annotation="User left during proof wait and came back. App checks proof status on load. If proof is ready, restores to this state. Recoverable, not terminal. Same amber urgency as proof_ready."
             />
             <ScreenDemo
               op="unshield" phase="awaiting_wallet_step2"
               caption="Unshield - Wallet Step 2 of 2"
-              annotation="User signs to release funds to the public balance. Final wallet action. Left column overlaid at 50% - full focus until signed."
+              annotation="User signs to release funds to the public balance. Final wallet action. Left column overlaid at 50%. Full focus until signed."
             />
             <ScreenDemo
               op="unshield" phase="finalizing"
               caption="Unshield - Releasing"
-              annotation="ERC-20 transfer to public balance in progress (~30s). System running, user is a passenger. Explicit permission to leave - operation completes regardless."
+              annotation="ERC-20 transfer to public balance in progress (~30s). System running, user is a passenger. Explicit permission to leave. Operation completes regardless."
             />
             <ScreenDemo
               op="unshield" phase="completed"
@@ -1307,14 +1307,14 @@ export function UseCase() {
             <ScreenDemo
               op="shield" phase="cancelled"
               caption="Cancelled"
-              annotation="Neutral tone - not an error. User chose to dismiss the wallet prompt. No funds moved, no anxiety needed. Retry CTA available without pressure."
+              annotation="Neutral tone, not an error. User chose to dismiss the wallet prompt. No funds moved, no anxiety needed. Retry CTA available without pressure."
             />
           </div>
         </UCSection>
 
         {/* 05 - Content Design */}
         <UCSection id="content-design" num="05" title="Content Design"
-          description="Copy is the primary trust mechanism. Every state must answer three questions - and answer them in the right order.">
+          description="Copy is the primary trust mechanism. Every state must answer three questions, and answer them in the right order.">
 
           <div style={{ background: '#FFFFFF', border: '1px solid var(--color-border)', borderRadius: '6px', padding: '24px', marginBottom: '32px' }}>
             <Label>The 3-question rule - every status state must answer:</Label>
@@ -1378,7 +1378,7 @@ export function UseCase() {
           <CalibrationSpacer defaultPx={116} target={{ kind: 'custom', key: 's05-phase-label' }} label="Vocabulary -> Phase label" />
           <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.327em', lineHeight: 1, marginBottom: '16px', fontFamily: 'Manrope, sans-serif' }}>Phase label vocabulary - aligned across three surfaces</div>
           <ProseBlock>
-            The same root word appears in the PhaseIndicatorVertical during the operation, the success timeline afterwards, and the Etherscan row labels in the Details tab. A user who watches "Shield" on the progress bar will see "Submitted & confirmed" in the timeline and "Shield" on the Etherscan link - the same event, named consistently.
+            The same root word appears in the PhaseIndicatorVertical during the operation, the success timeline afterwards, and the Etherscan row labels in the Details tab. A user who watches {"'Shield'"} on the progress bar will see {"'Submitted & confirmed'"} in the timeline and {"'Shield'"} on the Etherscan link. The same event, named consistently.
           </ProseBlock>
           <UCTable
             headers={['Operation', 'PhaseIndicatorVertical node', 'Success timeline', 'Etherscan row label']}
@@ -1533,7 +1533,7 @@ Is user trying to leave during Unshield?
 
           <RuleCard
             num="1"
-            rule="Multi-step blockchain operations are single persistent objects - never a sequence of independent dialogs."
+            rule="Multi-step blockchain operations are single persistent objects, never a sequence of independent dialogs."
             why="Users cannot maintain mental context across fragmented interactions. Presenting 'Confirm transaction 1 of 3' as three separate modals means users lose track of their overall state, cannot assess progress, and are more likely to abandon. Partial completion can leave funds in an intermediate state with no clear path to recovery."
             correct={`One PhaseIndicatorVertical inside Drawer:
 Auth · Confirm · Encrypt · Done
@@ -1567,7 +1567,7 @@ act, or whether leaving is safe.`}
           <RuleCard
             num="3"
             rule="Failure copy must lead with fund status before explaining the error."
-            why="Users' primary fear during a failed financial transaction is that their money is gone. If the first thing they see is 'Transaction failed' or a red error state, they will panic - even if their funds are completely safe. Addressing fund safety first prevents emotional escalation that leads to support contacts and trust loss."
+            why="Users' primary fear during a failed financial transaction is that their money is gone. If the first thing they see is 'Transaction failed' or a red error state, they will panic, even if their funds are completely safe. Addressing fund safety first prevents emotional escalation that leads to support contacts and trust loss."
             correct={`Heading: "Something went wrong"
 First line: "Your funds are safe - nothing was
 deducted from your balance."
@@ -1584,7 +1584,7 @@ are my funds gone?`}
           <RuleCard
             num="4"
             rule="Wallet confirmation states are right-panel states, never toasts or modals."
-            why="The wallet confirmation is the single moment in the flow that requires immediate action in an external application. If this prompt competes with other UI, users miss it, the wallet popup times out, and the entire operation must be restarted. The visual weight of a full right-panel state - combined with the left column dimming to 50% - matches the urgency and signals the required context switch."
+            why="The wallet confirmation is the single moment in the flow that requires immediate action in an external application. If this prompt competes with other UI, users miss it, the wallet popup times out, and the entire operation must be restarted. The visual weight of a full right-panel state, combined with the left column dimming to 50%, matches the urgency and signals the required context switch."
             correct={`Right panel switches to WalletConfirmView:
 - Step counter ("Step 1 of 2 - Authorization")
 - What is being approved (specific amount + direction)
@@ -1602,7 +1602,7 @@ the user context to act correctly.`}
           <RuleCard
             num="5"
             rule="Overview shows both balances simultaneously. Section pages show only their own balance."
-            why="The Overview is where users form their understanding of the two-balance model. Showing both side by side makes the relationship legible - users can see that shielding moves value from one to the other. On section pages, showing only the relevant balance reduces cognitive load. Showing both there creates duplication and wastes space."
+            why="The Overview is where users form their understanding of the two-balance model. Showing both side by side makes the relationship legible. Users can see that shielding moves value from one to the other. On section pages, showing only the relevant balance reduces cognitive load. Showing both there creates duplication and wastes space."
             correct={`Overview:
 Public 0.74 ETH   |   Shielded 0.50 ETH
 
@@ -1622,7 +1622,7 @@ with no contextual benefit.`}
           <RuleCard
             num="6 - FHE-specific"
             rule={'The finalizing phase (FHE encryption after on-chain confirmation) must be communicated as distinct from "transaction confirmed." Never show "Confirmed" or "Complete" until the shielded balance is actually updated.'}
-            why={'Crypto users interpret "transaction confirmed" as "operation complete." In FHE-based systems, on-chain confirmation triggers an additional encryption step that takes 1-3 minutes. If the UI shows "confirmed" before the shielded balance is ready, users will try to use it, find it empty, and assume a loss. This is not recoverable by surrounding copy alone - the phase label itself must be correct.'}
+            why={'Crypto users interpret "transaction confirmed" as "operation complete." In FHE-based systems, on-chain confirmation triggers an additional encryption step that takes 1-3 minutes. If the UI shows "confirmed" before the shielded balance is ready, users will try to use it, find it empty, and assume a loss. This is not recoverable by surrounding copy alone. The phase label itself must be correct.'}
             correct={`Phase label: "Encrypting your balance"
 
 "Your transaction is confirmed on the network.
@@ -1640,7 +1640,7 @@ checks shielded balance: 0. Assumes loss.`}
           <RuleCard
             num="7"
             rule="Declare the type and cost of every wallet interaction before triggering it."
-            why="There are three distinct wallet interactions in this system: on-chain transactions (cost gas, irreversible), EIP-712 session signatures (free, authorization only), and the implicit ZKPoK calculation (invisible, no popup). Users cannot distinguish these without help - MetaMask and Rabby display all wallet interactions with the same visual weight. An unexpected signing request will be rejected out of suspicion, breaking the flow."
+            why="There are three distinct wallet interactions in this system: on-chain transactions (cost gas, irreversible), EIP-712 session signatures (free, authorization only), and the implicit ZKPoK calculation (invisible, no popup). Users cannot distinguish these without help. MetaMask and Rabby display all wallet interactions with the same visual weight. An unexpected signing request will be rejected out of suspicion, breaking the flow."
             correct={`On-chain transaction:
 "Confirm in your wallet - Step 2 of 2"
 "Approving transfer of 0.5 ETH to your shielded balance."
