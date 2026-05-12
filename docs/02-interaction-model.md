@@ -1,207 +1,85 @@
 # ShieldPay — Interaction Model
 
-## Layout architecture
-
-ShieldPay uses a **three-zone desktop layout**:
-
-```
-┌────────────┬──────────────────────────────┬──────────────────────┐
-│  SIDEBAR   │  LEFT COLUMN                 │  RIGHT PANEL         │
-│  ~220px    │  flexible                    │  ~380px fixed        │
-│            │  balance + activity          │  transaction widget  │
-└────────────┴──────────────────────────────┴──────────────────────┘
-```
-
-- **Sidebar**: Navigation (Overview, Public, Shielded, Explore) + wallet info. Collapsible to icon-only (~60px).
-- **Left column**: Content for the active section — balance, activity feed, section-specific actions.
-- **Right panel**: Persistent transaction widget. Always visible. Contains tabs: Shield · Send · Unshield. All transaction steps happen inside this panel.
-
-This is a DeFi app model (Wise, Coinbase Exchange), not a wallet model. The user connects an external wallet (MetaMask/Rabby) to use ShieldPay. ShieldPay is the application layer.
+ShieldPay handles real fund movements across multiple async phases, each involving external wallet confirmations, on-chain transactions, and post-confirmation encryption. The interaction model is designed around one constraint: users must always know where their funds are, what is happening to them, and what to do next — regardless of how long the operation takes or whether they close the tab.
 
 ---
 
-## Where operations live
+## Where actions happen
 
-All financial operations live in the **right panel**. The left column is always the information layer — balance and history. The right panel is always the action layer.
+All financial operations — Shield, Send, Unshield — live in a persistent right-panel drawer, always mounted at the right edge of the layout regardless of which section the user is navigating.
 
-### Right panel states per operation phase
+The layout has two layers that never trade roles: the left column is the information layer (balances, activity history) and the right panel is the action layer (initiate, confirm, monitor, recover). This separation is a deliberate design constraint, not just a layout choice.
 
-| Phase | Right panel | Left column |
-|-------|------------|-------------|
-| `not_started` | Idle form (tabs visible) | Normal — no overlay |
-| `awaiting_wallet_confirmation` | Wallet prompt (tabs hidden) | 50% overlay |
-| `submitted` → `processing` | Phase indicator + copy | 30% overlay |
-| `finalizing` | Phase indicator + encryption copy | 30% overlay |
-| `proof_ready` (Unshield only) | Action required state | 50% overlay |
-| `completed` | Success state | 0% overlay — balance cards animate |
-| `failed_*` | Recovery state | 0% overlay |
-| `cancelled` | Cancellation state | 0% overlay |
+**Why the drawer, not a page or a modal:**
 
-### Overlay intensity rules
+A full-page navigation model breaks context at the worst moment — the user loses sight of their balances mid-operation, exactly when the balance display is most relevant as a reference point. A modal risks accidental dismissal; for a multi-step flow that can leave funds in an intermediate state if abandoned, that is not an acceptable risk. The drawer stays mounted across all routes, so an active operation is never hidden when the user navigates away — it is always visible in peripheral context.
 
-Overlay intensity on the left column communicates urgency:
+When wallet confirmation is required, the left column dims to 50% opacity. The drawer becomes the sole interactive surface without any navigation change. The user doesn't "go somewhere" to confirm; they stay in context and the visual weight shifts to where the action is.
 
-| Situation | Intensity | Reason |
-|-----------|-----------|--------|
-| Wallet confirmation required | 50% | User must act immediately |
-| Proof ready (Unshield Step 2) | 50% | User must act to release funds |
-| System processing (no user action needed) | 30% | Background — user can leave |
-| Operation resolved | 0% | Full context restored |
+When the system is processing without requiring user action, the overlay drops to 30% — a passive signal that something is in progress, without demanding attention or blocking the user from reading their balance or activity.
 
 ---
 
-## Component placement rules
+## Where details appear
 
-| Use case | Component | Where |
-|----------|-----------|-------|
-| Initiating an operation | Right panel — idle form | Right panel |
-| Wallet confirmation (any type) | Right panel — confirmation state | Right panel + left overlay |
-| System processing | Right panel — processing state | Right panel + light overlay |
-| Operation complete/failed | Right panel — result state | Right panel |
-| Persistent operation reminder | `StatusPersistenceBanner` | Top of left column |
-| Informational only (receive address) | Modal | Centered overlay — no overlay on left |
-| Navigation warning (unshield) | Inline warning dialog | Centered, blocks navigation |
+Details appear at the point of decision — not front-loaded before the user has committed to anything, and not disclosed only after the fact. Every active state in the right panel explicitly answers three questions: what is happening, what the user should do (or that they can do nothing), and what happens if they leave.
 
-**The only case where a modal is appropriate is the "Add funds" receive address** — purely informational, no transaction risk, no consequence to dismissing.
+**Before wallet prompts:** The right panel declares the type of interaction (on-chain transaction or free signature), what specifically is being approved, the cost, and which step of how many. The wallet popup never arrives without prior context in the panel. There are three meaningfully different wallet interactions in this system — an on-chain `approve()`, an on-chain `shield()` or `transfer()`, and a free EIP-712 session signature — and they look identical to the wallet UI. Without prior context from the panel, users cannot distinguish a gas-costing irreversible transaction from a free authorization and will reject the unexpected one out of caution.
 
-**The StatusPersistenceBanner** lives at the top of the left column (not above the whole layout). It appears whenever an operation is active and the user has navigated to a different section. It is the secondary indicator — the right panel is the primary indicator.
+**During system phases:** Each phase shows its name in plain language, an estimated duration, and explicit guidance on whether the user can leave or must stay. The third question — "what happens if I leave?" — is always answered because the Unshield operation has a critical intermediate state: after Step 1 confirms, shielded tokens are burned before the public ERC-20 is released. A user who closes the tab in that state needs to know exactly what to expect on return.
+
+**The `finalizing` phase:** This is the most technically subtle moment in the flow. When a Shield or Send operation completes on-chain, Etherscan shows "Success" — but the shielded balance is still being computed by the FHE coprocessor. Users with crypto experience interpret "confirmed" as "done." The UI explicitly names this gap: "Your transaction is confirmed on the network. We're now encrypting your shielded balance — this takes about 1 minute." The completion state is not shown until the balance is actually updated. Equating on-chain confirmation with operation completion would cause users to assume their shielded balance is immediately available, find it empty, and interpret that as a loss.
 
 ---
 
 ## How progress is shown
 
-Progress is shown in the right panel via a **PhaseIndicator** — a horizontal track of named phase dots.
+Progress is shown via a named phase indicator — a linear track of system-state labels, always visible inline, never numbered.
 
-Rules:
-- Phases are named after what the **system** is doing, not what the user is doing
-- Never numbered steps (users aren't doing steps)
-- Current phase is highlighted; completed phases filled; upcoming phases empty
-- Labels appear inline (not on hover) — always visible
+**Why named phases, not numbered steps:**
 
-### Phase labels per operation
+Numbered steps imply the user is performing actions in sequence. In a multi-phase async blockchain operation, the user is not executing steps — the system is. Labelling system phases as "Step 1, Step 2, Step 3" creates false agency and generates anxiety when nothing changes after a step marker appears to complete. It also obscures the nature of what is happening: "Step 2" says nothing, while "Confirming" tells the user the transaction is being recorded on-chain.
 
-| Operation | Phase labels |
-|-----------|-------------|
-| Shield | Auth · Confirm · Encrypt · Done |
-| Send shielded | Confirm · Submit · Encrypt · Done |
-| Unshield | Step 1 · Wait · Step 2 · Done |
+**Why labels are always visible:**
 
----
+A spinner with no label communicates nothing. In the `finalizing` phase — 30 to 90 seconds of FHE coprocessor computation following on-chain confirmation — users without context will interpret silence as failure and attempt to restart an operation that is already in progress. Labels are visible at all times, not on hover, because stressed users and mobile users do not discover affordances.
 
-## Wallet confirmation — handling rules
+**Phase labels by operation:**
 
-The wallet is external. We cannot control its UI.
+Shield uses: Authorizing · Submitting · Confirming · Encrypting · Done
 
-**Before any wallet popup:**
-- Right panel must show a pre-declaration screen: what is being approved, cost, which step of how many.
-- Never let the wallet popup arrive without prior context in the panel (Rule 7).
+Send shielded uses: Submitting · Confirming · Encrypting · Done
 
-**Types of wallet interactions and how to announce them:**
+Unshield uses: Submitting · Confirming · Proof Ready · Releasing · Done
 
-| Type | Cost | Panel copy before popup |
-|------|------|------------------------|
-| ERC-20 `approve()` | Yes — gas | "Authorizing ShieldPay to move [amount] from your public balance. Fee: ~[x] ETH" |
-| `shield()` / `transfer()` / `unwrap()` / `finalizeUnwrap()` | Yes — gas | "Approving transfer of [amount] to [destination]. Fee: ~[x] ETH" |
-| EIP-712 session signature | No | "To view your shielded balance, verify you own this wallet. This is free — no network fee." |
-
-**If wallet doesn't open:**
-- Always provide "Open [wallet] manually" fallback link in the right panel.
-
-**If user cancels in wallet:**
-- Do NOT treat as an error — it is a deliberate choice.
-- Panel shows cancelled state: "Operation cancelled. No funds were moved."
-- No red error styling. Neutral tone.
-
-**Multi-step wallet flows (Shield = 2 confirmations):**
-- Declare total steps before the first prompt: "2 confirmations required"
-- After Step 1 confirms, auto-trigger Step 2 — no button click required (Rule 8)
-- Panel shows "Step 1 of 2 / Step 2 of 2" progress inline
+The Unshield flow has a named wait state between Step 1 and Step 2, with explicit permission to leave and an explicit instruction to return for Step 2. The gap between these phases is 1–2 minutes; the user needs to know the system is holding their place and what they will need to do when they come back.
 
 ---
 
-## The return state
+## How the user can recover
 
-When a user comes back to the app with an operation in progress:
+Recovery is a first-class flow for every failure type and every exit point. Every failure state leads with fund status before explaining the cause. Cancellation is never treated as an error.
 
-**Primary indicator — Right panel:**
-On app load, the right panel reads `localStorage`. If an active operation is found, the panel shows the current operation state — not the idle tabs. The user sees the operation status immediately without searching for it.
+**Why fund status comes first:**
 
-**Secondary indicator — StatusPersistenceBanner:**
-Shown at the top of the left column on any section while an operation is active.
+The primary user fear during a failed financial operation is fund loss, not technical failure. If the first visible element on a failure screen is "Transaction failed," users panic — even when their funds are completely untouched. Every failure state opens with the answer to that fear before describing what went wrong or offering a retry.
 
-```
-┌──────────────────────────────────────────────────────────┐
-│ ⏳  Shielding in progress — Encrypting your balance (~1 min) │
-│     Started 4 minutes ago                      [View →]  │
-└──────────────────────────────────────────────────────────┘
-```
+**Why "safe" and "secured" are used differently:**
 
-Banner rules:
-- Never auto-dismiss while operation is active
-- Shows relative time since started
-- Color matches operation state (cyan = processing, amber = action required, green = complete, red = failed)
-- Clicking takes user to the right panel's current state
+"Your funds are safe" means genuinely untouched — the operation failed before any funds moved (wallet cancellation, submission rejection, dropped transaction). "Your funds are secured" means funds are in an intermediate state specific to the Unshield flow: shielded tokens have been burned, and the public ERC-20 release has not completed. The user must return to finish the operation, or contact support if there is a system error. Conflating these two states with the same reassurance copy would be misleading — one requires no action, the other requires completion.
 
-### Return state resolution logic
+**Wallet cancellation is a decision, not a failure:**
 
-```
-App loads
-  │
-  [S] Read localStorage for active operation
-  │
-  Found?
-    YES → Right panel shows current operation state (not idle tabs)
-          StatusPersistenceBanner shows in left column
-    │
-    ├── awaiting_wallet → Panel shows wallet confirmation prompt
-    ├── submitted/processing/finalizing → Panel shows phase + ETA
-    ├── proof_ready (unshield) → Panel shows "Action required"
-    ├── completed → Panel shows success + banner (dismissable)
-    └── failed → Panel shows recovery + banner
-    │
-    NO → Right panel shows idle tabs (Shield tab default)
-         No banner
-```
+When a user dismisses a wallet prompt, they made a deliberate choice. The panel shows a neutral cancellation state ("No funds were moved. Start again when you're ready.") with no red styling and an immediate path to restart. Treating this as an error introduces false urgency and damages trust.
 
----
+**State persistence across page reloads:**
 
-## Navigation warning — Unshield specific
+Operation state persists via localStorage. If the user closes the tab during any active phase and returns, the right panel restores to the exact current phase — the user never has to reconstruct what happened. If an operation completed or failed while the tab was closed, the right panel shows the result state immediately on load.
 
-The Unshield operation has an intermediate state (waiting for decryption proof) where the user can leave but must return. Two warning levels:
+**The InfoBar — always-on recovery surface:**
 
-**During proof wait (state 3) — soft warning:**
-Triggered when user clicks a sidebar item. Informs without blocking.
-- Primary CTA: "Stay"
-- Secondary: "Leave anyway"
-- Copy: "Your unshield will be paused. Your funds are secured while you're away."
+A persistent InfoBar renders across all routes while any operation is active. It is color-coded to urgency — cyan for background processing, amber for action required, green for complete, red for failed — and links directly back to the right panel's current state. A user who navigated away is never more than one click from their operation status.
 
-**During proof ready (state 4) — urgent warning:**
-Triggered when user tries to navigate away while Step 2 is ready.
-- Primary CTA: "Complete now"
-- Secondary: "Leave anyway" (muted)
-- Copy: "Step 2 is ready. Funds won't be released until you return."
+**Escalated recovery for Unshield:**
 
----
-
-## Mobile
-
-Mobile layout is deferred for this submission. Desktop-first.
-
-When implemented, mobile adaptations follow these principles:
-- Right panel collapses to bottom sheet (slides up on action tap)
-- Sidebar becomes bottom navigation bar
-- StatusPersistenceBanner moves to top of screen (above content)
-- Overlay behavior replaced with full-screen takeover for wallet confirmations
-
----
-
-## What NOT to do
-
-- ❌ Full-page navigation for financial operations — all operations live in the right panel
-- ❌ Spinner with no copy (says nothing)
-- ❌ "Transaction pending" without timeline or permission to leave
-- ❌ Toast for errors that require user action
-- ❌ Hiding the operation when the user navigates away
-- ❌ Treating wallet cancel as an error
-- ❌ Showing wallet popup without prior context in the panel
-- ❌ Modal for financial operations (accidental dismiss is possible)
+The Unshield flow is the only operation with an irreversible intermediate state, and its navigation warnings are calibrated to that consequence. Leaving during the decryption proof wait shows a soft informational warning — the user can leave, their funds are secured, and the system will hold the proof until they return. Leaving while Step 2 is ready (proof generated, final wallet confirmation pending) shows an urgent block: "Step 2 is ready. Funds won't be released until you return." The escalation is proportional — the first warning informs without blocking; the second blocks because the cost of leaving at that moment is significantly higher.

@@ -14,22 +14,22 @@ const SECTIONS = [
   { num: '09', title: 'UX Rules (Agent-Ready)' },
 ]
 
-export const DEFAULT_SECTION_GAPS = [120, 136, 140, 184, 136, 100, 132, 136]
+export const DEFAULT_SECTION_GAPS = [120, 120, 120, 120, 120, 120, 120, 120]
 export const DEFAULT_SECTION_GAP  = 100
-export const DEFAULT_TITLE_GAP    = 40
-export const DEFAULT_DESC_GAP     = 92
+export const DEFAULT_TITLE_GAP    = 32
+export const DEFAULT_DESC_GAP     = 40
 const SNAP = 4
 
 export const CUSTOM_GAPS: Record<string, { label: string; defaultPx: number; copyLabel: string }> = {
   's01-user-assumptions': { label: 'card -> 1.1',             defaultPx: 80,  copyLabel: 'S01: card -> 1.1 User Assumptions' },
-  's03-infobar':          { label: '3-zone -> InfoBar',       defaultPx: 160, copyLabel: 'S03: 3-zone layout -> InfoBar heading' },
-  's04-happy-path':       { label: 'visualizer -> Happy',     defaultPx: 116, copyLabel: 'S04: PhaseVisualizer -> Happy path' },
+  's03-infobar':          { label: '3-zone -> InfoBar',       defaultPx: 72,  copyLabel: 'S03: 3-zone layout -> InfoBar heading' },
+  's04-happy-path':       { label: 'visualizer -> Happy',     defaultPx: 120, copyLabel: 'S04: PhaseVisualizer -> Happy path' },
   's04-unshield':         { label: 'Happy -> Unshield',       defaultPx: 120, copyLabel: 'S04: Happy path -> Unshield full flow' },
-  's04-errors':           { label: 'Unshield -> Errors',      defaultPx: 164, copyLabel: 'S04: Unshield full flow -> Error states' },
-  's05-vocabulary':       { label: 'contrast -> Vocabulary',  defaultPx: 136, copyLabel: 'S05: Copy contrast grid -> Vocabulary decisions' },
-  's05-phase-label':      { label: 'Vocabulary -> Phase label', defaultPx: 116, copyLabel: 'S05: Vocabulary table -> Phase label heading' },
+  's04-errors':           { label: 'Unshield -> Errors',      defaultPx: 120, copyLabel: 'S04: Unshield full flow -> Error states' },
+  's05-vocabulary':       { label: 'contrast -> Vocabulary',  defaultPx: 112, copyLabel: 'S05: Copy contrast grid -> Vocabulary decisions' },
+  's05-phase-label':      { label: 'Vocabulary -> Phase label', defaultPx: 88, copyLabel: 'S05: Vocabulary table -> Phase label heading' },
   's06-ds-implications':  { label: 'DSBento -> 6.1',          defaultPx: 124, copyLabel: 'S06: DSBento -> 6.1 Design System Implications' },
-  's03-infobar-below':    { label: 'InfoBar header -> prose', defaultPx: 68,  copyLabel: 'S03: InfoBar heading -> prose text' },
+  's03-infobar-below':    { label: 'InfoBar header -> prose', defaultPx: 32,  copyLabel: 'S03: InfoBar heading -> prose text' },
 }
 
 // ── Types ─────────────────────────────────────────────────────────────────────

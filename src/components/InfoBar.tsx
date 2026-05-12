@@ -139,6 +139,11 @@ export function InfoBar({
 
   const title = (() => {
     if (variant === 'processing') {
+      if (phase === 'finalizing') {
+        if (operation === 'shield') return `Encrypting ${amountToken} into your shielded balance`
+        if (operation === 'unshield') return `Releasing ${amountToken} to your public balance`
+        return `Encrypting transfer of ${amountToken}`
+      }
       return `${opLabel} ${amountToken} in progress`
     }
     if (variant === 'action-required') {

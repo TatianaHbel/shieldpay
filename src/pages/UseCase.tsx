@@ -83,21 +83,21 @@ function UCSection({ id, num, title, description, children }: {
   )
 
   const SECTION_MB: Record<string, number> = {
-    '01': 120, '02': 136, '03': 140, '04': 184,
-    '05': 136, '06': 100, '07': 132, '08': 136, '09': 0,
+    '01': 120, '02': 120, '03': 120, '04': 120,
+    '05': 120, '06': 120, '07': 120, '08': 120, '09': 0,
   }
 
   if (!cal.active) {
     return (
       <section id={id} style={{ marginBottom: `${SECTION_MB[num] ?? 100}px`, scrollMarginTop: '32px' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '40px' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '32px' }}>
           <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>{num}</span>
           <h2 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
             {title}
           </h2>
         </div>
         {description && (
-          <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', margin: '0 0 92px', lineHeight: 1.7 }}>
+          <p style={{ fontSize: '15px', color: 'var(--color-text-secondary)', margin: '0 0 40px', lineHeight: 1.7 }}>
             {description}
           </p>
         )}
@@ -190,7 +190,7 @@ function Callout({ tone, children }: { tone: 'info' | 'warning' | 'success'; chi
     success: { bg: 'rgba(91,184,30,0.05)',  border: 'rgba(91,184,30,0.2)',   text: '#5BB81E' },
   }[tone]
   return (
-    <div style={{ background: colors.bg, border: `1px solid ${colors.border}`, borderRadius: 'var(--radius-md)', padding: '14px 18px', marginBottom: '24px', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.65 }}>
+    <div style={{ background: colors.bg, border: `1px solid ${colors.border}`, borderRadius: '6px', padding: '14px 18px', marginBottom: '24px', fontSize: '14px', color: 'var(--color-text-secondary)', lineHeight: 1.65 }}>
       {children}
     </div>
   )
@@ -514,7 +514,7 @@ function FlowMap() {
           cursor: isDragging ? 'grabbing' : 'grab',
           background: 'var(--color-surface-raised)',
           border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-lg)',
+          borderRadius: '6px',
           position: 'relative', userSelect: 'none',
         }}
       >
@@ -527,7 +527,7 @@ function FlowMap() {
             ['-', () => { const n = Math.max(0.3, scaleRef.current / 1.2); scaleRef.current = n; setXform(x => ({ ...x, scale: n })) }],
             ['reset', () => { scaleRef.current = INIT_SCALE; txRef.current = 0; tyRef.current = 0; setXform({ tx: 0, ty: 0, scale: INIT_SCALE }) }],
           ] as [string, () => void][]).map(([lbl, fn]) => (
-            <button key={lbl} onClick={fn} style={{
+            <button key={lbl} onClick={fn} onPointerDown={e => e.stopPropagation()} style={{
               padding: '0 8px', height: 26,
               border: '1px solid var(--color-border)',
               borderRadius: 5, background: 'var(--color-surface)',
@@ -690,7 +690,7 @@ function ScreenDemo({ op, phase, caption, annotation }: {
         onClose={NOOP}
         onOverlayIntensity={NOOP}
       />
-      <div style={{ marginTop: '12px', padding: '10px 14px', background: 'var(--color-surface-subtle)', borderRadius: 'var(--radius-md)', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+      <div style={{ marginTop: '12px', padding: '10px 14px', background: 'var(--color-surface-subtle)', borderRadius: '6px', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
         {annotation}
       </div>
     </div>
@@ -699,11 +699,11 @@ function ScreenDemo({ op, phase, caption, annotation }: {
 
 // ── UX Rule card (Section 09) ────────────────────────────────────────────────
 
-function RuleCard({ num, rule, why, correct, incorrect }: {
-  num: string; rule: string; why: string; correct: string; incorrect: string
+function RuleCard({ num, rule, why, correct, incorrect, exception }: {
+  num: string; rule: string; why: string; correct: string; incorrect: string; exception?: string
 }) {
   return (
-    <div style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', overflow: 'hidden', marginBottom: '24px' }}>
+    <div style={{ border: '1px solid var(--color-border)', borderRadius: '6px', overflow: 'hidden', marginBottom: '24px' }}>
       <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-raised)' }}>
         <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '6px' }}>Rule {num}</div>
         <p style={{ margin: 0, fontSize: '15px', fontWeight: 600, color: 'var(--color-text-primary)', lineHeight: 1.5 }}>{rule}</p>
@@ -722,6 +722,12 @@ function RuleCard({ num, rule, why, correct, incorrect }: {
           <pre style={{ margin: 0, fontSize: '12px', color: 'var(--color-text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.6, fontFamily: 'monospace' }}>{incorrect}</pre>
         </div>
       </div>
+      {exception && (
+        <div style={{ padding: '14px 20px', borderTop: '1px solid var(--color-border)', background: 'var(--color-surface)' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em', marginRight: '8px' }}>Exception</span>
+          <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>{exception}</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -919,7 +925,7 @@ export function UseCase() {
             ]}
           />
 
-          <div style={{ background: 'var(--color-midnight)', borderRadius: 'var(--radius-lg)', padding: '40px 28px 24px', marginBottom: '24px' }}>
+          <div style={{ background: 'var(--color-midnight)', borderRadius: '6px', padding: '40px 28px 24px', marginBottom: '24px' }}>
             <div style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.4)', marginBottom: '12px' }}>Target mental model</div>
             <blockquote style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: '#fff', lineHeight: 1.6, letterSpacing: '-0.01em' }}>
               {"\"I initiated an operation. It's in progress. The system is handling it. I can check back later. My funds are safe.\""}
@@ -941,14 +947,247 @@ export function UseCase() {
 
         {/* 03 - Interaction Model */}
         <UCSection id="interaction-model" num="03" title="Interaction Model"
-          description="All financial operations live in the right panel. The left column is always the information layer. The right panel is always the action layer.">
+          description="Where actions happen, where details appear, how progress is shown, and how the user can recover.">
+
+          {/* 3.1 — Where actions happen */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>3.1</span>
+            <h3 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Where actions happen</h3>
+          </div>
+          <CalibrationSpacer defaultPx={32} target={{ kind: 'custom', key: 's03-31-below' }} label="3.1 title -> prose" />
+          <ProseBlock>
+            All financial operations live in a persistent right-panel drawer - always mounted at the right edge of the layout regardless of which section the user is navigating. The layout has two layers that never trade roles: the left column is the information layer (balances, activity history) and the right panel is the action layer (initiate, confirm, monitor, recover).
+          </ProseBlock>
 
           <Label>3-zone layout</Label>
-          <div style={{ background: '#FFFFFF', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '33px 28px 25px 25px', fontFamily: 'monospace', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.8, overflowX: 'auto' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid var(--color-border)', borderRadius: '6px', padding: '33px 28px 25px 25px', fontFamily: 'monospace', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.8, overflowX: 'auto', marginBottom: '24px' }}>
             <pre style={{ margin: 0 }}>{'┌──────────────┬──────────────────────────────────┬─────────────────────┐\n│   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Sidebar</strong>{'    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Left column</strong>{'                    │   '}<strong style={{ fontWeight: 700, color: 'var(--color-text-primary)' }}>Right panel</strong>{'       │\n│   Navigation │   Wallet                         │   Transaction       │\n│              │   Balance cards                  │   widget            │\n│              │   Activity feed                  │   All ops live here │\n├──────────────┴────────────────── InfoBar ────────┴─────────────────────┤\n└─────────────────────────────────────────────────────────────────────────┘'}</pre>
           </div>
 
-          <CalibrationSpacer defaultPx={160} target={{ kind: 'custom', key: 's03-infobar' }} label="3-zone -> InfoBar" />
+          <ProseBlock>
+            A full-page navigation model breaks context at the worst moment - the user loses sight of their balances mid-operation, exactly when that reference matters most. A modal risks accidental dismissal; for a multi-step flow that can leave funds in an intermediate state if abandoned, that is not an acceptable risk. The drawer stays mounted across all routes, so an active operation is never hidden when the user navigates away.
+          </ProseBlock>
+          <ProseBlock>
+            When wallet confirmation is required, the left column dims to 50% opacity. The drawer becomes the sole interactive surface without any navigation change - the user does not go somewhere to confirm, they stay in context and the visual weight shifts to where the action is. When the system is processing without requiring user action, the overlay drops to 30% - a passive signal that work is in progress, without demanding attention or blocking the user from reading their balance.
+          </ProseBlock>
+
+          {/* 3.2 — Where details appear */}
+          <CalibrationSpacer defaultPx={64} target={{ kind: 'custom', key: 's03-32' }} label="3.1 -> 3.2" />
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>3.2</span>
+            <h3 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Where details appear</h3>
+          </div>
+          <CalibrationSpacer defaultPx={32} target={{ kind: 'custom', key: 's03-32-below' }} label="3.2 title -> prose" />
+          <ProseBlock>
+            Details appear at the point of decision - not front-loaded before the user has committed, and not disclosed only after. Every active state in the right panel answers three questions: what is happening, what the user should do (or that they can do nothing), and what happens if they leave.
+          </ProseBlock>
+          <ProseBlock>
+            Before each wallet prompt, the right panel declares the type of interaction, what is being approved, the cost, and which step of how many. The wallet popup never arrives without prior context in the panel. There are three meaningfully different wallet interactions in this system - an on-chain token approval, an on-chain transfer, and a free EIP-712 session signature - and they look identical in the wallet UI. Without prior context from the panel, users cannot distinguish a gas-costing irreversible transaction from a free authorization and will reject the unexpected one out of caution.
+          </ProseBlock>
+
+          <Callout tone="warning">
+            <strong style={{ color: 'var(--color-text-primary)' }}>The finalizing gap:</strong>{' '}When a Shield or Send operation completes on-chain, Etherscan shows Success - but the shielded balance is still being computed by the FHE coprocessor. Users with crypto experience interpret confirmed as done. The UI explicitly names this gap: your transaction is confirmed on the network, we are now encrypting your shielded balance - about 1 minute. The completion state is not shown until the balance is actually updated. Equating on-chain confirmation with operation completion causes users to find their shielded balance empty and interpret that as a loss.
+          </Callout>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', border: '1px solid var(--color-border)', borderRadius: '6px', overflow: 'hidden' }}>
+            {([
+              {
+                op: 'shield' as OperationType,
+                phase: 'awaiting_wallet_step1' as OperationPhase,
+                caption: 'Wallet step 1 of 2 - pre-declaration',
+                annotation: 'Before the wallet popup, the panel declares exactly what is being approved, what it costs, and which step of how many. The popup never arrives without prior context.',
+              },
+              {
+                op: 'shield' as OperationType,
+                phase: 'awaiting_wallet_step2' as OperationPhase,
+                caption: 'Wallet step 2 of 2 - pre-declaration',
+                annotation: 'The second confirmation shows the actual transfer details. Step counter confirms progress - the user already committed at step 1, so step 2 auto-triggers without a button click.',
+              },
+              {
+                op: 'shield' as OperationType,
+                phase: 'finalizing' as OperationPhase,
+                caption: 'Finalizing - the gap named explicitly',
+                annotation: 'Details appear at exactly the moment they matter. The copy bridges confirmed on-chain and balance not yet updated - the one gap where silence causes users to assume a loss.',
+              },
+            ] as { op: OperationType; phase: OperationPhase; caption: string; annotation: string }[]).map(({ op, phase, caption, annotation }, i) => (
+              <div key={caption} style={{ borderRight: i < 2 ? '1px solid var(--color-border)' : 'none', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-raised)' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{caption}</span>
+                </div>
+                <div style={{ padding: '16px', flex: 1 }}>
+                  <RightPanel
+                    demo isOpen
+                    activeAction={op as DrawerAction}
+                    phase={phase}
+                    operationType={op}
+                    amount="0.50"
+                    recipient="0x742d35Cc6634C0532925a3b8D4C9C2C5e09c3bE4"
+                    publicBalance="1.24"
+                    shieldedBalance="0.50"
+                    startedAt={MOCK_START}
+                    txHashStep1="0xabc123def456abc123def456abc123def456abc123def456abc123def456abc1"
+                    txHashStep2="0xdef456abc123def456abc123def456abc123def456abc123def456abc123def4"
+                    onStartShield={NOOP}
+                    onStartSend={NOOP}
+                    onStartUnshield={NOOP}
+                    onCancel={NOOP}
+                    onComplete={NOOP}
+                    onDone={NOOP}
+                    onClose={NOOP}
+                    onOverlayIntensity={NOOP}
+                  />
+                </div>
+                <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border)', background: 'var(--color-surface-subtle)', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+                  {annotation}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 3.3 — How progress is shown */}
+          <CalibrationSpacer defaultPx={64} target={{ kind: 'custom', key: 's03-33' }} label="3.2 -> 3.3" />
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>3.3</span>
+            <h3 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>How progress is shown</h3>
+          </div>
+          <CalibrationSpacer defaultPx={32} target={{ kind: 'custom', key: 's03-33-below' }} label="3.3 title -> prose" />
+          <ProseBlock>
+            Progress is shown via a named phase indicator - a linear track of system state labels, always visible inline, never numbered. Phases are named after what the system is doing, not what the user is doing.
+          </ProseBlock>
+          <ProseBlock>
+            Numbered steps imply the user is performing actions in sequence. In a multi-phase async blockchain operation, the user is not executing steps - the system is. Labelling system phases as steps creates false agency and anxiety when nothing changes after a step marker completes. A spinner with no label communicates nothing: in the finalizing phase (30 to 90 seconds of FHE coprocessor computation after on-chain confirmation), users without context will interpret silence as failure. Named system phases give users a mental model of where the operation is without requiring any understanding of gas mechanics or encryption. Labels are visible at all times - not on hover - because stressed users do not discover affordances.
+          </ProseBlock>
+
+          <Label>Phase labels per operation</Label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', border: '1px solid var(--color-border)', borderRadius: '6px', overflow: 'hidden' }}>
+            {([
+              {
+                op: 'shield' as OperationType,
+                phase: 'processing' as OperationPhase,
+                caption: 'Confirming on-chain',
+                annotation: 'The phase indicator names what the system is doing - not what the user is doing. No action required; explicit permission to leave. ETA sets expectations without false precision.',
+              },
+              {
+                op: 'shield' as OperationType,
+                phase: 'finalizing' as OperationPhase,
+                caption: 'Encrypting balance',
+                annotation: 'The hardest state to communicate. Etherscan shows Success here - but the balance is not ready. The named phase and explicit copy bridge that gap without alarming the user.',
+              },
+              {
+                op: 'shield' as OperationType,
+                phase: 'completed' as OperationPhase,
+                caption: 'Done',
+                annotation: 'All phases filled. Both balance deltas visible. No ambiguity about whether the operation is truly complete - the shielded balance is updated before this state is shown.',
+              },
+            ] as { op: OperationType; phase: OperationPhase; caption: string; annotation: string }[]).map(({ op, phase, caption, annotation }, i) => (
+              <div key={caption} style={{ borderRight: i < 2 ? '1px solid var(--color-border)' : 'none', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-raised)' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{caption}</span>
+                </div>
+                <div style={{ padding: '16px', flex: 1 }}>
+                  <RightPanel
+                    demo isOpen
+                    activeAction={op as DrawerAction}
+                    phase={phase}
+                    operationType={op}
+                    amount="0.50"
+                    recipient="0x742d35Cc6634C0532925a3b8D4C9C2C5e09c3bE4"
+                    publicBalance="1.24"
+                    shieldedBalance="0.50"
+                    startedAt={MOCK_START}
+                    txHashStep1="0xabc123def456abc123def456abc123def456abc123def456abc123def456abc1"
+                    txHashStep2="0xdef456abc123def456abc123def456abc123def456abc123def456abc123def4"
+                    onStartShield={NOOP}
+                    onStartSend={NOOP}
+                    onStartUnshield={NOOP}
+                    onCancel={NOOP}
+                    onComplete={NOOP}
+                    onDone={NOOP}
+                    onClose={NOOP}
+                    onOverlayIntensity={NOOP}
+                  />
+                </div>
+                <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border)', background: 'var(--color-surface-subtle)', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+                  {annotation}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 3.4 — How the user can recover */}
+          <CalibrationSpacer defaultPx={64} target={{ kind: 'custom', key: 's03-34' }} label="3.3 -> 3.4" />
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: '#96C129', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.04em' }}>3.4</span>
+            <h3 style={{ margin: 0, fontSize: '26px', fontWeight: 700, color: 'var(--color-text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>How the user can recover</h3>
+          </div>
+          <CalibrationSpacer defaultPx={32} target={{ kind: 'custom', key: 's03-34-below' }} label="3.4 title -> prose" />
+          <ProseBlock>
+            Recovery is a first-class flow for every failure type and every exit point. Every failure state leads with fund status before explaining the cause. Wallet cancellation is never treated as an error - it is a deliberate choice that gets neutral tone, no red styling, and an immediate path to restart.
+          </ProseBlock>
+          <ProseBlock>
+            The distinction between safe and secured is not cosmetic. Your funds are safe means genuinely untouched - the operation failed before any funds moved. Your funds are secured means funds are in the intermediate Unshield state: shielded tokens have been burned, the public ERC-20 has not yet been released. The user must complete Step 2 or contact support. Conflating these two states with the same reassurance would be misleading - one requires no action, the other requires completion.
+          </ProseBlock>
+          <ProseBlock>
+            Operation state persists across page reloads. If the user closes the tab during any active phase and returns, the right panel restores to the exact current state. The Unshield flow escalates navigation warnings proportional to consequence: leaving during proof generation shows a soft informational warning; leaving while Step 2 is ready shows an urgent block, because at that point the user must return to release their funds.
+          </ProseBlock>
+
+          <Label>Recovery states</Label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', border: '1px solid var(--color-border)', borderRadius: '6px', overflow: 'hidden' }}>
+            {([
+              {
+                op: 'shield' as OperationType,
+                phase: 'failed_dropped' as OperationPhase,
+                caption: 'Failed - fund safety first',
+                annotation: 'The first line answers the question the user is actually asking: are my funds gone? Explanation and retry follow - never the other way around.',
+              },
+              {
+                op: 'shield' as OperationType,
+                phase: 'cancelled' as OperationPhase,
+                caption: 'Cancelled - not an error',
+                annotation: 'Wallet dismissal is a deliberate choice. Neutral tone, no red styling, no penalty. The path to restart is immediate.',
+              },
+              {
+                op: 'unshield' as OperationType,
+                phase: 'interrupted' as OperationPhase,
+                caption: 'Unshield interrupted - secured',
+                annotation: 'Funds are secured in the intermediate contract. The panel restores to this state on return and drives the user to the only action that releases them.',
+              },
+            ] as { op: OperationType; phase: OperationPhase; caption: string; annotation: string }[]).map(({ op, phase, caption, annotation }, i) => (
+              <div key={caption} style={{ borderRight: i < 2 ? '1px solid var(--color-border)' : 'none', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--color-border)', background: 'var(--color-surface-raised)' }}>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{caption}</span>
+                </div>
+                <div style={{ padding: '16px', flex: 1 }}>
+                  <RightPanel
+                    demo isOpen
+                    activeAction={op as DrawerAction}
+                    phase={phase}
+                    operationType={op}
+                    amount="0.50"
+                    recipient="0x742d35Cc6634C0532925a3b8D4C9C2C5e09c3bE4"
+                    publicBalance="1.24"
+                    shieldedBalance="0.50"
+                    startedAt={MOCK_START}
+                    txHashStep1="0xabc123def456abc123def456abc123def456abc123def456abc123def456abc1"
+                    txHashStep2="0xdef456abc123def456abc123def456abc123def456abc123def456abc123def4"
+                    onStartShield={NOOP}
+                    onStartSend={NOOP}
+                    onStartUnshield={NOOP}
+                    onCancel={NOOP}
+                    onComplete={NOOP}
+                    onDone={NOOP}
+                    onClose={NOOP}
+                    onOverlayIntensity={NOOP}
+                  />
+                </div>
+                <div style={{ padding: '12px 16px', borderTop: '1px solid var(--color-border)', background: 'var(--color-surface-subtle)', fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+                  {annotation}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <CalibrationSpacer defaultPx={160} target={{ kind: 'custom', key: 's03-infobar' }} label="3.4 recovery screens -> InfoBar" />
           <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.327em', lineHeight: 1, fontFamily: 'Manrope, sans-serif' }}>InfoBar - cross-page operation visibility</div>
           <CalibrationSpacer defaultPx={68} target={{ kind: 'custom', key: 's03-infobar-below' }} label="InfoBar header -> prose" />
           <ProseBlock>
@@ -1077,7 +1316,7 @@ export function UseCase() {
         <UCSection id="content-design" num="05" title="Content Design"
           description="Copy is the primary trust mechanism. Every state must answer three questions - and answer them in the right order.">
 
-          <div style={{ background: '#FFFFFF', border: '1px solid var(--color-border)', borderRadius: '12px', padding: '24px', marginBottom: '32px' }}>
+          <div style={{ background: '#FFFFFF', border: '1px solid var(--color-border)', borderRadius: '6px', padding: '24px', marginBottom: '32px' }}>
             <Label>The 3-question rule - every status state must answer:</Label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {[
@@ -1098,7 +1337,7 @@ export function UseCase() {
 
           <Label>Copy contrast - the Encrypting state</Label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <div style={{ background: 'rgba(185,28,28,0.04)', border: '1px solid rgba(185,28,28,0.2)', borderRadius: '8px', padding: '16px' }}>
+            <div style={{ background: 'rgba(185,28,28,0.04)', border: '1px solid rgba(185,28,28,0.2)', borderRadius: '6px', padding: '16px' }}>
               <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-error)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>Before</div>
               <code style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.7, display: 'block' }}>
                 Transaction confirmed<br />
@@ -1106,7 +1345,7 @@ export function UseCase() {
               </code>
               <div style={{ marginTop: '10px', fontSize: '12px', color: 'var(--color-error)' }}>Fails all 3 questions. User opens Etherscan, sees "Success", refreshes, finds balance unchanged, assumes loss.</div>
             </div>
-            <div style={{ background: 'rgba(91,184,30,0.04)', border: '1px solid rgba(91,184,30,0.2)', borderRadius: '8px', padding: '16px' }}>
+            <div style={{ background: 'rgba(91,184,30,0.04)', border: '1px solid rgba(91,184,30,0.2)', borderRadius: '6px', padding: '16px' }}>
               <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-success)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '10px' }}>After</div>
               <code style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.7, display: 'block' }}>
                 Encrypting your balance<br />
@@ -1196,7 +1435,7 @@ export function UseCase() {
               { risk: 'User abandons Unshield at proof_ready - funds stay locked', mitigation: 'Urgent NavigationWarning + amber banner on all routes + ActivityRow CTA. Three entry points.' },
               { risk: 'Second wallet popup appears with no context', mitigation: 'Step counter declared before Step 1. After Step 1 is approved, the Step 2 confirm screen appears immediately - user approves again.' },
             ].map(({ risk, mitigation }, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+              <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0', border: '1px solid var(--color-border)', borderRadius: '6px', overflow: 'hidden' }}>
                 <div style={{ padding: '14px 16px', background: 'rgba(185,28,28,0.03)', borderRight: '1px solid var(--color-border)' }}>
                   <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-error)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '4px' }}>Risk</div>
                   <div style={{ fontSize: '13px', color: 'var(--color-text-primary)', lineHeight: 1.5 }}>{risk}</div>
@@ -1230,7 +1469,7 @@ export function UseCase() {
               mitigation: '"Taking longer than expected - still processing. Your funds are safe." updates automatically.',
             },
           ].map(({ title, decision, risk, mitigation }) => (
-            <div key={title} style={{ border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', padding: '16px 20px', marginBottom: '12px' }}>
+            <div key={title} style={{ border: '1px solid var(--color-border)', borderRadius: '6px', padding: '16px 20px', marginBottom: '12px' }}>
               <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-text-primary)', marginBottom: '8px' }}>{title}</div>
               <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.65 }}>
                 <strong style={{ color: 'var(--color-text-primary)' }}>Decision:</strong> {decision}<br />
@@ -1261,7 +1500,7 @@ export function UseCase() {
           </ProseBlock>
 
           <Label>AI agent component selection logic</Label>
-          <div style={{ background: 'var(--color-midnight)', borderRadius: 'var(--radius-lg)', padding: '20px 24px', marginBottom: '24px', overflowX: 'auto' }}>
+          <div style={{ background: 'var(--color-midnight)', borderRadius: '6px', padding: '20px 24px', marginBottom: '24px', overflowX: 'auto' }}>
             <pre style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.8, fontFamily: 'monospace' }}>{`Is there an async operation in progress?
   YES → Drawer renders operation phase sub-component
         Is user action required immediately?
@@ -1322,12 +1561,68 @@ This may take ~2 minutes. You can close this tab
 Answers none of the three questions.
 User has no idea if they should wait,
 act, or whether leaving is safe.`}
+            exception="For very fast operations (under 5 seconds), question 3 may be omitted since leaving is not a meaningful risk in that timeframe."
+          />
+
+          <RuleCard
+            num="3"
+            rule="Failure copy must lead with fund status before explaining the error."
+            why="Users' primary fear during a failed financial transaction is that their money is gone. If the first thing they see is 'Transaction failed' or a red error state, they will panic - even if their funds are completely safe. Addressing fund safety first prevents emotional escalation that leads to support contacts and trust loss."
+            correct={`Heading: "Something went wrong"
+First line: "Your funds are safe - nothing was
+deducted from your balance."
+Then: "The transaction didn't go through because
+[reason]. You can try again."`}
+            incorrect={`Heading: "Transaction failed"
+Copy: "Error code: 0x4a3b. Retry or contact support."
+
+User's first question is unanswered:
+are my funds gone?`}
+            exception={'If funds ARE at risk (partial execution, finalization errors after Unshield Step 1), do not lead with safety reassurance. Lead with: "Your funds are secured." then "Contact support to complete the release." Reserve "Your funds are safe" only for cases where funds are genuinely untouched.'}
+          />
+
+          <RuleCard
+            num="4"
+            rule="Wallet confirmation states are right-panel states, never toasts or modals."
+            why="The wallet confirmation is the single moment in the flow that requires immediate action in an external application. If this prompt competes with other UI, users miss it, the wallet popup times out, and the entire operation must be restarted. The visual weight of a full right-panel state - combined with the left column dimming to 50% - matches the urgency and signals the required context switch."
+            correct={`Right panel switches to WalletConfirmView:
+- Step counter ("Step 1 of 2 - Authorization")
+- What is being approved (specific amount + direction)
+- Whether it costs gas (or "free - no network fee")
+- Fallback ("Not seeing a popup? Click your wallet icon.")
+- Cancel option`}
+            incorrect={`Toast: "Wallet confirmation needed"
+Inline banner: "Check your wallet"
+Nothing (relying on the wallet popup alone)
+
+None of these match the urgency or give
+the user context to act correctly.`}
+          />
+
+          <RuleCard
+            num="5"
+            rule="Overview shows both balances simultaneously. Section pages show only their own balance."
+            why="The Overview is where users form their understanding of the two-balance model. Showing both side by side makes the relationship legible - users can see that shielding moves value from one to the other. On section pages, showing only the relevant balance reduces cognitive load. Showing both there creates duplication and wastes space."
+            correct={`Overview:
+Public 0.74 ETH   |   Shielded 0.50 ETH
+
+Public section:
+Public balance
+0.74 ETH`}
+            incorrect={`Overview shows only one balance card.
+
+OR
+
+Section page duplicates both cards
+side by side - same as Overview,
+with no contextual benefit.`}
+            exception="In a compact navigation element (header badge), showing only one balance for space reasons is acceptable if tapping expands to the dual Overview."
           />
 
           <RuleCard
             num="6 - FHE-specific"
             rule={'The finalizing phase (FHE encryption after on-chain confirmation) must be communicated as distinct from "transaction confirmed." Never show "Confirmed" or "Complete" until the shielded balance is actually updated.'}
-            why={'Crypto users interpret "transaction confirmed" as "operation complete." In FHE-based systems, on-chain confirmation triggers an additional encryption step that takes 1-3 minutes. If the UI shows "confirmed" before the shielded balance is ready, users will try to use it, find it empty, and assume a loss.'}
+            why={'Crypto users interpret "transaction confirmed" as "operation complete." In FHE-based systems, on-chain confirmation triggers an additional encryption step that takes 1-3 minutes. If the UI shows "confirmed" before the shielded balance is ready, users will try to use it, find it empty, and assume a loss. This is not recoverable by surrounding copy alone - the phase label itself must be correct.'}
             correct={`Phase label: "Encrypting your balance"
 
 "Your transaction is confirmed on the network.
@@ -1339,6 +1634,82 @@ balance - ~1 minute. You can close this tab."`}
 
 User opens app, sees "Confirmed",
 checks shielded balance: 0. Assumes loss.`}
+            exception="None. This rule has no exceptions for FHE-based operations."
+          />
+
+          <RuleCard
+            num="7"
+            rule="Declare the type and cost of every wallet interaction before triggering it."
+            why="There are three distinct wallet interactions in this system: on-chain transactions (cost gas, irreversible), EIP-712 session signatures (free, authorization only), and the implicit ZKPoK calculation (invisible, no popup). Users cannot distinguish these without help - MetaMask and Rabby display all wallet interactions with the same visual weight. An unexpected signing request will be rejected out of suspicion, breaking the flow."
+            correct={`On-chain transaction:
+"Confirm in your wallet - Step 2 of 2"
+"Approving transfer of 0.5 ETH to your shielded balance."
+"Network fee: ~0.003 ETH"
+[then wallet popup appears]
+
+EIP-712 (onboarding):
+"One more step to enable shielded transactions."
+"Your wallet will ask you to sign. This is free -
+no network fee. You only need to do this once."
+[then wallet popup appears]`}
+            incorrect={`Balance view automatically triggers wallet popup on load.
+
+OR
+
+Second wallet popup (Step 2) appears without
+explaining why a second confirmation is needed.
+
+Any wallet interaction where the popup is the
+first thing the user sees.`}
+          />
+
+          <RuleCard
+            num="8"
+            rule="Multi-step wallet flows require step counters and auto-chaining between confirmations."
+            why="Users who complete step 1 have already committed to the operation. Requiring them to find and click another button between steps introduces a decision point that reads as 'something went wrong.' Auto-chaining removes ambiguity and reduces abandonment at the approve-to-action gap."
+            correct={`Before step 1: "2 wallet confirmations required"
+During step 1: "Step 1 of 2 - Authorization.
+  Waiting for your wallet..."
+After step 1 confirms: auto-triggers step 2
+  within ~1 second
+During step 2: "Step 2 of 2 - Move funds.
+  Waiting for your wallet..."`}
+            incorrect={`[wallet popup 1 appears - user approves]
+[screen returns to form]
+[user must click "Shield" again for step 2]
+
+User reads the return to form as failure.
+Many abandon here.`}
+            exception={'If the user has a prior approval set (approvalStrategy: "max") and step 1 is skipped automatically, do not show "Step 1 of 2" - show a single "Confirm in your wallet" with no step counter.'}
+          />
+
+          <RuleCard
+            num="9"
+            rule="Gate the EIP-712 session signature behind an explicit user action, once, during onboarding. Never trigger it automatically."
+            why="An unexpected wallet popup on page load violates user trust - the user did not ask for it, does not know what it is, and will reject it. This makes their shielded balance permanently unavailable until they understand what happened and retry. Once authorized, the session persists locally; prompting again on the dashboard contradicts the once-per-device promise and creates unnecessary friction."
+            correct={`On first visit after wallet connect:
+ConnectWalletCard shows eip712-setup state:
+"One more step to enable shielded transactions."
+[user clicks "Enable shielded access"]
+[EIP-712 popup appears]
+[on completion: redirect to Overview]
+
+On subsequent visits:
+Session loaded from cache - balance displayed
+automatically, no popup.`}
+            incorrect={`useConfidentialBalance() called on component mount
+without user consent.
+
+OR
+
+Wallet popup triggered automatically when user
+navigates to the dashboard.
+
+OR
+
+"Authorize" button shown to users who already
+authorized - contradicts the once-per-device promise.`}
+            exception={'If the session has expired (cache cleared or TTL elapsed), a fresh signature is required. Show a contextual inline prompt: "Verify your identity to view your shielded balance. Your funds are intact."'}
           />
 
           <RuleCard
@@ -1377,8 +1748,42 @@ most mental models. The anxiety it creates
 cannot be repaired by surrounding copy.`}
           />
 
+          <CalibrationSpacer defaultPx={80} target={{ kind: 'custom', key: 's09-enforcement' }} label="last rule -> enforcement" />
+          <div style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-text-secondary)', textTransform: 'uppercase', letterSpacing: '0.327em', lineHeight: 1, fontFamily: 'Manrope, sans-serif', marginBottom: '40px' }}>How rules are enforced</div>
+
+          <ProseBlock>
+            Rules written as guidelines stay in wikis and rot. These rules are enforced through <InlineCode>CLAUDE.md</InlineCode> - an AI agent instruction file checked into the root of the repository. Every AI coding agent (Claude, Cursor, Copilot, or any tool consuming the repo) reads this file before taking any action. It is not documentation for humans; it is a constraint system for machines.
+          </ProseBlock>
+          <ProseBlock>
+            The file operates as a decision table, not a style guide. Before an agent touches a component, it is directed to read the relevant rules doc. Before writing copy, it reads the copy rules verbatim. Before making a layout decision, it reads the interaction model. If a request does not fit the existing component API, the file instructs the agent to stop and present options rather than guess. The design system is the source of truth; the file enforces that agents treat it that way.
+          </ProseBlock>
+
+          <div style={{ borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--color-border)', marginBottom: '24px' }}>
+            <div style={{ padding: '10px 16px', background: 'var(--color-surface-raised)', borderBottom: '1px solid var(--color-border)', fontSize: '11px', fontWeight: 700, color: 'var(--color-text-secondary)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>CLAUDE.md - enforced constraints (excerpt)</div>
+            <pre style={{ margin: 0, padding: '20px 24px', fontSize: '12px', lineHeight: 1.75, color: 'var(--color-text-secondary)', background: 'var(--color-surface)', overflowX: 'auto', whiteSpace: 'pre-wrap' }}>{`## Copy rules (non-negotiable)
+- Never write "Transaction pending" alone - always add timeline
+  and permission to leave
+- Never write "Confirmed" when the private balance is not
+  updated yet - use "Encrypting your balance"
+- Never use jargon: gas → "network fee", FHE → omit,
+  TFHE → omit, mempool → omit, nonce → omit
+- Error views always lead with fund safety - "Your funds are
+  safe" is the first line of every error state where funds
+  are genuinely untouched
+
+## Component rules (non-negotiable)
+- Every design change is made at the component level - never
+  hardcode copy or styles into screen files
+- When a request does not fit the existing component API:
+  stop, do not write code, present options, wait for decision
+- Wallet confirmation views are always full-focus - left column
+  overlays at 50% opacity; drawer is the only interactive surface
+- No numbered steps for system phases - PhaseIndicatorVertical
+  is not a stepper. Users are not doing steps; the system is.`}</pre>
+          </div>
+
           <Callout tone="info">
-            The full ruleset (9 rules with correct/incorrect/exceptions) is defined in <InlineCode>docs/05-ux-rules.md</InlineCode> and enforced via <InlineCode>CLAUDE.md</InlineCode>. Rules are written to be consumed by AI agents, design systems, and cross-functional teams without requiring design intuition to apply correctly.
+            {'A human designer sees a processing state and intuitively knows the visual treatment. An AI agent does not - it needs explicit decision rules to produce correct UI without design intuition. CLAUDE.md encodes those rules so any agent, at any point, builds the same product a human designer would.'}
           </Callout>
         </UCSection>
 
