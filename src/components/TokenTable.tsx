@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { ShieldCheck, ShieldOff, SlidersHorizontal, List } from 'lucide-react'
 import { Asterisk } from '@phosphor-icons/react'
 import { Table, TableHeader, TableBody, TableRow, TableCell } from './Table'
+import { TokenAvatar } from './TokenAvatar'
 
 type TokenFilter = 'all' | 'shielded' | 'unshielded'
 
@@ -26,65 +27,6 @@ const TOKENS: TokenEntry[] = [
   { symbol: 'cDAI',  name: 'Shielded Dai',       imageUrl: `${ICON_BASE}/dai.png`,  isShielded: true,  balance: '250.00',   balanceUnit: 'cDAI',  usd: '250.06'    },
 ]
 
-function TokenAvatar({
-  imageUrl,
-  symbol,
-  isShielded,
-}: {
-  imageUrl: string
-  symbol: string
-  isShielded: boolean
-}) {
-  return (
-    <div style={{ position: 'relative', width: '48px', height: '48px', flexShrink: 0 }}>
-      <img
-        src={imageUrl}
-        alt={symbol}
-        width={48}
-        height={48}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          borderRadius: '50%',
-          objectFit: 'cover',
-        }}
-      />
-
-      {isShielded && (
-        <>
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              borderRadius: '50%',
-              border: '2px solid var(--color-shielded)',
-              pointerEvents: 'none',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '-4px',
-              right: '-4px',
-              width: '20px',
-              height: '20px',
-              borderRadius: '6px',
-              background: 'var(--color-shielded)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '2px solid var(--color-surface-raised)',
-            }}
-          >
-            <ShieldCheck size={12} color="#fff" strokeWidth={2.5} aria-hidden />
-          </div>
-        </>
-      )}
-    </div>
-  )
-}
 
 function PrivacyBadge({ isShielded }: { isShielded: boolean }) {
   return (
@@ -292,9 +234,9 @@ export function TokenTable({ hidden }: TokenTableProps) {
             <TableCell
               start={
                 <TokenAvatar
-                  imageUrl={token.imageUrl}
                   symbol={token.symbol}
-                  isShielded={token.isShielded}
+                  imageUrl={token.imageUrl}
+                  variant={token.isShielded ? 'shielded' : 'default'}
                 />
               }
               title={token.symbol}

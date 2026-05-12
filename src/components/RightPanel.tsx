@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { ExternalLink, Zap, CheckCircle, AlertTriangle, X, QrCode, ArrowLeft, ArrowDown, ChevronDown, Check, ShieldCheck, Copy } from 'lucide-react'
+import { ExternalLink, Zap, CheckCircle, AlertTriangle, X, QrCode, ArrowLeft, ArrowDown, ChevronDown, Check, Copy } from 'lucide-react'
 import { PhaseIndicatorVertical } from './PhaseIndicatorVertical'
 import { Button } from './Button'
 import { TextField } from './TextField'
+import { TokenAvatar } from './TokenAvatar'
 import type { OperationPhase, OperationType } from '../types/operation'
 import type { DrawerAction } from '../context/DrawerContext'
 
@@ -369,7 +370,7 @@ function TokenPicker({
               e.currentTarget.style.borderColor = 'transparent'
             }}
           >
-            <img src={token.imageUrl} alt={token.symbol} width={38} height={38} style={{ borderRadius: '50%', flexShrink: 0 }} />
+            <TokenAvatar symbol={token.symbol} imageUrl={token.imageUrl} variant={token.isShielded ? 'shielded' : 'default'} size="sm" />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 'var(--text-small)', fontWeight: 600, color: 'var(--color-text-primary)' }}>
                 {token.symbol}
@@ -401,8 +402,13 @@ function PhaseHeader({ op, amount, phase, token = 'ETH', description, note, star
 }) {
   const tokenData = getToken(token)
   const pairedSymbol = tokenData.pairedSymbol
-  const pairedTokenData = pairedSymbol ? getToken(pairedSymbol) : null
   const verb = { shield: 'Shielding', send: 'Sending', unshield: 'Unshielding' }[op]
+
+  const headerVariant = op === 'unshield'
+    ? 'unshielded'
+    : op === 'send'
+      ? (tokenData.isShielded ? 'shielded' : 'default')
+      : 'in-progress'
 
   const currentIndex = getPhaseIndex(phase, op)
   const t = startedAt ?? Date.now()
@@ -413,42 +419,16 @@ function PhaseHeader({ op, amount, phase, token = 'ETH', description, note, star
     ? rawTs.map((ms, i) => (i < currentIndex ? fmtTime(ms) : undefined))
     : undefined
 
-  // Source (token) always behind, destination (paired) always in front.
-  // Shield: badge on front token. Unshield: badge on back token at its corner -
-  // front token paints over it (rendered later), creating the sandwiched look.
-  const isUnshield = op === 'unshield'
-  const panelBadge = (
-    <div style={{ position: 'absolute', bottom: '-3px', right: '-3px', width: '16px', height: '16px', borderRadius: '5px', background: 'var(--color-shielded)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid var(--color-surface-raised)' }}>
-      <ShieldCheck size={9} color="#fff" strokeWidth={2.5} aria-hidden />
-    </div>
-  )
-
   return (
     <div style={{ marginBottom: '20px' }}>
       {/* Avatar */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
-        {op !== 'send' && pairedTokenData ? (
-          <div style={{ position: 'relative', width: '72px', height: '60px' }}>
-            <div style={{ position: 'absolute', top: '8px', left: 0 }}>
-              {isUnshield ? (
-                <div style={{ position: 'relative' }}>
-                  <img src={tokenData.imageUrl} alt={token} width={44} height={44} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
-                  {panelBadge}
-                </div>
-              ) : (
-                <img src={tokenData.imageUrl} alt={token} width={44} height={44} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
-              )}
-            </div>
-            <div style={{ position: 'absolute', bottom: 0, right: 0 }}>
-              <div style={{ position: 'relative' }}>
-                <img src={pairedTokenData.imageUrl} alt={pairedTokenData.symbol} width={38} height={38} style={{ borderRadius: '50%', objectFit: 'cover', border: '2.5px solid var(--color-surface-raised)', display: 'block' }} />
-                {!isUnshield && panelBadge}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <img src={tokenData.imageUrl} alt={token} width={48} height={48} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
-        )}
+        <TokenAvatar
+          symbol={token}
+          imageUrl={tokenData.imageUrl}
+          variant={headerVariant}
+          size="md"
+        />
       </div>
       {/* Hero text */}
       <div style={{ textAlign: 'center', marginBottom: '16px' }}>
@@ -1019,16 +999,7 @@ function SuccessView({ op, amount, recipient, txHashStep1, txHashStep2, startedA
   }
   const tokenData = getToken(token)
   const pairedSymbol = tokenData.pairedSymbol
-  const pairedTokenData = pairedSymbol ? getToken(pairedSymbol) : null
   const isShieldedSend = op === 'send' && tokenData.isShielded
-
-  // Shield: badge on front token. Unshield: badge on back token - front paints over it.
-  const isUnshieldOp = op === 'unshield'
-  const successBadge = (
-    <div style={{ position: 'absolute', bottom: '-3px', right: '-3px', width: '16px', height: '16px', borderRadius: '5px', background: 'var(--color-shielded)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1.5px solid var(--color-surface-raised)' }}>
-      <ShieldCheck size={9} color="#fff" strokeWidth={2.5} aria-hidden />
-    </div>
-  )
 
   const completedAt = startedAt
     ? new Date(startedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
@@ -1054,28 +1025,12 @@ function SuccessView({ op, amount, recipient, txHashStep1, txHashStep2, startedA
     <div>
       {/* Avatar */}
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-        {op !== 'send' && pairedTokenData ? (
-          <div style={{ position: 'relative', width: '72px', height: '60px' }}>
-            <div style={{ position: 'absolute', top: '8px', left: 0 }}>
-              {isUnshieldOp ? (
-                <div style={{ position: 'relative' }}>
-                  <img src={tokenData.imageUrl} alt={token} width={44} height={44} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
-                  {successBadge}
-                </div>
-              ) : (
-                <img src={tokenData.imageUrl} alt={token} width={44} height={44} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
-              )}
-            </div>
-            <div style={{ position: 'absolute', bottom: 0, right: 0 }}>
-              <div style={{ position: 'relative' }}>
-                <img src={pairedTokenData.imageUrl} alt={pairedTokenData.symbol} width={38} height={38} style={{ borderRadius: '50%', objectFit: 'cover', border: '2.5px solid var(--color-surface-raised)', display: 'block' }} />
-                {!isUnshieldOp && successBadge}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <img src={tokenData.imageUrl} alt={token} width={56} height={56} style={{ borderRadius: '50%', objectFit: 'cover', display: 'block' }} />
-        )}
+        <TokenAvatar
+          symbol={token}
+          imageUrl={tokenData.imageUrl}
+          variant={op === 'shield' ? 'shielded' : op === 'unshield' ? 'unshielded' : isShieldedSend ? 'shielded' : 'send-success'}
+          size="md"
+        />
       </div>
 
       {/* Hero text */}

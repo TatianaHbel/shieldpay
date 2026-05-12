@@ -1,5 +1,6 @@
-import { ShieldCheck, Zap } from 'lucide-react'
 import type { OperationPhase, OperationType } from '../types/operation'
+import { TokenAvatar } from './TokenAvatar'
+import type { TokenAvatarVariant } from './TokenAvatar'
 
 const ICON_BASE = 'https://cdn.jsdelivr.net/gh/atomiclabs/cryptocurrency-icons@master/128/color'
 const DEFAULT_TOKEN = { symbol: 'ETH', imageUrl: `${ICON_BASE}/eth.png` }
@@ -93,192 +94,17 @@ function getSubtitle(
 
 // ── Avatars ───────────────────────────────────────────────────────────────
 
-function SingleAvatar({
-  imageUrl,
-  symbol,
-  size = 48,
-  border,
-  opacity = 1,
-}: {
-  imageUrl: string
-  symbol: string
-  size?: number
-  border?: string
-  opacity?: number
-}) {
-  return (
-    <img
-      src={imageUrl}
-      alt={symbol}
-      width={size}
-      height={size}
-      style={{
-        borderRadius: '50%',
-        objectFit: 'cover',
-        border: border ?? 'none',
-        opacity,
-        display: 'block',
-      }}
-    />
-  )
-}
-
-function ActivityAvatar({
-  token,
-  pairedToken,
-  rowState,
-  type,
-}: {
-  token: { symbol: string; imageUrl: string }
-  pairedToken?: { symbol: string; imageUrl: string }
-  rowState: 'complete' | 'in-progress' | 'action-required' | 'failed'
-  type: OperationType
-}) {
-  const isSwap = (type === 'shield' || type === 'unshield') && !!pairedToken
-  const isComplete = rowState === 'complete'
-  const isInProgress = rowState === 'in-progress'
-  const isActionRequired = rowState === 'action-required'
-
-  if (isSwap && isComplete) {
-    // Source always behind, destination always in front.
-    // Shield: badge on front token (destination is shielded).
-    // Unshield: badge on back token at its bottom-right corner - front token
-    // paints over it naturally (rendered later), creating the sandwiched look.
-    const isUnshield = type === 'unshield'
-    const badge = (
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '-3px',
-          right: '-3px',
-          width: '16px',
-          height: '16px',
-          borderRadius: '5px',
-          background: 'var(--color-shielded)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1.5px solid var(--color-surface-raised)',
-        }}
-      >
-        <ShieldCheck size={9} color="#fff" strokeWidth={2.5} aria-hidden />
-      </div>
-    )
-    return (
-      <div style={{ position: 'relative', width: '56px', height: '48px', flexShrink: 0 }}>
-        <div style={{ position: 'absolute', top: '6px', left: 0 }}>
-          {isUnshield ? (
-            <div style={{ position: 'relative' }}>
-              <SingleAvatar imageUrl={token.imageUrl} symbol={token.symbol} size={34} />
-              {badge}
-            </div>
-          ) : (
-            <SingleAvatar imageUrl={token.imageUrl} symbol={token.symbol} size={34} />
-          )}
-        </div>
-        <div style={{ position: 'absolute', bottom: 0, right: 0 }}>
-          <div style={{ position: 'relative' }}>
-            <SingleAvatar
-              imageUrl={pairedToken.imageUrl}
-              symbol={pairedToken.symbol}
-              size={30}
-              border="2px solid var(--color-surface-raised)"
-            />
-            {!isUnshield && badge}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Single-token avatar (send, in-progress shield/unshield)
-  const showShieldBadge = isComplete && type === 'send'
-  const showZapBadge = isActionRequired
-
-  return (
-    <div style={{ position: 'relative', width: '48px', height: '48px', flexShrink: 0 }}>
-      <img
-        src={token.imageUrl}
-        alt={token.symbol}
-        width={48}
-        height={48}
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '100%',
-          height: '100%',
-          borderRadius: '50%',
-          objectFit: 'cover',
-        }}
-      />
-
-      {isInProgress && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            borderRadius: '50%',
-            border: '2.5px solid var(--color-border)',
-            borderTopColor: 'var(--color-processing)',
-            animation: 'spin 0.8s linear infinite',
-            pointerEvents: 'none',
-          }}
-        />
-      )}
-
-      {showShieldBadge && (
-        <>
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              borderRadius: '50%',
-              border: '2px solid var(--color-shielded)',
-              pointerEvents: 'none',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '-4px',
-              right: '-4px',
-              width: '20px',
-              height: '20px',
-              borderRadius: '6px',
-              background: 'var(--color-shielded)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '2px solid var(--color-surface-raised)',
-            }}
-          >
-            <ShieldCheck size={12} color="#fff" strokeWidth={2.5} aria-hidden />
-          </div>
-        </>
-      )}
-
-      {showZapBadge && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-4px',
-            right: '-4px',
-            width: '20px',
-            height: '20px',
-            borderRadius: '6px',
-            background: '#f59e0b',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '2px solid var(--color-surface-raised)',
-            animation: 'pulse-badge 1.5s ease-in-out infinite',
-          }}
-        >
-          <Zap size={11} color="#fff" strokeWidth={2.5} aria-hidden />
-        </div>
-      )}
-    </div>
-  )
+function avatarVariant(
+  rowState: 'complete' | 'in-progress' | 'action-required' | 'failed',
+  type: OperationType,
+  isShieldedToken: boolean,
+): TokenAvatarVariant {
+  if (rowState === 'failed') return 'failed'
+  if (rowState === 'in-progress') return type === 'unshield' ? 'unshielded' : 'in-progress'
+  if (rowState === 'action-required') return 'warning'
+  if (type === 'shield') return 'shielded'
+  if (type === 'unshield') return 'unshielded'
+  return isShieldedToken ? 'shielded' : 'send-success'
 }
 
 // ── Main component ────────────────────────────────────────────────────────
@@ -331,11 +157,11 @@ export function ActivityRow({
         transition: 'background var(--duration-fast)',
       }}
     >
-      <ActivityAvatar
-        token={token}
-        pairedToken={pairedToken}
-        rowState={rowState}
-        type={type}
+      <TokenAvatar
+        symbol={token.symbol}
+        imageUrl={token.imageUrl}
+        variant={avatarVariant(rowState, type, token.symbol.length > 1 && token.symbol.startsWith('c'))}
+        size="md"
       />
 
       {/* Info column */}
