@@ -28,7 +28,7 @@ interface OverviewProps {
   shieldedHidden: boolean
   onToggleShielded: () => void
   walletAddress: string
-  onDisconnect: () => void
+  onDisconnect?: () => void
 }
 
 type BottomTab = 'tokens' | 'activity' | 'in-progress'
@@ -139,12 +139,14 @@ export function Overview({ shieldedHidden, onToggleShielded, walletAddress, onDi
           <span style={{ fontFamily: 'monospace', fontSize: '12px', color: 'var(--color-text-secondary)' }}>
             {walletAddress.slice(0, 6)}…{walletAddress.slice(-4)}
           </span>
-          <button
-            onClick={onDisconnect}
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '12px', color: 'var(--color-blue)', fontFamily: 'Manrope, sans-serif' }}
-          >
-            Disconnect
-          </button>
+          {onDisconnect && (
+            <button
+              onClick={onDisconnect}
+              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: '12px', color: 'var(--color-blue)', fontFamily: 'Manrope, sans-serif' }}
+            >
+              Disconnect
+            </button>
+          )}
         </div>
         <ActionButtonRow onAction={openDrawer} />
       </div>
