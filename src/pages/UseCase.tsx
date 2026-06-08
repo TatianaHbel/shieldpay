@@ -941,12 +941,6 @@ export function UseCase() {
       {/* Hero */}
       <div style={{ padding: '88px 72px 80px', background: 'var(--color-surface-raised)', borderBottom: '1px solid var(--color-border)' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-            <span style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-text-secondary)' }}>Zama · UX Design Challenge</span>
-            <span style={{ fontSize: '12px', fontWeight: 500, letterSpacing: '0.04em', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-ui)' }}>
-              Designed + Coded with ♥ by Tatiana Hern&#225;ndez
-            </span>
-          </div>
           <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 800, color: 'var(--color-text-primary)', letterSpacing: '-0.0375em', lineHeight: '44px' }}>
             Design how a human trusts a system they cannot see.
           </h1>
