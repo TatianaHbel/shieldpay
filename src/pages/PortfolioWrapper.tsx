@@ -158,8 +158,6 @@ export function PortfolioWrapper() {
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 20,
         height: `${STICKY_H}px`,
-        background: '#fff',
-        borderBottom: '1px solid #E8E8E8',
         display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
         padding: '0 48px', gap: '8px',
         opacity: tocVisible ? 1 : 0,
@@ -173,7 +171,7 @@ export function PortfolioWrapper() {
           rel="noopener noreferrer"
           style={secondaryLinkStyle}
           onMouseEnter={e => { e.currentTarget.style.borderColor = '#999'; e.currentTarget.style.background = '#F5F5F5' }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = '#E8E8E8'; e.currentTarget.style.background = '#fff' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = '#E8E8E8'; e.currentTarget.style.background = 'transparent' }}
         >
           Design System
           <ArrowUpRight size={12} />
@@ -184,7 +182,7 @@ export function PortfolioWrapper() {
           rel="noopener noreferrer"
           style={secondaryLinkStyle}
           onMouseEnter={e => { e.currentTarget.style.borderColor = '#999'; e.currentTarget.style.background = '#F5F5F5' }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = '#E8E8E8'; e.currentTarget.style.background = '#fff' }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = '#E8E8E8'; e.currentTarget.style.background = 'transparent' }}
         >
           Explore live MVP
           <ArrowUpRight size={12} />
@@ -283,7 +281,7 @@ export function PortfolioWrapper() {
               transition: 'border-color 150ms ease, background 150ms ease',
             }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = '#999'; e.currentTarget.style.background = '#F5F5F5' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#E8E8E8'; e.currentTarget.style.background = '#fff' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#E8E8E8'; e.currentTarget.style.background = 'transparent' }}
           >
             Design System
           </a>
@@ -301,7 +299,7 @@ export function PortfolioWrapper() {
               transition: 'border-color 150ms ease, background 150ms ease',
             }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = '#999'; e.currentTarget.style.background = '#F5F5F5' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#E8E8E8'; e.currentTarget.style.background = '#fff' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#E8E8E8'; e.currentTarget.style.background = 'transparent' }}
           >
             Explore live MVP
             <ArrowUpRight size={14} />
