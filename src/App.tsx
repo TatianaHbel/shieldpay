@@ -7,7 +7,7 @@ import { UseCase } from './pages/UseCase'
 import { Calibrate } from './pages/Calibrate'
 import { PortfolioWrapper } from './pages/PortfolioWrapper'
 
-const MOCK_PUBLIC_BALANCE = '1.24'
+const MOCK_PUBLIC_BALANCE = '2.50'
 const MOCK_SHIELDED_BALANCE = '0.50'
 const MOCK_WALLET = '0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b'
 
